@@ -13,10 +13,20 @@ export default function Hero() {
             <Lottie animationData={Brain} />
 
             <div className="max-w-xl">
-              <div className="mt-6 flex flex-wrap gap-2 text-sm text-muted">
+              <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted">
                 <div className="flex items-center gap-2">
                   <span className="badge badge-success badge-outline">
                     Radiology{" "}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-warning badge-outline">
+                    Doctor
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-error badge-outline">
+                    Patient
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -27,20 +37,24 @@ export default function Hero() {
               </div>
 
               <h1 className="mt-6 text-3xl sm:text-4xl xl:text-6xl font-semibold leading-tight">
-                Generate <span className="text-brand-blue">editable</span>{" "}
-                reports with <br />
+                Generate <span className="text-brand-blue">Editable</span>{" "}
+                Reports With <br />
                 <span className="text-primary">DL models</span>
               </h1>
 
               <p className="py-5 text-muted text-base md:text-lg">
-                Clean UI, secure access, and fast workflows for clinics,
-                hospitals, and patient portals. Built with React, TailwindCSS
-                and daisyUI.
+                Upload studies, run models, and refine findings into
+                clinician-ready reports — fast, consistent, and reviewable.
               </p>
 
               <div className="flex flex-wrap gap-3">
-                <button className="btn btn-primary">Get Started</button>
-                <button className="btn btn-outline">View Features</button>
+                <button className="btn btn-soft btn-primary">
+                  Get Started
+                </button>
+                <button className="btn">
+                  <span className="loading loading-spinner"></span>
+                  loading
+                </button>
               </div>
 
               <div className="mt-6 flex flex-wrap gap-6 text-sm text-muted">
