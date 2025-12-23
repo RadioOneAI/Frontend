@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import logo from "../assets/images/logo.png";
 
 export default function Header() {
   const [theme, setTheme] = useState(
@@ -13,27 +14,30 @@ export default function Header() {
   const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));
 
   return (
-    <header className="navbar bg-base-100 border-b border-base-200 sticky top-0 z-50">
+    <header className="navbar bg-base-200 border-b border-base-200 sticky top-0 z-50">
       {/* Left: Logo */}
       <div className="navbar-start">
-        <a className="btn btn-ghost text-xl gap-2">
-          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-          <span className="font-bold">RadioOneAI</span>
-        </a>
+          <img src={logo} alt="Logo" className="w-14 h-16 object-contain" />
+          <span className="font-bold text-2xl">RadioOneAI</span>
+        
       </div>
 
       {/* Middle: Buttons */}
-      <div className="navbar-center hidden md:flex">
+      <div className="navbar-center hidden md:flex ">
         <div className="join">
-          <a className="btn btn-ghost join-item">Home</a>
-          <a className="btn btn-ghost join-item">Features</a>
-          <a className="btn btn-ghost join-item">Pricing</a>
-          <a className="btn btn-ghost join-item">Contact</a>
+          <a className="btn btn-ghost join-item btn-lg">Home</a>
+          <a className="btn btn-ghost join-item btn-lg">Features</a>
+          <a className="btn btn-ghost join-item btn-lg">Pricing</a>
+          <a className="btn btn-ghost join-item btn-lg">Contact</a>
         </div>
       </div>
+      
 
       {/* Right: Theme + Auth */}
       <div className="navbar-end gap-2">
+        {/* Auth buttons */}
+        <button className="btn btn-soft btn-lg btn-ghost rounded-full ">Login</button>
+        <button className="btn btn-lg btn-ghost rounded-full  btn-outline btn-success">Register</button>
         {/* Theme toggle */}
         <button
           className="btn btn-ghost btn-circle"
@@ -61,9 +65,7 @@ export default function Header() {
           )}
         </button>
 
-        {/* Auth buttons */}
-        <a className="btn btn-ghost">Login</a>
-        <a className="btn btn-primary">Sign Up</a>
+        
 
         {/* Mobile menu */}
         <div className="dropdown dropdown-end md:hidden">

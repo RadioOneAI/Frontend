@@ -1,64 +1,53 @@
 import React from "react";
+import logo from "../assets/images/logo.png";
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="bg-base-200 text-base-content">
-      {/* Top section */}
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-4">
+      <div className="max-w-7xl mx-auto px-4 py-4 space-y-6">
+        {/* Top section */}
+        <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
           {/* Brand */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="w-9 h-9 object-contain"
-              />
-              <span className="text-xl font-bold">Radio One AI</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Radio One AI logo" className="w-10 h-10 object-contain" />
+              <span className="text-2xl font-semibold">Radio One AI</span>
             </div>
             <p className="opacity-80 text-sm leading-relaxed">
               Build fast, clean UI with React + Tailwind + daisyUI.
             </p>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-1">
               <a className="btn btn-ghost btn-sm" href="#">Privacy</a>
               <a className="btn btn-ghost btn-sm" href="#">Terms</a>
             </div>
           </div>
 
           {/* Links */}
-          <div>
+          <div className="space-y-3">
             <h6 className="footer-title">Product</h6>
-            <a className="link link-hover block">Features</a>
-            <a className="link link-hover block">Pricing</a>
-            <a className="link link-hover block">Docs</a>
-            <a className="link link-hover block">Changelog</a>
-          </div>
-
-          <div>
-            <h6 className="footer-title">Company</h6>
-            <a className="link link-hover block">About</a>
-            <a className="link link-hover block">Careers</a>
-            <a className="link link-hover block">Contact</a>
-            <a className="link link-hover block">Support</a>
+            <nav className="grid gap-2 text-sm">
+              <a className="link link-hover" href="#">Features</a>
+              <a className="link link-hover" href="#">Pricing</a>
+              <a className="link link-hover" href="#">Docs</a>
+              <a className="link link-hover" href="#">Changelog</a>
+            </nav>
           </div>
 
           {/* Newsletter / Social */}
-          <div>
+          <div className="space-y-4">
             <h6 className="footer-title">Stay connected</h6>
-
-            <div className="join w-full">
+            <label className="join w-full" aria-label="Subscribe to newsletter">
               <input
                 type="email"
                 placeholder="Email address"
                 className="input input-bordered join-item w-full"
               />
               <button className="btn btn-primary join-item">Subscribe</button>
-            </div>
+            </label>
 
-            <div className="flex items-center gap-3 mt-4">
-              {/* Social icons (simple SVG) */}
+            <div className="flex items-center gap-3">
               <a className="btn btn-ghost btn-circle" aria-label="X" href="#">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2H21l-6.53 7.46L22.5 22h-6.68l-5.23-6.82L4.6 22H2l7.04-8.04L1.5 2h6.8l4.73 6.1L18.244 2zM16.7 20h1.6L7.2 4H5.5l11.2 16z" />
@@ -78,12 +67,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="divider my-8"></div>
+        <div className="divider my-0"></div>
 
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm opacity-80">
-          <p>© {year}RadioOneAI. All rights reserved.</p>
+          <p>© {year} RadioOneAI. All rights reserved.</p>
           <div className="flex gap-4">
             <a className="link link-hover" href="#">Status</a>
             <a className="link link-hover" href="#">Security</a>
