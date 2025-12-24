@@ -35,6 +35,33 @@ export default function Signup() {
               </div>
             </div>
 
+            {/* Age and Gender Row */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="form-control w-full sm:w-1/3">
+                <label className="label">
+                  <span className="label-text">Age</span>
+                </label>
+                <input 
+                  type="number" 
+                  placeholder="25" 
+                  className="input input-bordered w-full" 
+                  min="1"
+                  required 
+                />
+              </div>
+              <div className="form-control w-full sm:w-2/3">
+                <label className="label">
+                  <span className="label-text">Gender</span>
+                </label>
+                <select className="select select-bordered w-full" defaultValue="" required>
+                  <option value="" disabled>Select your gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
             {/* Email Field */}
             <div className="form-control">
               <label className="label">
