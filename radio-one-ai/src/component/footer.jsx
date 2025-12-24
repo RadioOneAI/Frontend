@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <img src={logo} alt="Radio One AI logo" className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-semibold">Radio One AI</span>
+              <span className="text-2xl font-semibold">RadioOneAI</span>
             </div>
             <p className="opacity-80 text-sm leading-relaxed">
               Build fast, clean UI with React + Tailwind + daisyUI.
