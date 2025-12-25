@@ -1,11 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Lottie from "lottie-react";
+import Brain from "../../assets/images/Brain.json";
 
 export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-[80vh] bg-base-100 px-4">
       <div className="card w-full max-w-md shadow-2xl bg-base-200">
         <div className="card-body">
+          
+          {/* Brain Animation - Centered and Sized */}
+          <div className="flex justify-center -mb-4">
+            <Lottie animationData={Brain} className="w-40 h-auto" />
+          </div>
+
           <h2 className="text-3xl font-bold text-center mb-4">Welcome Back</h2>
           
           <form className="space-y-4">
