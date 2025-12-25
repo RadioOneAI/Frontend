@@ -8,7 +8,13 @@ export default function UserProfile() {
     email: "shakya@example.com",
     role: "Radiologist",
     hospital: "City General Hospital",
+    phone: "+94 77 123 4567",
     avatar: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+  };
+
+  // Function to handle opening the modal safely
+  const openEditModal = () => {
+    document.getElementById("edit_profile_modal").showModal();
   };
 
   return (
@@ -32,7 +38,9 @@ export default function UserProfile() {
               </div>
             </div>
             <div className="sm:ml-auto">
-              <button className="btn btn-outline btn-sm">Edit Profile</button>
+              <button className="btn btn-outline btn-sm" onClick={openEditModal}>
+                Edit Profile
+              </button>
             </div>
           </div>
         </div>
@@ -51,7 +59,7 @@ export default function UserProfile() {
                 </div>
                 <div>
                   <label className="text-xs uppercase font-bold opacity-50">Phone</label>
-                  <p className="font-medium">+94 77 123 4567</p>
+                  <p className="font-medium">{user.phone}</p>
                 </div>
                 <div>
                   <label className="text-xs uppercase font-bold opacity-50">Address</label>
@@ -81,6 +89,79 @@ export default function UserProfile() {
         </div>
 
       </div>
+
+      {/* --- EDIT PROFILE MODAL --- */}
+      <dialog id="edit_profile_modal" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            {/* 'x' button to close the modal */}
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          
+          <h3 className="font-bold text-lg mb-6">Edit Profile Details</h3>
+          
+          <div className="space-y-4">
+            {/* Profile Picture Upload */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Profile Picture</span>
+              </label>
+              <input type="file" className="file-input file-input-bordered w-full" />
+            </div>
+
+            {/* Phone Number Change */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Phone Number</span>
+              </label>
+              <input 
+                type="tel" 
+                defaultValue={user.phone} 
+                className="input input-bordered w-full" 
+              />
+            </div>
+
+            <div className="divider text-xs uppercase opacity-50">Change Password</div>
+
+            {/* New Password */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">New Password</span>
+              </label>
+              <input 
+                type="password" 
+                placeholder="Type new password" 
+                className="input input-bordered w-full" 
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Confirm Password</span>
+              </label>
+              <input 
+                type="password" 
+                placeholder="Confirm new password" 
+                className="input input-bordered w-full" 
+              />
+            </div>
+
+            {/* Save Button */}
+            <div className="modal-action">
+              <form method="dialog">
+                {/* If there is a button in form, it will close the modal */}
+                <button className="btn btn-primary">Save Changes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {/* Backdrop to close modal when clicking outside */}
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
     </div>
   );
 }
