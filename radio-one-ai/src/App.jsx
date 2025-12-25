@@ -5,6 +5,7 @@ import Footer from "./component/footer";
 import Hero from "./pages/Hero/hero";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
+import UserProfile from "./pages/UserProfile";
 
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
@@ -37,6 +38,9 @@ export default function App() {
           {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* User Profile Page */}
+          <Route path="/profile" element={<UserProfile />} />
         </Routes>
       </Layout>
     </BrowserRouter>
