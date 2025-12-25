@@ -98,13 +98,23 @@ export default function UserProfile() {
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
           
-          <h3 className="font-bold text-lg mb-6">Edit Profile Details</h3>
+          <h3 className="font-bold text-lg mb-6 text-center">Edit Profile Details</h3>
           
           <div className="space-y-4">
+            
+            {/* Current Profile Picture Display */}
+            <div className="flex justify-center mb-4">
+              <div className="avatar">
+                <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img src={user.avatar} alt="Current Profile" />
+                </div>
+              </div>
+            </div>
+
             {/* Profile Picture Upload */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Profile Picture</span>
+                <span className="label-text">Change Profile Picture</span>
               </label>
               <input type="file" className="file-input file-input-bordered w-full" />
             </div>
@@ -151,7 +161,7 @@ export default function UserProfile() {
             <div className="modal-action">
               <form method="dialog">
                 {/* If there is a button in form, it will close the modal */}
-                <button className="btn btn-primary">Save Changes</button>
+                <button className="btn btn-primary w-full">Save Changes</button>
               </form>
             </div>
           </div>
