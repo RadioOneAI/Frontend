@@ -7,7 +7,7 @@ export default function UserProfile() {
     lastName: "Pinnawala",
     email: "shakya@example.com",
     role: "Radiologist",
-    hospital: "City General Hospital",
+    hospital: "Hemas Hospital Pvt",
     phone: "+94 77 123 4567",
     avatar: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
   };
@@ -33,7 +33,6 @@ export default function UserProfile() {
               <h1 className="text-3xl font-bold">{user.firstName} {user.lastName}</h1>
               <p className="text-base-content/70">{user.role} at {user.hospital}</p>
               <div className="mt-2 flex gap-2 justify-center sm:justify-start">
-                <span className="badge badge-primary">Pro Member</span>
                 <span className="badge badge-ghost">Verified</span>
               </div>
             </div>
@@ -132,6 +131,18 @@ export default function UserProfile() {
             </div>
 
             <div className="divider text-xs uppercase opacity-50">Change Password</div>
+
+            {/* Current Password */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Current Password</span>
+              </label>
+              <input 
+                type="password" 
+                placeholder="Type current password" 
+                className="input input-bordered w-full" 
+              />
+            </div>
 
             {/* New Password */}
             <div className="form-control">
