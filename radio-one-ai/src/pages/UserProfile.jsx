@@ -61,12 +61,12 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {/* Account Stats / Actions */}
+          {/* Account Stats */}
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title mb-4">Statistics</h2>
               
-              <div className="stats stats-vertical lg:stats-horizontal shadow bg-base-200">
+              <div className="stats stats-vertical lg:stats-horizontal shadow bg-base-200 w-full">
                 <div className="stat">
                   <div className="stat-title">Scans</div>
                   <div className="stat-value text-primary">256</div>
@@ -75,12 +75,6 @@ export default function UserProfile() {
                   <div className="stat-title">Reports</div>
                   <div className="stat-value text-secondary">180</div>
                 </div>
-              </div>
-
-              <div className="divider"></div>
-              
-              <div className="card-actions justify-end mt-auto">
-                <button className="btn btn-error btn-outline btn-sm">Log Out</button>
               </div>
             </div>
           </div>
