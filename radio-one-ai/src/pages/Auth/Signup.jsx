@@ -16,13 +16,13 @@ export default function Signup() {
               
               {/* Row: First Name & Last Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">First Name</span>
                   </label>
                   <input type="text" placeholder="John" className="input input-bordered w-full" required />
                 </div>
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Last Name</span>
                   </label>
@@ -32,13 +32,13 @@ export default function Signup() {
 
               {/* Row: Age & Gender */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Age</span>
                   </label>
                   <input type="number" placeholder="25" className="input input-bordered w-full" min="1" required />
                 </div>
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Gender</span>
                   </label>
@@ -53,13 +53,13 @@ export default function Signup() {
 
               {/* Row: NIC & Date of Birth */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">NIC</span>
                   </label>
                   <input type="text" placeholder="National ID" className="input input-bordered w-full" required />
                 </div>
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Date of Birth</span>
                   </label>
@@ -72,13 +72,13 @@ export default function Signup() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold border-b border-base-300 pb-2">Contact Information</h3>
               
-              {/* Address Field */}
-              <div className="form-control">
+              {/* Address Field - FIXED with w-full to force stacking */}
+              <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text">Address</span>
                 </label>
                 <textarea 
-                  className="textarea textarea-bordered h-24" 
+                  className="textarea textarea-bordered h-24 w-full" 
                   placeholder="123 Main St, City, Country" 
                   required
                 ></textarea>
@@ -86,13 +86,13 @@ export default function Signup() {
 
               {/* Row: Mobile Number & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Mobile Number</span>
                   </label>
                   <input type="tel" placeholder="+94 77 123 4567" className="input input-bordered w-full" required />
                 </div>
-                <div className="form-control">
+                <div className="form-control w-full">
                   <label className="label">
                     <span className="label-text">Email</span>
                   </label>
@@ -105,14 +105,14 @@ export default function Signup() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold border-b border-base-300 pb-2">Security</h3>
               
-              <div className="form-control">
+              <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text">Password</span>
                 </label>
                 <input type="password" placeholder="Create a password" className="input input-bordered w-full" required />
               </div>
 
-              <div className="form-control">
+              <div className="form-control w-full">
                 <label className="label">
                   <span className="label-text">Confirm Password</span>
                 </label>
