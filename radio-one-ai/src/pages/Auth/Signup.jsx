@@ -58,8 +58,46 @@ export default function Signup() {
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
                 </select>
               </div>
+            </div>
+
+            {/* NIC and DOB Row */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">NIC</span>
+                </label>
+                <input 
+                  type="text" 
+                  placeholder="National ID" 
+                  className="input input-bordered w-full" 
+                  required 
+                />
+              </div>
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Date of Birth</span>
+                </label>
+                <input 
+                  type="date" 
+                  className="input input-bordered w-full" 
+                  required 
+                />
+              </div>
+            </div>
+
+            {/* Address Field */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Address</span>
+              </label>
+              <textarea 
+                className="textarea textarea-bordered h-24" 
+                placeholder="123 Main St, City, Country" 
+                required
+              ></textarea>
             </div>
 
             {/* Email Field */}
