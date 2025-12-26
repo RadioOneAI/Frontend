@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import DoctorDetailsModal from "../../component/DoctorDetailsModal";
 import TablePagination from "../../component/TablePagination";
 import ConfirmationModal from "../../component/ConfirmationModal";
-import ExportButton from "../../component/ExportButton"; // <--- Import Export Button
+import ExportButton from "../../component/ExportButton";
+import Toast from "../../component/Toast"; // <--- 1. Import Toast
 
 export default function ManageDoctors() {
   // 1. Dummy Data
@@ -18,6 +19,9 @@ export default function ManageDoctors() {
   
   // Track which doctor is being deleted
   const [doctorToDelete, setDoctorToDelete] = useState(null);
+
+  // 2. New State for Toast Notification
+  const [toast, setToast] = useState(null);
 
   // Filter Logic
   const filteredDoctors = doctors.filter((doc) => {
@@ -43,6 +47,9 @@ export default function ManageDoctors() {
     setDoctors([...doctors, newDoc]);
     document.getElementById("add_doctor_modal").close();
     form.reset();
+
+    // 3. Trigger Success Toast
+    setToast({ message: "New Doctor registered successfully!", type: "success" });
   };
 
   // Handle View Details
@@ -62,17 +69,29 @@ export default function ManageDoctors() {
     if (doctorToDelete) {
       setDoctors(doctors.filter(d => d.id !== doctorToDelete.id));
       setDoctorToDelete(null);
+      // 4. Trigger Delete Toast (using 'error' type for visual distinction)
+      setToast({ message: "Doctor account deleted.", type: "error" });
     }
   };
 
-  // --- NEW: Handle Export ---
+  // Handle Export
   const handleExport = () => {
-    alert("Exporting doctor list to CSV...");
-    // Here you would implement the actual CSV download logic
+    // 5. Trigger Export Toast
+    setToast({ message: "Exporting doctor list to CSV...", type: "success" });
   };
 
   return (
     <div className="space-y-6">
+      
+      {/* 6. Render Toast Component if active */}
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
