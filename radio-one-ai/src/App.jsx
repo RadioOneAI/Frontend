@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+
+// Public Components
 import Header from "./component/header";
 import Footer from "./component/footer";
 import Hero from "./pages/Hero/hero";
@@ -7,11 +9,25 @@ import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
 
+// Admin Components
+import AdminLayout from "./pages/Admin/AdminLayout";
+import DashboardHome from "./pages/Admin/DashboardHome";
+
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
   const location = useLocation();
-  
-  // Define which paths should hide the Header/Footer
+
+  // --- ADMIN LAYOUT LOGIC ---
+  // Check if the user is visiting an Admin page (any URL starting with /admin)
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  // If it is an Admin route, render the AdminLayout (Sidebar + Content) instead of the public one
+  if (isAdminRoute) {
+    return <AdminLayout>{children}</AdminLayout>;
+  }
+
+  // --- PUBLIC LAYOUT LOGIC ---
+  // Define which public paths should hide the Header/Footer (Auth pages)
   const hideOnPaths = ["/login", "/signup"];
   
   // Check if current path is in the list
@@ -19,8 +35,13 @@ function Layout({ children }) {
 
   return (
     <>
+      {/* Show Header only if not on Login/Signup pages */}
       {showHeaderFooter && <Header />}
+      
+      {/* Render the Page Content */}
       {children}
+      
+      {/* Show Footer only if not on Login/Signup pages */}
       {showHeaderFooter && <Footer />}
     </>
   );
@@ -29,18 +50,27 @@ function Layout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* 2. Wrap routes inside the Layout */}
+      {/* 2. Wrap routes inside the Layout to handle the switching logic */}
       <Layout>
         <Routes>
-          {/* Main Home Page */}
+          {/* --- Public Routes --- */}
           <Route path="/" element={<Hero />} />
-          
-          {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-
-          {/* User Profile Page */}
           <Route path="/profile" element={<UserProfile />} />
+
+          {/* --- Admin Routes --- */}
+          <Route path="/admin/dashboard" element={<DashboardHome />} />
+          
+          {/* Placeholder Routes for Admin sections we will build next */}
+          <Route 
+            path="/admin/doctors" 
+            element={<div className="p-10 text-2xl font-bold">Manage Doctors Page</div>} 
+          />
+          <Route 
+            path="/admin/radiologists" 
+            element={<div className="p-10 text-2xl font-bold">Manage Radiologists Page</div>} 
+          />
         </Routes>
       </Layout>
     </BrowserRouter>
