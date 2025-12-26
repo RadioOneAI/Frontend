@@ -1,11 +1,38 @@
 import React, { useState } from "react";
 
 export default function ManageDoctors() {
-  // 1. Dummy Data (Simulating Database)
+  // 1. Dummy Data (Updated with real image URLs)
   const [doctors, setDoctors] = useState([
-    { id: 1, name: "Dr. Sarah Jenkins", email: "sarah.j@cityhospital.com", spec: "Neurologist", regNo: "SLMC-8901", phone: "077-123-4567", status: "Active" },
-    { id: 2, name: "Dr. Amal Perera", email: "amal.p@general.lk", spec: "Oncologist", regNo: "SLMC-3321", phone: "071-987-6543", status: "Active" },
-    { id: 3, name: "Dr. Kasun Silva", email: "kasun.s@medcare.lk", spec: "General Physician", regNo: "SLMC-1122", phone: "076-555-0101", status: "Inactive" },
+    { 
+      id: 1, 
+      name: "Dr. Sarah Jenkins", 
+      email: "sarah.j@cityhospital.com", 
+      spec: "Neurologist", 
+      regNo: "SLMC-8901", 
+      phone: "077-123-4567", 
+      status: "Active",
+      img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+    },
+    { 
+      id: 2, 
+      name: "Dr. Amal Perera", 
+      email: "amal.p@general.lk", 
+      spec: "Oncologist", 
+      regNo: "SLMC-3321", 
+      phone: "071-987-6543", 
+      status: "Active",
+      img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+    },
+    { 
+      id: 3, 
+      name: "Dr. Kasun Silva", 
+      email: "kasun.s@medcare.lk", 
+      spec: "General Physician", 
+      regNo: "SLMC-1122", 
+      phone: "076-555-0101", 
+      status: "Inactive",
+      img: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+    },
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +47,7 @@ export default function ManageDoctors() {
   const handleAddDoctor = (e) => {
     e.preventDefault();
     const form = e.target;
+    // Use a placeholder image for new doctors for now
     const newDoc = {
       id: doctors.length + 1,
       name: form.name.value,
@@ -28,6 +56,7 @@ export default function ManageDoctors() {
       regNo: form.regNo.value,
       phone: form.phone.value,
       status: "Active",
+      img: `https://ui-avatars.com/api/?name=${form.name.value}&background=random`
     };
     setDoctors([...doctors, newDoc]);
     document.getElementById("add_doctor_modal").close();
@@ -66,7 +95,7 @@ export default function ManageDoctors() {
 
       {/* --- TABLE SECTION --- */}
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full">
+        <table className="table w-full align-middle">
           {/* Table Head */}
           <thead>
             <tr>
@@ -87,7 +116,8 @@ export default function ManageDoctors() {
                     <div className="flex items-center gap-3">
                       <div className="avatar">
                         <div className="mask mask-squircle w-12 h-12">
-                          <img src={`https://ui-avatars.com/api/?name=${doc.name}&background=random`} alt="Avatar" />
+                          {/* Updated to use real image URLs */}
+                          <img src={doc.img} alt={doc.name} />
                         </div>
                       </div>
                       <div>
@@ -98,19 +128,33 @@ export default function ManageDoctors() {
                     </div>
                   </td>
                   <td>
-                    <span className="badge badge-ghost badge-sm">{doc.spec}</span>
+                    <span className="badge badge-ghost badge-sm font-medium">{doc.spec}</span>
                   </td>
                   <td className="font-mono text-sm">{doc.regNo}</td>
                   <td>
                     {doc.status === "Active" ? (
-                      <div className="badge badge-success gap-2 text-white">Active</div>
+                      <div className="badge badge-success gap-2 text-white badge-sm">Active</div>
                     ) : (
-                      <div className="badge badge-error gap-2 text-white">Inactive</div>
+                      <div className="badge badge-error gap-2 text-white badge-sm">Inactive</div>
                     )}
                   </td>
+                  {/* --- UPDATED ACTIONS COLUMN --- */}
                   <th>
-                    <button className="btn btn-ghost btn-xs">Details</button>
-                    <button className="btn btn-ghost btn-xs text-error">Delete</button>
+                    <div className="flex gap-2">
+                      {/* View Details Button */}
+                      <div className="tooltip" data-tip="View Details">
+                        <button className="btn btn-square btn-ghost btn-sm bg-base-200">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
+                      </div>
+                      
+                      {/* Delete Button */}
+                      <div className="tooltip" data-tip="Delete Doctor">
+                        <button className="btn btn-square btn-ghost btn-sm text-error bg-base-200 hover:bg-error hover:text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    </div>
                   </th>
                 </tr>
               ))
@@ -125,7 +169,7 @@ export default function ManageDoctors() {
         </table>
       </div>
 
-      {/* --- ADD DOCTOR MODAL --- */}
+      {/* --- ADD DOCTOR MODAL (Unchanged) --- */}
       <dialog id="add_doctor_modal" className="modal">
         <div className="modal-box w-11/12 max-w-2xl">
           <form method="dialog">
