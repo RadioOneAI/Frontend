@@ -83,6 +83,14 @@ export default function AdminSidebar() {
                 Settings
               </Link>
             </li>
+
+            {/* In the bottom "System" section of your sidebar */}
+            <li>
+            <Link to="/admin/logs" className={`rounded-lg ${getLinkClass("/admin/logs")}`}>
+                {/* ...icon... */}
+                System Logs
+            </Link>
+            </li>
             
             <li>
               <Link to="/login" className="text-error hover:bg-error/10 rounded-lg">
