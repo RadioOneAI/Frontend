@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+// Import the new component
+import RadiologistDetailsModal from "../../component/RadiologistDetailsModal";
 
 export default function ManageRadiologists() {
-  // 1. Dummy Data (Specific to Radiologists)
+  // 1. Dummy Data
   const [radiologists, setRadiologists] = useState([
     { 
       id: 1, 
@@ -37,6 +39,9 @@ export default function ManageRadiologists() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSpec, setFilterSpec] = useState("All");
+  
+  // New State for Selection
+  const [selectedRadiologist, setSelectedRadiologist] = useState(null);
 
   // 2. Filter Logic
   const filteredRadiologists = radiologists.filter((doc) => {
@@ -68,6 +73,14 @@ export default function ManageRadiologists() {
     form.reset();
   };
 
+  // 4. Handle View Details
+  const handleViewDetails = (rad) => {
+    setSelectedRadiologist(rad);
+    setTimeout(() => {
+      document.getElementById("view_radiologist_modal").showModal();
+    }, 0);
+  };
+
   return (
     <div className="space-y-6">
       {/* --- HEADER SECTION --- */}
@@ -87,8 +100,6 @@ export default function ManageRadiologists() {
 
       {/* --- SEARCH & FILTER SECTION --- */}
       <div className="flex flex-col sm:flex-row gap-4 bg-base-100 p-4 rounded-xl shadow-sm">
-        
-        {/* Search Bar */}
         <div className="form-control flex-1">
           <div className="input-group">
             <input 
@@ -100,8 +111,6 @@ export default function ManageRadiologists() {
             />
           </div>
         </div>
-
-        {/* Filter Dropdown */}
         <div className="form-control w-full sm:w-auto">
           <select 
             className="select select-bordered w-full" 
@@ -162,14 +171,16 @@ export default function ManageRadiologists() {
                   </td>
                   <th>
                     <div className="flex gap-2">
-                      {/* View Details Button */}
+                      {/* View Details Button (CONNECTED) */}
                       <div className="tooltip" data-tip="View Details">
-                        <button className="btn btn-square btn-ghost btn-sm bg-base-200">
+                        <button 
+                          className="btn btn-square btn-ghost btn-sm bg-base-200"
+                          onClick={() => handleViewDetails(rad)}
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </button>
                       </div>
                       
-                      {/* Delete Button */}
                       <div className="tooltip" data-tip="Delete Account">
                         <button className="btn btn-square btn-ghost btn-sm text-error bg-base-200 hover:bg-error hover:text-white">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -190,7 +201,7 @@ export default function ManageRadiologists() {
         </table>
       </div>
 
-      {/* --- ADD RADIOLOGIST MODAL --- */}
+      {/* --- ADD RADIOLOGIST MODAL (Unchanged) --- */}
       <dialog id="add_radiologist_modal" className="modal">
         <div className="modal-box w-11/12 max-w-2xl">
           <form method="dialog">
@@ -201,8 +212,6 @@ export default function ManageRadiologists() {
           <div className="divider my-0"></div>
 
           <form onSubmit={handleAddRadiologist} className="space-y-4 mt-4">
-            
-            {/* Row 1: Name & Reg No */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Full Name</span></label>
@@ -214,7 +223,6 @@ export default function ManageRadiologists() {
               </div>
             </div>
 
-            {/* Row 2: Specialization & Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Specialization</span></label>
@@ -235,7 +243,6 @@ export default function ManageRadiologists() {
 
             <div className="divider text-xs uppercase opacity-50">Login Credentials</div>
 
-            {/* Row 3: Email & Password */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Email (Username)</span></label>
@@ -256,6 +263,9 @@ export default function ManageRadiologists() {
           <button>close</button>
         </form>
       </dialog>
+
+      {/* --- RENDER THE NEW DETAILS MODAL --- */}
+      <RadiologistDetailsModal radiologist={selectedRadiologist} />
 
     </div>
   );
