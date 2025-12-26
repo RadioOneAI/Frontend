@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 export default function ManageDoctors() {
-  // 1. Dummy Data (Updated with real image URLs)
+  // 1. Dummy Data
   const [doctors, setDoctors] = useState([
     { 
       id: 1, 
@@ -36,18 +36,23 @@ export default function ManageDoctors() {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterSpec, setFilterSpec] = useState("All"); // <--- New Filter State
 
-  // 2. Filter Logic
-  const filteredDoctors = doctors.filter((doc) =>
-    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.regNo.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 2. Updated Filter Logic
+  const filteredDoctors = doctors.filter((doc) => {
+    const matchesSearch = 
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.regNo.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesSpec = filterSpec === "All" || doc.spec === filterSpec;
 
-  // 3. Handle Add Doctor (Frontend simulation)
+    return matchesSearch && matchesSpec;
+  });
+
+  // 3. Handle Add Doctor
   const handleAddDoctor = (e) => {
     e.preventDefault();
     const form = e.target;
-    // Use a placeholder image for new doctors for now
     const newDoc = {
       id: doctors.length + 1,
       name: form.name.value,
@@ -80,23 +85,42 @@ export default function ManageDoctors() {
         </button>
       </div>
 
-      {/* --- SEARCH & FILTER --- */}
-      <div className="form-control">
-        <div className="input-group">
-          <input 
-            type="text" 
-            placeholder="Search by Name or SLMC Reg No..." 
-            className="input input-bordered w-full max-w-md"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* --- SEARCH & FILTER SECTION (Updated) --- */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-base-100 p-4 rounded-xl shadow-sm">
+        
+        {/* Search Bar */}
+        <div className="form-control flex-1">
+          <div className="input-group">
+            <input 
+              type="text" 
+              placeholder="Search by Name or SLMC Reg No..." 
+              className="input input-bordered w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Filter Dropdown */}
+        <div className="form-control w-full sm:w-auto">
+          <select 
+            className="select select-bordered w-full" 
+            value={filterSpec} 
+            onChange={(e) => setFilterSpec(e.target.value)}
+          >
+            <option value="All">All Specializations</option>
+            <option value="Neurologist">Neurologist</option>
+            <option value="Oncologist">Oncologist</option>
+            <option value="Cardiologist">Cardiologist</option>
+            <option value="General Physician">General Physician</option>
+            <option value="Surgeon">Surgeon</option>
+          </select>
         </div>
       </div>
 
       {/* --- TABLE SECTION --- */}
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
         <table className="table w-full align-middle">
-          {/* Table Head */}
           <thead>
             <tr>
               <th>Name & Contact</th>
@@ -107,7 +131,6 @@ export default function ManageDoctors() {
             </tr>
           </thead>
           
-          {/* Table Body */}
           <tbody>
             {filteredDoctors.length > 0 ? (
               filteredDoctors.map((doc) => (
@@ -116,7 +139,6 @@ export default function ManageDoctors() {
                     <div className="flex items-center gap-3">
                       <div className="avatar">
                         <div className="mask mask-squircle w-12 h-12">
-                          {/* Updated to use real image URLs */}
                           <img src={doc.img} alt={doc.name} />
                         </div>
                       </div>
@@ -138,17 +160,13 @@ export default function ManageDoctors() {
                       <div className="badge badge-error gap-2 text-white badge-sm">Inactive</div>
                     )}
                   </td>
-                  {/* --- UPDATED ACTIONS COLUMN --- */}
                   <th>
                     <div className="flex gap-2">
-                      {/* View Details Button */}
                       <div className="tooltip" data-tip="View Details">
                         <button className="btn btn-square btn-ghost btn-sm bg-base-200">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </button>
                       </div>
-                      
-                      {/* Delete Button */}
                       <div className="tooltip" data-tip="Delete Doctor">
                         <button className="btn btn-square btn-ghost btn-sm text-error bg-base-200 hover:bg-error hover:text-white">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -180,8 +198,6 @@ export default function ManageDoctors() {
           <div className="divider my-0"></div>
 
           <form onSubmit={handleAddDoctor} className="space-y-4 mt-4">
-            
-            {/* Row 1: Name & Reg No */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Full Name</span></label>
@@ -193,7 +209,6 @@ export default function ManageDoctors() {
               </div>
             </div>
 
-            {/* Row 2: Specialization & Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Specialization</span></label>
@@ -214,7 +229,6 @@ export default function ManageDoctors() {
 
             <div className="divider text-xs uppercase opacity-50">Login Credentials</div>
 
-            {/* Row 3: Email & Password */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Email (Username)</span></label>
