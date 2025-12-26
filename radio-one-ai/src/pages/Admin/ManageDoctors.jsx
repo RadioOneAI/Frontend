@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// Import the new modal component
+import DoctorDetailsModal from "../../component/DoctorDetailsModal"; 
 
 export default function ManageDoctors() {
   // 1. Dummy Data
@@ -36,7 +38,10 @@ export default function ManageDoctors() {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSpec, setFilterSpec] = useState("All"); // <--- New Filter State
+  const [filterSpec, setFilterSpec] = useState("All"); 
+  
+  // State to track the selected doctor for the details modal
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   // 2. Updated Filter Logic
   const filteredDoctors = doctors.filter((doc) => {
@@ -66,6 +71,15 @@ export default function ManageDoctors() {
     setDoctors([...doctors, newDoc]);
     document.getElementById("add_doctor_modal").close();
     form.reset();
+  };
+
+  // 4. Handle View Details
+  const handleViewDetails = (doc) => {
+    setSelectedDoctor(doc);
+    // Use setTimeout to ensure state update before showing modal
+    setTimeout(() => {
+      document.getElementById("view_doctor_modal").showModal();
+    }, 0);
   };
 
   return (
@@ -162,8 +176,12 @@ export default function ManageDoctors() {
                   </td>
                   <th>
                     <div className="flex gap-2">
+                      {/* View Details Button (CONNECTED) */}
                       <div className="tooltip" data-tip="View Details">
-                        <button className="btn btn-square btn-ghost btn-sm bg-base-200">
+                        <button 
+                          className="btn btn-square btn-ghost btn-sm bg-base-200"
+                          onClick={() => handleViewDetails(doc)} // Trigger modal on click
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </button>
                       </div>
@@ -249,6 +267,9 @@ export default function ManageDoctors() {
           <button>close</button>
         </form>
       </dialog>
+
+      {/* --- RENDER THE DOCTOR DETAILS MODAL --- */}
+      <DoctorDetailsModal doctor={selectedDoctor} />
 
     </div>
   );
