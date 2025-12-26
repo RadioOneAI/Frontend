@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import DoctorDetailsModal from "../../component/DoctorDetailsModal";
-import TablePagination from "../../component/TablePagination"; // <--- Import Step 2
-import ConfirmationModal from "../../component/ConfirmationModal"; // <--- Import Step 3
+import TablePagination from "../../component/TablePagination";
+import ConfirmationModal from "../../component/ConfirmationModal";
+import ExportButton from "../../component/ExportButton"; // <--- Import Export Button
 
 export default function ManageDoctors() {
   // 1. Dummy Data
@@ -15,7 +16,7 @@ export default function ManageDoctors() {
   const [filterSpec, setFilterSpec] = useState("All"); 
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   
-  // NEW STATE: Track which doctor is being deleted
+  // Track which doctor is being deleted
   const [doctorToDelete, setDoctorToDelete] = useState(null);
 
   // Filter Logic
@@ -50,18 +51,24 @@ export default function ManageDoctors() {
     setTimeout(() => document.getElementById("view_doctor_modal").showModal(), 0);
   };
 
-  // --- NEW: Handle Delete Click ---
+  // Handle Delete Click
   const handleDeleteClick = (doc) => {
     setDoctorToDelete(doc);
     setTimeout(() => document.getElementById("delete_confirm_modal").showModal(), 0);
   };
 
-  // --- NEW: Confirm Delete Action ---
+  // Confirm Delete Action
   const confirmDelete = () => {
     if (doctorToDelete) {
       setDoctors(doctors.filter(d => d.id !== doctorToDelete.id));
       setDoctorToDelete(null);
     }
+  };
+
+  // --- NEW: Handle Export ---
+  const handleExport = () => {
+    alert("Exporting doctor list to CSV...");
+    // Here you would implement the actual CSV download logic
   };
 
   return (
@@ -72,10 +79,17 @@ export default function ManageDoctors() {
           <h1 className="text-3xl font-bold">Manage Doctors</h1>
           <p className="text-base-content/70">View and onboard medical professionals.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => document.getElementById("add_doctor_modal").showModal()}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-          Add New Doctor
-        </button>
+        
+        {/* --- ACTION BUTTONS --- */}
+        <div className="flex gap-3">
+          {/* Export Button Component */}
+          <ExportButton onExport={handleExport} />
+          
+          <button className="btn btn-primary" onClick={() => document.getElementById("add_doctor_modal").showModal()}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+            Add New Doctor
+          </button>
+        </div>
       </div>
 
       {/* Filter */}
@@ -128,7 +142,6 @@ export default function ManageDoctors() {
                         </button>
                       </div>
                       <div className="tooltip" data-tip="Delete Doctor">
-                        {/* UPDATE: Button now calls handleDeleteClick */}
                         <button className="btn btn-square btn-ghost btn-sm text-error bg-base-200 hover:bg-error hover:text-white" onClick={() => handleDeleteClick(doc)}>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
@@ -143,19 +156,17 @@ export default function ManageDoctors() {
           </tbody>
         </table>
         
-        {/* --- ADD PAGINATION HERE --- */}
+        {/* Pagination */}
         <TablePagination />
       </div>
 
       {/* --- MODALS --- */}
       <dialog id="add_doctor_modal" className="modal">
-        {/* ... (Keep existing Add Doctor Modal code exactly as it is) ... */}
         <div className="modal-box w-11/12 max-w-2xl">
           <form method="dialog"><button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button></form>
           <h3 className="font-bold text-lg mb-4">Onboard New Doctor</h3>
           <div className="divider my-0"></div>
           <form onSubmit={handleAddDoctor} className="space-y-4 mt-4">
-             {/* ... (Fields) ... */}
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div className="form-control"><label className="label"><span className="label-text">Full Name</span></label><input name="name" type="text" placeholder="Dr. First Last" className="input input-bordered w-full" required /></div>
                <div className="form-control"><label className="label"><span className="label-text">SLMC Registration No</span></label><input name="regNo" type="text" placeholder="Ex: SLMC-1234" className="input input-bordered w-full" required /></div>
@@ -177,7 +188,6 @@ export default function ManageDoctors() {
 
       <DoctorDetailsModal doctor={selectedDoctor} />
       
-      {/* --- CONFIRMATION MODAL --- */}
       <ConfirmationModal 
         id="delete_confirm_modal" 
         title="Delete Doctor" 
