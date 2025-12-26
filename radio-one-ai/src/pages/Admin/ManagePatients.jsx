@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// Import the new component
+import PatientDetailsModal from "../../component/PatientDetailsModal";
 
 export default function ManagePatients() {
   // 1. Dummy Data
@@ -45,7 +47,7 @@ export default function ManagePatients() {
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState(null); // State for the selected patient
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   // 2. Filter Logic
   const filteredPatients = patients.filter((pt) =>
@@ -78,7 +80,10 @@ export default function ManagePatients() {
   // 4. Handle View Details Click
   const handleViewDetails = (patient) => {
     setSelectedPatient(patient);
-    document.getElementById("view_patient_modal").showModal();
+    // Slight delay to ensure state updates before showing modal
+    setTimeout(() => {
+      document.getElementById("view_patient_modal").showModal();
+    }, 0);
   };
 
   return (
@@ -153,7 +158,6 @@ export default function ManagePatients() {
                   </td>
                   <th>
                     <div className="flex gap-2">
-                      {/* VIEW BUTTON - NOW CONNECTED */}
                       <div className="tooltip" data-tip="View Details">
                         <button 
                           className="btn btn-square btn-ghost btn-sm bg-base-200"
@@ -182,7 +186,7 @@ export default function ManagePatients() {
         </table>
       </div>
 
-      {/* --- MODAL 1: ADD PATIENT --- */}
+      {/* --- ADD PATIENT MODAL (Kept inline as it's a form) --- */}
       <dialog id="add_patient_modal" className="modal">
         <div className="modal-box w-11/12 max-w-2xl">
           <form method="dialog">
@@ -240,79 +244,8 @@ export default function ManagePatients() {
         </form>
       </dialog>
 
-      {/* --- MODAL 2: VIEW PATIENT DETAILS --- */}
-      <dialog id="view_patient_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-3xl">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
-          
-          {selectedPatient && (
-            <div className="flex flex-col md:flex-row gap-6">
-              
-              {/* Left Side: Profile Image */}
-              <div className="flex flex-col items-center justify-center md:w-1/3 border-r border-base-200 pr-6">
-                <div className="avatar mb-4">
-                  <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    <img src={selectedPatient.img} alt={selectedPatient.name} />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-center">{selectedPatient.name}</h3>
-                <span className={`badge mt-2 ${selectedPatient.status === "Active" ? "badge-success text-white" : "badge-error text-white"}`}>
-                  {selectedPatient.status} Account
-                </span>
-                <p className="text-xs text-base-content/50 mt-4">Registered: {selectedPatient.registeredDate}</p>
-              </div>
-
-              {/* Right Side: Details Grid */}
-              <div className="flex-1 space-y-4">
-                <h4 className="font-bold text-lg border-b pb-2">Personal Information</h4>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">NIC Number</span>
-                    <span className="font-mono text-base">{selectedPatient.nic}</span>
-                  </div>
-                  <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">Date of Birth / Age</span>
-                    <span>{selectedPatient.age} Years</span>
-                  </div>
-                  <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">Gender</span>
-                    <span>{selectedPatient.gender}</span>
-                  </div>
-                  <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">Address</span>
-                    <span>{selectedPatient.address}</span>
-                  </div>
-                </div>
-
-                <h4 className="font-bold text-lg border-b pb-2 mt-6">Contact Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                   <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">Mobile Phone</span>
-                    <span>{selectedPatient.phone}</span>
-                  </div>
-                  <div>
-                    <span className="block opacity-50 text-xs uppercase font-bold">Email Address</span>
-                    <span>{selectedPatient.email}</span>
-                  </div>
-                </div>
-
-                {/* Action Footer */}
-                <div className="flex gap-2 justify-end mt-8">
-                  <button className="btn btn-sm btn-outline btn-primary">Edit Details</button>
-                  <button className="btn btn-sm btn-outline btn-error">Reset Password</button>
-                </div>
-              </div>
-
-            </div>
-          )}
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+      {/* --- RENDER THE NEW MODAL COMPONENT --- */}
+      <PatientDetailsModal patient={selectedPatient} />
 
     </div>
   );
