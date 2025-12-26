@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminSidebar from "../../component/AdminSidebar"; // Import the new component
+import AdminSidebar from "../../component/AdminSidebar";
 
 export default function AdminLayout({ children }) {
   // 1. Theme State (Defaults to light)
@@ -51,7 +51,8 @@ export default function AdminLayout({ children }) {
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full border border-base-300">
-                  <img alt="Admin" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                  {/* NEW IMAGE URL: Professional Male Avatar */}
+                  <img alt="Admin" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" /> 
                 </div>
               </div>
             </div>
@@ -68,7 +69,6 @@ export default function AdminLayout({ children }) {
       <div className="drawer-side z-40">
         <label htmlFor="admin-drawer" className="drawer-overlay"></label>
         
-        {/* Render the separate component here */}
         <AdminSidebar />
         
       </div>
