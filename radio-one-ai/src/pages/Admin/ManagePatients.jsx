@@ -12,7 +12,9 @@ export default function ManagePatients() {
       phone: "077-111-2222",
       email: "kamal.g@gmail.com",
       status: "Active",
-      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      address: "123, Galle Road, Colombo 03",
+      registeredDate: "2023-10-15"
     },
     { 
       id: 2, 
@@ -23,7 +25,9 @@ export default function ManagePatients() {
       phone: "071-333-4444",
       email: "sita.k@yahoo.com",
       status: "Active",
-      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      address: "45/A, Temple Road, Kandy",
+      registeredDate: "2023-11-02"
     },
     { 
       id: 3, 
@@ -34,19 +38,22 @@ export default function ManagePatients() {
       phone: "076-555-6666",
       email: "m.riaz@outlook.com",
       status: "Inactive",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      address: "89, Main Street, Matara",
+      registeredDate: "2024-01-10"
     },
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState(null); // State for the selected patient
 
-  // 2. Filter Logic (Search by Name or NIC)
+  // 2. Filter Logic
   const filteredPatients = patients.filter((pt) =>
     pt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     pt.nic.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 3. Handle Add Patient (Manually adding a patient as Admin)
+  // 3. Handle Add Patient
   const handleAddPatient = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -59,11 +66,19 @@ export default function ManagePatients() {
       phone: form.phone.value,
       email: form.email.value,
       status: "Active",
-      img: `https://ui-avatars.com/api/?name=${form.name.value}&background=random`
+      img: `https://ui-avatars.com/api/?name=${form.name.value}&background=random`,
+      address: "N/A",
+      registeredDate: new Date().toISOString().split('T')[0]
     };
     setPatients([...patients, newPt]);
     document.getElementById("add_patient_modal").close();
     form.reset();
+  };
+
+  // 4. Handle View Details Click
+  const handleViewDetails = (patient) => {
+    setSelectedPatient(patient);
+    document.getElementById("view_patient_modal").showModal();
   };
 
   return (
@@ -138,8 +153,12 @@ export default function ManagePatients() {
                   </td>
                   <th>
                     <div className="flex gap-2">
+                      {/* VIEW BUTTON - NOW CONNECTED */}
                       <div className="tooltip" data-tip="View Details">
-                        <button className="btn btn-square btn-ghost btn-sm bg-base-200">
+                        <button 
+                          className="btn btn-square btn-ghost btn-sm bg-base-200"
+                          onClick={() => handleViewDetails(pt)}
+                        >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </button>
                       </div>
@@ -163,7 +182,7 @@ export default function ManagePatients() {
         </table>
       </div>
 
-      {/* --- ADD PATIENT MODAL --- */}
+      {/* --- MODAL 1: ADD PATIENT --- */}
       <dialog id="add_patient_modal" className="modal">
         <div className="modal-box w-11/12 max-w-2xl">
           <form method="dialog">
@@ -174,8 +193,6 @@ export default function ManagePatients() {
           <div className="divider my-0"></div>
 
           <form onSubmit={handleAddPatient} className="space-y-4 mt-4">
-            
-            {/* Row 1: Name & NIC */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Full Name</span></label>
@@ -187,7 +204,6 @@ export default function ManagePatients() {
               </div>
             </div>
 
-            {/* Row 2: Gender & Age */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Gender</span></label>
@@ -203,7 +219,6 @@ export default function ManagePatients() {
               </div>
             </div>
 
-            {/* Row 3: Contact Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Phone Number</span></label>
@@ -219,6 +234,80 @@ export default function ManagePatients() {
               <button type="submit" className="btn btn-primary w-full md:w-auto">Register Patient</button>
             </div>
           </form>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      {/* --- MODAL 2: VIEW PATIENT DETAILS --- */}
+      <dialog id="view_patient_modal" className="modal">
+        <div className="modal-box w-11/12 max-w-3xl">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          
+          {selectedPatient && (
+            <div className="flex flex-col md:flex-row gap-6">
+              
+              {/* Left Side: Profile Image */}
+              <div className="flex flex-col items-center justify-center md:w-1/3 border-r border-base-200 pr-6">
+                <div className="avatar mb-4">
+                  <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                    <img src={selectedPatient.img} alt={selectedPatient.name} />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-center">{selectedPatient.name}</h3>
+                <span className={`badge mt-2 ${selectedPatient.status === "Active" ? "badge-success text-white" : "badge-error text-white"}`}>
+                  {selectedPatient.status} Account
+                </span>
+                <p className="text-xs text-base-content/50 mt-4">Registered: {selectedPatient.registeredDate}</p>
+              </div>
+
+              {/* Right Side: Details Grid */}
+              <div className="flex-1 space-y-4">
+                <h4 className="font-bold text-lg border-b pb-2">Personal Information</h4>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">NIC Number</span>
+                    <span className="font-mono text-base">{selectedPatient.nic}</span>
+                  </div>
+                  <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">Date of Birth / Age</span>
+                    <span>{selectedPatient.age} Years</span>
+                  </div>
+                  <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">Gender</span>
+                    <span>{selectedPatient.gender}</span>
+                  </div>
+                  <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">Address</span>
+                    <span>{selectedPatient.address}</span>
+                  </div>
+                </div>
+
+                <h4 className="font-bold text-lg border-b pb-2 mt-6">Contact Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                   <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">Mobile Phone</span>
+                    <span>{selectedPatient.phone}</span>
+                  </div>
+                  <div>
+                    <span className="block opacity-50 text-xs uppercase font-bold">Email Address</span>
+                    <span>{selectedPatient.email}</span>
+                  </div>
+                </div>
+
+                {/* Action Footer */}
+                <div className="flex gap-2 justify-end mt-8">
+                  <button className="btn btn-sm btn-outline btn-primary">Edit Details</button>
+                  <button className="btn btn-sm btn-outline btn-error">Reset Password</button>
+                </div>
+              </div>
+
+            </div>
+          )}
         </div>
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
