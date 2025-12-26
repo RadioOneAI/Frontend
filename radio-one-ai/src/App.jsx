@@ -14,6 +14,7 @@ import AdminLayout from "./pages/Admin/AdminLayout";
 import DashboardHome from "./pages/Admin/DashboardHome";
 import Settings from "./pages/Admin/Settings"; // Import the Settings page
 import ManageDoctors from "./pages/Admin/ManageDoctors"; // Import Manage Doctors page
+import ManageRadiologists from "./pages/Admin/ManageRadiologists"; // Import Manage Radiologists page
 
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
@@ -70,11 +71,8 @@ export default function App() {
           {/* Manage Doctors Page */}
           <Route path="/admin/doctors" element={<ManageDoctors />} />
           
-          {/* Placeholder Routes for Admin sections we will build next */}
-          <Route 
-            path="/admin/radiologists" 
-            element={<div className="p-10 text-2xl font-bold">Manage Radiologists Page</div>} 
-          />
+          {/* Manage Radiologists Page */}
+          <Route path="/admin/radiologists" element={<ManageRadiologists />} />
         </Routes>
       </Layout>
     </BrowserRouter>
