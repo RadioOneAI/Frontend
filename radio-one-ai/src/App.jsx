@@ -12,6 +12,7 @@ import UserProfile from "./pages/UserProfile";
 // Admin Components
 import AdminLayout from "./pages/Admin/AdminLayout";
 import DashboardHome from "./pages/Admin/DashboardHome";
+import Settings from "./pages/Admin/Settings"; // Import the Settings page
 
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
@@ -61,6 +62,9 @@ export default function App() {
 
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
+          
+          {/* New Settings Route */}
+          <Route path="/admin/settings" element={<Settings />} />
           
           {/* Placeholder Routes for Admin sections we will build next */}
           <Route 
