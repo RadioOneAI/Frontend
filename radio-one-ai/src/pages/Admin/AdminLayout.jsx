@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import AdminSidebar from "../../component/AdminSidebar"; // Import the new component
 
 export default function AdminLayout({ children }) {
-  const location = useLocation();
-  
   // 1. Theme State (Defaults to light)
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
@@ -18,9 +16,6 @@ export default function AdminLayout({ children }) {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  // Helper to highlight active menu item
-  const isActive = (path) => location.pathname === path ? "active" : "";
-
   return (
     <div className="drawer lg:drawer-open">
       <input id="admin-drawer" type="checkbox" className="drawer-toggle" />
@@ -31,22 +26,20 @@ export default function AdminLayout({ children }) {
         {/* Top Navigation Bar */}
         <div className="navbar bg-base-100 shadow-sm sticky top-0 z-30">
           
-          {/* Left Side: Hamburger Menu (Mobile Only) */}
+          {/* Mobile Hamburger Button */}
           <div className="flex-none lg:hidden">
             <label htmlFor="admin-drawer" className="btn btn-square btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </label>
           </div>
 
-          {/* Middle: Page Title */}
+          {/* Page Title */}
           <div className="flex-1 px-2 mx-2">
             <span className="text-lg font-bold text-base-content/70">Admin Console</span>
           </div>
 
-          {/* Right Side: Theme Toggle & Profile */}
+          {/* Top Right Actions */}
           <div className="flex-none gap-2">
-            
-            {/* Theme Toggle Button */}
             <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
               {theme === 'dark' ? (
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -55,7 +48,6 @@ export default function AdminLayout({ children }) {
               )}
             </button>
 
-            {/* Admin Avatar - Updated Image */}
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                 <div className="w-10 rounded-full border border-base-300">
@@ -63,11 +55,10 @@ export default function AdminLayout({ children }) {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
-        {/* Page Content Rendered Here */}
+        {/* Page Content */}
         <main className="p-6 flex-grow">
           {children}
         </main>
@@ -76,34 +67,10 @@ export default function AdminLayout({ children }) {
       {/* --- SIDEBAR --- */}
       <div className="drawer-side z-40">
         <label htmlFor="admin-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 min-h-full bg-base-100 text-base-content border-r border-base-300">
-          {/* Logo */}
-          <li className="mb-8">
-            <Link to="/" className="text-2xl font-bold text-primary px-4 hover:bg-transparent">
-              RadioOne<span className="text-base-content">Admin</span>
-            </Link>
-          </li>
-
-          {/* Links */}
-          <li><Link to="/admin/dashboard" className={isActive("/admin/dashboard")}>Dashboard Overview</Link></li>
-          
-          <div className="divider my-2 text-xs opacity-50 font-bold uppercase text-left px-4">User Management</div>
-          
-          <li><Link to="/admin/doctors" className={isActive("/admin/doctors")}>Manage Doctors</Link></li>
-          <li><Link to="/admin/radiologists" className={isActive("/admin/radiologists")}>Manage Radiologists</Link></li>
-          
-          <div className="divider my-2 text-xs opacity-50 font-bold uppercase text-left px-4">System</div>
-
-          {/* New Settings Link */}
-          <li>
-            <Link to="/admin/settings" className={isActive("/admin/settings")}>
-              Settings
-            </Link>
-          </li>
-
-          <div className="mt-auto"></div>
-          <li><Link to="/login" className="text-error bg-base-200 mt-4">Logout</Link></li>
-        </ul>
+        
+        {/* Render the separate component here */}
+        <AdminSidebar />
+        
       </div>
     </div>
   );
