@@ -1,11 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+// Import the logo image
+import logo from "../assets/images/logo.png"; 
 
 export default function AdminSidebar() {
   const location = useLocation();
 
   // Helper to check active state
-  // We use "bg-primary text-primary-content" for the active item to make it pop
   const getLinkClass = (path) => {
     return location.pathname === path 
       ? "bg-primary text-primary-content shadow-md" 
@@ -17,11 +18,11 @@ export default function AdminSidebar() {
       
       {/* --- BRAND HEADER --- */}
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg text-primary-content font-bold text-xl">
-          R
-        </div>
+        {/* REPLACED THE "R" BOX WITH THE LOGO IMAGE */}
+        <img src={logo} alt="RadioOneAI Logo" className="w-10 h-10 object-contain" />
         <div>
-          <h1 className="text-xl font-bold tracking-tight">RadioOne</h1>
+          {/* UPDATED TEXT TO "RadioOneAI" */}
+          <h1 className="text-xl font-bold tracking-tight">RadioOneAI</h1>
           <p className="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Admin Panel</p>
         </div>
       </div>
