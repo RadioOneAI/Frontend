@@ -13,6 +13,7 @@ import UserProfile from "./pages/UserProfile";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import DashboardHome from "./pages/Admin/DashboardHome";
 import Settings from "./pages/Admin/Settings"; // Import the Settings page
+import ManageDoctors from "./pages/Admin/ManageDoctors"; // Import Manage Doctors page
 
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
@@ -66,11 +67,10 @@ export default function App() {
           {/* New Settings Route */}
           <Route path="/admin/settings" element={<Settings />} />
           
+          {/* Manage Doctors Page */}
+          <Route path="/admin/doctors" element={<ManageDoctors />} />
+          
           {/* Placeholder Routes for Admin sections we will build next */}
-          <Route 
-            path="/admin/doctors" 
-            element={<div className="p-10 text-2xl font-bold">Manage Doctors Page</div>} 
-          />
           <Route 
             path="/admin/radiologists" 
             element={<div className="p-10 text-2xl font-bold">Manage Radiologists Page</div>} 
