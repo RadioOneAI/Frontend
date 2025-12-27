@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/images/logo.png";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const [theme, setTheme] = useState(
@@ -17,27 +18,32 @@ export default function Header() {
     <header className="navbar bg-base-200 border-b border-base-200 sticky top-0 z-50">
       {/* Left: Logo */}
       <div className="navbar-start">
+        <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="Logo" className="w-14 h-16 object-contain" />
           <span className="font-bold text-2xl">RadioOneAI</span>
-        
+        </Link>
       </div>
 
       {/* Middle: Buttons */}
       <div className="navbar-center hidden md:flex ">
         <div className="join">
-          <a className="btn btn-ghost join-item btn-lg">Home</a>
+          <Link to="/" className="btn btn-ghost join-item btn-lg">Home</Link>
           <a className="btn btn-ghost join-item btn-lg">Features</a>
           <a className="btn btn-ghost join-item btn-lg">Pricing</a>
           <a className="btn btn-ghost join-item btn-lg">Contact</a>
         </div>
       </div>
-      
 
       {/* Right: Theme + Auth */}
       <div className="navbar-end gap-2">
-        {/* Auth buttons */}
-        <button className="btn btn-soft btn-lg btn-ghost rounded-full ">Login</button>
-        <button className="btn btn-lg btn-ghost rounded-full  btn-outline btn-success">Register</button>
+        {/* Auth buttons - Updated to use Link */}
+        <Link to="/login" className="btn btn-soft btn-lg btn-ghost rounded-full">
+          Login
+        </Link>
+        <Link to="/signup" className="btn btn-lg btn-ghost rounded-full btn-outline btn-success">
+          Register
+        </Link>
+        
         {/* Theme toggle */}
         <button
           className="btn btn-ghost btn-circle"
@@ -65,8 +71,6 @@ export default function Header() {
           )}
         </button>
 
-        
-
         {/* Mobile menu */}
         <div className="dropdown dropdown-end md:hidden">
           <label tabIndex={0} className="btn btn-ghost btn-circle">
@@ -90,7 +94,7 @@ export default function Header() {
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
             <li>
-              <a>Home</a>
+              <Link to="/">Home</Link>
             </li>
             <li>
               <a>Features</a>
