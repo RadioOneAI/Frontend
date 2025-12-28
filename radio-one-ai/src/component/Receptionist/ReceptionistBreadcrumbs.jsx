@@ -22,7 +22,7 @@ export default function AdminBreadcrumbs() {
       <ul>
         {/* Always show Home/Admin Root */}
         <li>
-          <Link to="/receptionist/dashboard">Home</Link>
+          <Link to="/receptionist/patients">Home</Link>
         </li>
         
         {/* Dynamically map the rest of the path */}

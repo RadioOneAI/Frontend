@@ -1,5 +1,5 @@
 // src/pages/Receptionist/ManagePatients.jsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import PatientDetailsModal from "../../component/Receptionist/PatientDetailsModal";
 
 export default function ManagePatients() {
@@ -49,6 +49,9 @@ export default function ManagePatients() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
 
+  // ✅ Ref to the TOP HEADER area ("Manage Patients")
+  const pageTopRef = useRef(null);
+
   // 2. Filter Logic
   const filteredPatients = patients.filter(
     (pt) =>
@@ -82,45 +85,53 @@ export default function ManagePatients() {
     form.reset();
   };
 
-  // 4. Handle View Details Click (INLINE, NOT POPUP)
+  // ✅ View Details: show details AND scroll to top where "Manage Patients" is visible
   const handleViewDetails = (patient) => {
     setSelectedPatient(patient);
+
     setTimeout(() => {
-      document
-        .getElementById("patient_details_section")
-        ?.scrollIntoView({ behavior: "smooth" });
+      pageTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }, 0);
   };
 
-  // 5. Back to Patients
+  // ✅ Back to Patients: hide details and scroll back to table
   const handleBackToPatients = () => {
     setSelectedPatient(null);
+
     setTimeout(() => {
       document
         .getElementById("patients_table_section")
-        ?.scrollIntoView({ behavior: "smooth" });
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   };
 
   return (
-    <div className="space-y-6">
+    // ✅ Base text increased to next scale
+    <div className="space-y-6 text-base">
       {/* --- HEADER --- */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div
+        ref={pageTopRef}
+        className="flex flex-col sm:flex-row justify-between items-center gap-4"
+      >
         <div>
-          <h1 className="text-3xl font-bold">Manage Patients</h1>
-          <p className="text-base-content/70">
+          {/* text-3xl -> text-4xl */}
+          <h1 className="text-4xl font-bold">Manage Patients</h1>
+          {/* text-base-content/70 default p size -> text-lg */}
+          <p className="text-base-content/70 text-lg">
             View registered patients and manage accounts.
           </p>
         </div>
+
         <button
-          className="btn btn-primary"
-          onClick={() =>
-            document.getElementById("add_patient_modal")?.showModal()
-          }
+          className="btn btn-primary text-lg"
+          onClick={() => document.getElementById("add_patient_modal")?.showModal()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -136,7 +147,7 @@ export default function ManagePatients() {
         </button>
       </div>
 
-      {/* --- DETAILS PANEL (INLINE) --- */}
+      {/* ✅ INLINE DETAILS */}
       <PatientDetailsModal patient={selectedPatient} onBack={handleBackToPatients} />
 
       {/* --- SEARCH --- */}
@@ -145,7 +156,7 @@ export default function ManagePatients() {
           <input
             type="text"
             placeholder="Search by Name or NIC Number..."
-            className="input input-bordered w-full max-w-md"
+            className="input input-bordered w-full max-w-md text-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -157,15 +168,17 @@ export default function ManagePatients() {
         id="patients_table_section"
         className="card bg-base-100 shadow-xl overflow-x-auto"
       >
-        <table className="table w-full align-middle">
+        {/* table text increased */}
+        <table className="table w-full align-middle text-lg">
           <thead>
-            <tr>
+            <tr className="text-lg">
               <th>Name & Contact</th>
               <th>NIC & Personal</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredPatients.length > 0 ? (
               filteredPatients.map((pt) => (
@@ -173,44 +186,50 @@ export default function ManagePatients() {
                   <td>
                     <div className="flex items-center gap-3">
                       <div className="avatar">
-                        <div className="mask mask-squircle w-12 h-12">
+                        <div className="mask mask-squircle w-14 h-14">
                           <img src={pt.img} alt={pt.name} />
                         </div>
                       </div>
                       <div>
-                        <div className="font-bold">{pt.name}</div>
-                        <div className="text-sm opacity-50">{pt.email}</div>
-                        <div className="text-xs opacity-50">{pt.phone}</div>
+                        {/* name bigger */}
+                        <div className="font-bold text-xl">{pt.name}</div>
+                        {/* text-sm -> text-base */}
+                        <div className="text-base opacity-50">{pt.email}</div>
+                        {/* text-xs -> text-sm */}
+                        <div className="text-sm opacity-50">{pt.phone}</div>
                       </div>
                     </div>
                   </td>
+
                   <td>
-                    <div className="font-bold font-mono">{pt.nic}</div>
-                    <div className="text-sm opacity-50">
+                    <div className="font-bold font-mono text-xl">{pt.nic}</div>
+                    <div className="text-base opacity-50">
                       {pt.gender}, {pt.age} Years
                     </div>
                   </td>
+
                   <td>
                     {pt.status === "Active" ? (
-                      <div className="badge badge-success gap-2 text-white badge-sm">
+                      <div className="badge badge-success gap-2 text-white badge-md text-base">
                         Active
                       </div>
                     ) : (
-                      <div className="badge badge-error gap-2 text-white badge-sm">
+                      <div className="badge badge-error gap-2 text-white badge-md text-base">
                         Inactive
                       </div>
                     )}
                   </td>
+
                   <th>
                     <div className="flex gap-2">
                       <div className="tooltip" data-tip="View Details">
                         <button
-                          className="btn btn-square btn-ghost btn-sm bg-base-200"
+                          className="btn btn-square btn-ghost btn-md bg-base-200"
                           onClick={() => handleViewDetails(pt)}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
+                            className="h-6 w-6"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -230,13 +249,32 @@ export default function ManagePatients() {
                           </svg>
                         </button>
                       </div>
+
+                      <div className="tooltip" data-tip="Delete/Ban User">
+                        <button className="btn btn-square btn-ghost btn-md text-error bg-base-200 hover:bg-error hover:text-white">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </th>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="text-center py-4 text-base-content/50">
+                <td colSpan="4" className="text-center py-6 text-base-content/50 text-lg">
                   No patients found matching your search.
                 </td>
               </tr>
@@ -245,41 +283,42 @@ export default function ManagePatients() {
         </table>
       </div>
 
-      {/* --- ADD PATIENT MODAL (FORM) --- */}
+      {/* --- ADD PATIENT MODAL --- */}
       <dialog id="add_patient_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-2xl">
+        <div className="modal-box w-11/12 max-w-2xl text-lg">
           <form method="dialog">
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
               ✕
             </button>
           </form>
 
-          <h3 className="font-bold text-lg mb-4">Register New Patient</h3>
+          <h3 className="font-bold text-xl mb-4">Register New Patient</h3>
           <div className="divider my-0"></div>
 
           <form onSubmit={handleAddPatient} className="space-y-4 mt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Full Name</span>
+                  <span className="label-text text-lg">Full Name</span>
                 </label>
                 <input
                   name="name"
                   type="text"
                   placeholder="Patient Name"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full text-lg"
                   required
                 />
               </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">NIC Number</span>
+                  <span className="label-text text-lg">NIC Number</span>
                 </label>
                 <input
                   name="nic"
                   type="text"
                   placeholder="NIC Number"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full text-lg"
                   required
                 />
               </div>
@@ -288,25 +327,31 @@ export default function ManagePatients() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Gender</span>
+                  <span className="label-text text-lg">Gender</span>
                 </label>
-                <select name="gender" className="select select-bordered w-full" required>
-                  <option value="" disabled defaultValue="">
+                <select
+                  name="gender"
+                  className="select select-bordered w-full text-lg"
+                  required
+                  defaultValue=""
+                >
+                  <option value="" disabled>
                     Select Gender
                   </option>
                   <option>Male</option>
                   <option>Female</option>
                 </select>
               </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Age</span>
+                  <span className="label-text text-lg">Age</span>
                 </label>
                 <input
                   name="age"
                   type="number"
                   placeholder="Age"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full text-lg"
                   required
                 />
               </div>
@@ -315,32 +360,33 @@ export default function ManagePatients() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Phone Number</span>
+                  <span className="label-text text-lg">Phone Number</span>
                 </label>
                 <input
                   name="phone"
                   type="tel"
                   placeholder="Phone Number"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full text-lg"
                   required
                 />
               </div>
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Email Address</span>
+                  <span className="label-text text-lg">Email Address</span>
                 </label>
                 <input
                   name="email"
                   type="email"
                   placeholder="email@example.com"
-                  className="input input-bordered w-full"
+                  className="input input-bordered w-full text-lg"
                   required
                 />
               </div>
             </div>
 
             <div className="modal-action">
-              <button type="submit" className="btn btn-primary w-full md:w-auto">
+              <button type="submit" className="btn btn-primary w-full md:w-auto text-lg">
                 Register Patient
               </button>
             </div>
