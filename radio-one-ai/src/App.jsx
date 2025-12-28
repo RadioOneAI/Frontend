@@ -20,7 +20,6 @@ import SystemLogs from "./pages/Admin/SystemLogs"; // Import System Logs page
 
 // Receptionist Components
 import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout"
-import ReceptionistDashboardHome from "./pages/Receptionist/DashboardHome";
 import ReceptionistSettings from "./pages/Receptionist/Settings";
 import ReceptionistManagePatients from "./pages/Receptionist/ManagePatients";
 import ReceptionistSystemLogs from "./pages/Receptionist/SystemLogs";
