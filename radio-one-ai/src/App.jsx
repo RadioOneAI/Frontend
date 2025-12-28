@@ -26,7 +26,7 @@ import ReceptionistSystemLogs from "./pages/Receptionist/SystemLogs";
 
 // Radiographer Components
 import RadiographerLayout from "./pages/Radiographer/RadiographerLayout";
-import RadiographerManageAppointments from "./pages/Radiographer/ManageAppointments";
+import RadiographerAppointments from "./pages/Radiographer/Appointments";
 import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
 
@@ -120,11 +120,11 @@ export default function App() {
 
 
           {/* --- Radiographer Routes --- */}
-          <Route path="/radiologist/appointments" element={<RadiographerManageAppointments />} />
+          <Route path="/radiographer/appointments" element={<RadiographerAppointments />} />
           {/* Radiographer Settings Route */}
-          <Route path="/radiologist/settings" element={<RadiographerSettings />} />
+          <Route path="/radiographer/settings" element={<RadiographerSettings />} />
           {/* Radiographer System Logs Page */}
-          <Route path="/radiologist/logs" element={<RadiographerSystemLogs />} />
+          <Route path="/radiographer/logs" element={<RadiographerSystemLogs />} />
 
         </Routes>
       </Layout>
