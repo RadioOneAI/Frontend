@@ -98,9 +98,6 @@ export default function App() {
           {/* System Logs Page */}
           <Route path="/admin/logs" element={<SystemLogs />} />
 
-          {/* --- Receptionist Routes --- */}
-          <Route path="/receptionist/dashboard" element={<ReceptionistDashboardHome />} />
-
           {/* Receptionist Settings Route */}
           <Route path="/receptionist/settings" element={<ReceptionistSettings />} />
 
