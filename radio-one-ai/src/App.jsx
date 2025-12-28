@@ -18,6 +18,13 @@ import ManageRadiologists from "./pages/Admin/ManageRadiologists"; // Import Man
 import ManagePatients from "./pages/Admin/ManagePatients"; // Import Manage Patients page
 import SystemLogs from "./pages/Admin/SystemLogs"; // Import System Logs page
 
+// Receptionist Components
+import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout"
+import ReceptionistDashboardHome from "./pages/Receptionist/DashboardHome";
+import ReceptionistSettings from "./pages/Receptionist/Settings";
+import ReceptionistManagePatients from "./pages/Receptionist/ManagePatients";
+import ReceptionistSystemLogs from "./pages/Receptionist/SystemLogs";
+
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
   const location = useLocation();
@@ -29,6 +36,15 @@ function Layout({ children }) {
   // If it is an Admin route, render the AdminLayout (Sidebar + Content) instead of the public one
   if (isAdminRoute) {
     return <AdminLayout>{children}</AdminLayout>;
+  }
+
+  // --- RECEPTIONIST LAYOUT LOGIC ---
+  // Check if the user is visiting a Receptionist page (any URL starting with /receptionist)
+  const isReceptionistRoute = location.pathname.startsWith("/receptionist");
+
+  // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
+  if (isReceptionistRoute) {
+    return <ReceptionistLayout>{children}</ReceptionistLayout>;
   }
 
   // --- PUBLIC LAYOUT LOGIC ---
@@ -81,6 +97,19 @@ export default function App() {
           
           {/* System Logs Page */}
           <Route path="/admin/logs" element={<SystemLogs />} />
+
+          {/* --- Receptionist Routes --- */}
+          <Route path="/receptionist/dashboard" element={<ReceptionistDashboardHome />} />
+
+          {/* Receptionist Settings Route */}
+          <Route path="/receptionist/settings" element={<ReceptionistSettings />} />
+
+          {/* Receptionist Manage Patients Page */}
+          <Route path="/receptionist/patients" element={<ReceptionistManagePatients />} />
+
+          {/* Receptionist System Logs Page */}
+          <Route path="/receptionist/logs" element={<ReceptionistSystemLogs />} />
+
         </Routes>
       </Layout>
     </BrowserRouter>
