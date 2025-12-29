@@ -30,6 +30,12 @@ import RadiographerAppointments from "./pages/Radiographer/Appointments";
 import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
 
+//Radiologist Components
+import RadiologisAppointment from "./pages/Radiologist/Radiologistretrieve";
+import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
+import RadiologistSettings from "./pages/Radiologist/Settings";
+import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
+
 
 
 // 1. Create a Layout component to handle conditional rendering
@@ -61,6 +67,14 @@ function Layout({ children }) {
   // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
   if (isRadiographerRoute) {
     return <RadiographerLayout>{children}</RadiographerLayout>;
+  }
+
+  // --- RADIOLOGIST LAYOUT LOGIC ---
+  // Check if the user is visiting a Radiologist page (any URL starting with /radiologist)
+  const isRadiologistRoute = location.pathname.startsWith("/radiologist");
+  // If it is a Radiologist route, render the RadiologistLayout (Sidebar + Content)
+  if (isRadiologistRoute) {
+    return <RadiologisrLayout>{children}</RadiologisrLayout>;
   }
 
   // --- PUBLIC LAYOUT LOGIC ---
@@ -125,6 +139,15 @@ export default function App() {
           <Route path="/radiographer/settings" element={<RadiographerSettings />} />
           {/* Radiographer System Logs Page */}
           <Route path="/radiographer/logs" element={<RadiographerSystemLogs />} />
+
+          {/* --- Radiologist Routes --- */}
+          <Route path="/radiologist/appointments" element={<RadiologisAppointment/>} />
+          {/* Radiologist Settings Route */}
+          <Route path="/radiologist/settings" element={<RadiologistSettings />} />
+          {/* Radiologist System Logs Page */}
+          <Route path="/radiologist/logs" element={<RadiologistSystemLogs />} />
+
+          
 
         </Routes>
       </Layout>
