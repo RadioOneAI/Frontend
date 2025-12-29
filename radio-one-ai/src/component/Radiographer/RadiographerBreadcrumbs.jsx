@@ -15,6 +15,7 @@ export default function AdminBreadcrumbs() {
     radiologists: "Manage Radiologists",
     patients: "Manage Patients",
     settings: "System Settings",
+    appointments: "Appointments"
   };
 
   return (
@@ -34,7 +35,7 @@ export default function AdminBreadcrumbs() {
           const isLast = index === pathnames.length - 1;
           
           // Skip rendering "admin" again since we have "Home" or if mapping missing
-          if (value === "admin") return null;
+          if (value === "radiographer") return null;
 
           return (
             <li key={to}>
