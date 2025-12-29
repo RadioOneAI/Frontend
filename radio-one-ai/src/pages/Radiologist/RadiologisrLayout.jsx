@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import RadiographerSidebar from "../../component/Radiographer/RadiographerSidebar";
-import RadiographerBreadcrumbs from "../../component/Radiographer/RadiographerBreadcrumbs";
+import RadiologistSidebar from "../../component/Radiologist/RadiologistSidebar";
+import RadiologistBreadcrumbs from "../../component/Radiologist/RadiologistBreadcrumbs";
 
 export default function RadiologisrLayout({ children }) {
   // ... (Keep existing state and theme logic unchanged) ...
@@ -32,7 +32,7 @@ export default function RadiologisrLayout({ children }) {
                 </label>
              </div>
              <div className="flex-1 px-2 mx-2">
-                <span className="text-lg font-bold text-base-content/70">Radiographer</span>
+                <span className="text-lg font-bold text-base-content/70">Radiologist</span>
              </div>
              <div className="flex-none gap-2">
                 <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
@@ -56,7 +56,7 @@ export default function RadiologisrLayout({ children }) {
         {/* Page Content */}
         <main className="p-6 flex-grow">
           {/* ADD BREADCRUMBS HERE */}
-          <RadiographerBreadcrumbs />
+          <RadiologistBreadcrumbs />
           
           {children}
         </main>
@@ -65,7 +65,7 @@ export default function RadiologisrLayout({ children }) {
       {/* --- SIDEBAR --- */}
       <div className="drawer-side z-40">
         <label htmlFor="admin-drawer" className="drawer-overlay"></label>
-        <RadiographerSidebar />
+        <RadiologistSidebar />
       </div>
     </div>
   );
