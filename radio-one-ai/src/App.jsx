@@ -23,6 +23,7 @@ import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout"
 import ReceptionistSettings from "./pages/Receptionist/Settings";
 import ReceptionistManagePatients from "./pages/Receptionist/ManagePatients";
 import ReceptionistSystemLogs from "./pages/Receptionist/SystemLogs";
+import ReceptionistDashboard from "./pages/Receptionist/ReceptionistDashboard";
 
 // Radiographer Components
 import RadiographerLayout from "./pages/Radiographer/RadiographerLayout";
@@ -127,6 +128,7 @@ export default function App() {
 
 
           {/* --- Receptionist Routes --- */}
+          <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
           <Route path="/receptionist/patients" element={<ReceptionistManagePatients />} />
           {/* Receptionist Settings Route */}
           <Route path="/receptionist/settings" element={<ReceptionistSettings />} />
