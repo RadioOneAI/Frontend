@@ -9,12 +9,9 @@ export default function RadiologistBreadcrumbs() {
 
   // Helper map to make URL segments readable
   const breadcrumbNameMap = {
-    admin: "Admin Console",
     dashboard: "Dashboard",
-    doctors: "Manage Doctors",
-    radiologists: "Manage Radiologists",
-    patients: "Manage Patients",
     settings: "System Settings",
+    appointments: "Appointments"
   };
 
   return (
@@ -22,7 +19,7 @@ export default function RadiologistBreadcrumbs() {
       <ul>
         {/* Always show Home/Admin Root */}
         <li>
-          <Link to="/radiographer/appointments">Home</Link>
+          <Link to="/radiologist/dashboard">Home</Link>
         </li>
         
         {/* Dynamically map the rest of the path */}
@@ -32,9 +29,9 @@ export default function RadiologistBreadcrumbs() {
           
           // Don't link the last item (it's the current page)
           const isLast = index === pathnames.length - 1;
-          
-          // Skip rendering "admin" again since we have "Home" or if mapping missing
-          if (value === "admin") return null;
+
+          // Skip rendering "radiologist" again since we have "Home" or if mapping missing
+          if (value === "radiologist") return null;
 
           return (
             <li key={to}>
