@@ -31,6 +31,7 @@ import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
 
 //Radiologist Components
+import RadiologistDashboard from "./pages/Radiologist/RadiologistDashboard";
 import RadiologisAppointment from "./pages/Radiologist/Radiologistretrieve";
 import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
 import RadiologistSettings from "./pages/Radiologist/Settings";
@@ -141,6 +142,7 @@ export default function App() {
           <Route path="/radiographer/logs" element={<RadiographerSystemLogs />} />
 
           {/* --- Radiologist Routes --- */}
+          <Route path="/radiologist/dashboard" element={<RadiologistDashboard />} />
           <Route path="/radiologist/appointments" element={<RadiologisAppointment/>} />
           {/* Radiologist Settings Route */}
           <Route path="/radiologist/settings" element={<RadiologistSettings />} />
