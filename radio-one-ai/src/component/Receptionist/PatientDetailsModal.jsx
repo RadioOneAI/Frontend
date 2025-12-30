@@ -1,7 +1,7 @@
 // src/component/Receptionist/PatientDetailsModal.jsx
 import React, { useMemo, useState } from "react";
 import PrescriptionFormModal from "./PrescriptionFormModal";
-import EditPrescriptionFormModal from "./EditPrescriptionFormModel";
+import EditPrescriptionFormModal from "./EditPrescriptionFormModel"; // keep your path as you wrote
 
 export default function PatientDetailsModal({ patient, onBack }) {
   if (!patient) return null;
@@ -17,17 +17,18 @@ export default function PatientDetailsModal({ patient, onBack }) {
     []
   );
 
-  // Radiographers removed from UI, keeping list not needed anymore
   const organs = useMemo(
     () => ["Brain", "Lungs", "Breast", "Abdominal", "Other"],
     []
   );
 
   // ✅ DEMO PRESCRIPTIONS (ONLY FOR patient.id === 1)
+  // (Added createdAtTs for correct sorting: latest -> old)
   const demoPrescriptionsForPatient1 = [
     {
       requestId: "REQ-1-0001",
       createdAt: "12/20/2025, 10:15 AM",
+      createdAtTs: new Date("2025-12-20T10:15:00").getTime(),
       doctor: "Dr. Nimal Perera",
       scanType: "MRI",
       organ: "Brain",
@@ -36,6 +37,7 @@ export default function PatientDetailsModal({ patient, onBack }) {
     {
       requestId: "REQ-1-0002",
       createdAt: "12/22/2025, 02:40 PM",
+      createdAtTs: new Date("2025-12-22T14:40:00").getTime(),
       doctor: "Dr. Shalini Fernando",
       scanType: "CT",
       organ: "Abdominal",
@@ -44,6 +46,7 @@ export default function PatientDetailsModal({ patient, onBack }) {
     {
       requestId: "REQ-1-0003",
       createdAt: "12/26/2025, 09:05 AM",
+      createdAtTs: new Date("2025-12-26T09:05:00").getTime(),
       doctor: "Dr. Kasun Jayasinghe",
       scanType: "X-Ray",
       organ: "Lungs",
@@ -57,6 +60,17 @@ export default function PatientDetailsModal({ patient, onBack }) {
   }));
 
   const prescriptions = prescriptionsByPatient[patient.id] || [];
+
+  // ✅ Sort Latest -> Old (DESC)
+  // Uses createdAtTs if available, otherwise fallback to Date(createdAt)
+  const prescriptionsSorted = useMemo(() => {
+    const getTs = (p) =>
+      typeof p.createdAtTs === "number"
+        ? p.createdAtTs
+        : new Date(p.createdAt).getTime();
+
+    return [...prescriptions].sort((a, b) => getTs(b) - getTs(a));
+  }, [prescriptions]);
 
   const addModalId = "add_prescription_modal";
   const editModalId = "edit_prescription_modal";
@@ -94,6 +108,7 @@ export default function PatientDetailsModal({ patient, onBack }) {
     const newRow = {
       requestId,
       createdAt: now.toLocaleString(),
+      createdAtTs: now.getTime(), // ✅ important for correct sorting
       doctor: data.doctor,
       scanType: data.scanType,
       organ: data.organ,
@@ -117,6 +132,7 @@ export default function PatientDetailsModal({ patient, onBack }) {
               scanType: updated.scanType,
               organ: updated.organ,
               status: updated.status ?? p.status,
+              // keep createdAt & createdAtTs as-is
             }
           : p
       );
@@ -278,13 +294,13 @@ export default function PatientDetailsModal({ patient, onBack }) {
           <div className="flex items-center justify-between gap-3">
             <h4 className="font-bold text-xl">Prescriptions</h4>
             <span className="text-base text-base-content/60">
-              Total: {prescriptions.length}
+              Total: {prescriptionsSorted.length}
             </span>
           </div>
 
           <div className="divider my-2" />
 
-          {prescriptions.length === 0 ? (
+          {prescriptionsSorted.length === 0 ? (
             <div className="text-base text-base-content/60">
               No prescriptions added yet. Click <b>“Add a prescription”</b> to
               create one.
@@ -305,7 +321,7 @@ export default function PatientDetailsModal({ patient, onBack }) {
                 </thead>
 
                 <tbody>
-                  {prescriptions.map((p) => (
+                  {prescriptionsSorted.map((p) => (
                     <tr key={p.requestId} className="text-base">
                       <td className="font-mono font-bold">{p.requestId}</td>
                       <td>{p.createdAt}</td>
@@ -313,7 +329,6 @@ export default function PatientDetailsModal({ patient, onBack }) {
                       <td>{p.scanType}</td>
                       <td>{p.organ}</td>
 
-                      {/* Status */}
                       <td>
                         <span
                           className={`badge ${
