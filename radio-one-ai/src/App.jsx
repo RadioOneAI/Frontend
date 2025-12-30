@@ -23,12 +23,21 @@ import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout"
 import ReceptionistSettings from "./pages/Receptionist/Settings";
 import ReceptionistManagePatients from "./pages/Receptionist/ManagePatients";
 import ReceptionistSystemLogs from "./pages/Receptionist/SystemLogs";
+import ReceptionistDashboard from "./pages/Receptionist/ReceptionistDashboard";
 
 // Radiographer Components
 import RadiographerLayout from "./pages/Radiographer/RadiographerLayout";
 import RadiographerAppointments from "./pages/Radiographer/Appointments";
 import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
+import RadiographerDashboard from "./pages/Radiographer/RadiographerDashboard";
+
+//Radiologist Components
+import RadiologistDashboard from "./pages/Radiologist/RadiologistDashboard";
+import RadiologisAppointment from "./pages/Radiologist/Radiologistretrieve";
+import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
+import RadiologistSettings from "./pages/Radiologist/Settings";
+import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 
 
 
@@ -61,6 +70,14 @@ function Layout({ children }) {
   // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
   if (isRadiographerRoute) {
     return <RadiographerLayout>{children}</RadiographerLayout>;
+  }
+
+  // --- RADIOLOGIST LAYOUT LOGIC ---
+  // Check if the user is visiting a Radiologist page (any URL starting with /radiologist)
+  const isRadiologistRoute = location.pathname.startsWith("/radiologist");
+  // If it is a Radiologist route, render the RadiologistLayout (Sidebar + Content)
+  if (isRadiologistRoute) {
+    return <RadiologisrLayout>{children}</RadiologisrLayout>;
   }
 
   // --- PUBLIC LAYOUT LOGIC ---
@@ -112,6 +129,7 @@ export default function App() {
 
 
           {/* --- Receptionist Routes --- */}
+          <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
           <Route path="/receptionist/patients" element={<ReceptionistManagePatients />} />
           {/* Receptionist Settings Route */}
           <Route path="/receptionist/settings" element={<ReceptionistSettings />} />
@@ -120,11 +138,22 @@ export default function App() {
 
 
           {/* --- Radiographer Routes --- */}
+          <Route path="/radiographer/dashboard" element={<RadiographerDashboard />} />
           <Route path="/radiographer/appointments" element={<RadiographerAppointments />} />
           {/* Radiographer Settings Route */}
           <Route path="/radiographer/settings" element={<RadiographerSettings />} />
           {/* Radiographer System Logs Page */}
           <Route path="/radiographer/logs" element={<RadiographerSystemLogs />} />
+
+          {/* --- Radiologist Routes --- */}
+          <Route path="/radiologist/dashboard" element={<RadiologistDashboard />} />
+          <Route path="/radiologist/appointments" element={<RadiologisAppointment/>} />
+          {/* Radiologist Settings Route */}
+          <Route path="/radiologist/settings" element={<RadiologistSettings />} />
+          {/* Radiologist System Logs Page */}
+          <Route path="/radiologist/logs" element={<RadiologistSystemLogs />} />
+
+          
 
         </Routes>
       </Layout>

@@ -53,6 +53,21 @@ export default function Hero() {
                     Learn More
                 </button>
               </div>
+              <div className="flex  gap-3 mt-3 gap-6">
+                <button className="btn btn-dash btn-outline btn-xl">
+                  Admin
+                </button>
+                <button className="btn btn-dash btn-outline btn-xl">
+                  Radiologist
+                </button>
+                <button className="btn btn-dash btn-outline btn-xl">
+                  Receptionist
+                </button>
+                <button className="btn btn-dash btn-outline btn-xl">
+                  Radiographer
+                </button>
+                
+              </div>
             </div>
           </div>
         </section>     

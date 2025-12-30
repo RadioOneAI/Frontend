@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import DashboardCharts from "../../component/DashboardCharts"; // <--- Import Component
 
-export default function RadiologistDashboard() {
+export default function ReceptionistDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-end">

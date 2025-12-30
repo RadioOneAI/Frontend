@@ -5,7 +5,7 @@ export default function DashboardCharts() {
   
   // Dummy Data for Scans (Area Chart)
   const scanData = [
-    { name: 'Mon', scans: 40 },
+    { name: 'Mon', scans: 60 },
     { name: 'Tue', scans: 55 },
     { name: 'Wed', scans: 35 },
     { name: 'Thu', scans: 80 },
