@@ -14,7 +14,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-base-100 w-80 border-r border-base-300">
+    <div className="h-full flex flex-col bg-base-100 w-64 border-r border-base-300">
       
       {/* --- BRAND HEADER --- */}
       <div className="p-6 flex items-center gap-3">
