@@ -1,16 +1,17 @@
 import React from "react";
 
-
 export default function DoctorReportModal({ patient, onClose }) {
   if (!patient) return null;
 
   // Mock Data: Specific AI Output for Doctor
+  // In a real app, this data would come from the backend based on the specific patient ID
   const aiReport = {
     tumorType: "Meningioma",
     location: "Left Frontal Lobe",
     size: "2.4cm x 1.8cm",
     confidence: "94%",
     clinicalNote: "Mass exerts mild mass effect on adjacent parenchyma. No midline shift observed.",
+    // Using a placeholder MRI image
     imageUrl: "https://img.daisyui.com/images/stock/photo-1551963831-b3b1ca40c98e.webp" 
   };
 
@@ -33,7 +34,7 @@ export default function DoctorReportModal({ patient, onClose }) {
           <div className="lg:w-3/5 bg-black flex items-center justify-center p-4 relative group">
              <img src={aiReport.imageUrl} alt="MRI Scan" className="max-h-full object-contain" />
              
-             {/* Simulated Bounding Box (Only visible on hover or toggle) */}
+             {/* Simulated Bounding Box (Only visible on hover or toggle in a real app) */}
              <div className="absolute border-2 border-warning w-32 h-24 top-1/3 left-1/3 rounded-sm opacity-80 pointer-events-none"></div>
              
              <div className="absolute bottom-4 left-4">
