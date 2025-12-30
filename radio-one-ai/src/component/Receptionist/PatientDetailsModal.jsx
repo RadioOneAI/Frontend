@@ -201,15 +201,6 @@ export default function PatientDetailsModal({ patient, onBack }) {
                 </div>
               </div>
             </div>
-
-            <div className="flex flex-wrap gap-2 justify-end pt-2">
-              <button className="btn btn-m btn-outline btn-primary text-base">
-                Edit Details
-              </button>
-              <button className="btn btn-m btn-outline btn-error text-base">
-                Reset Password
-              </button>
-            </div>
           </div>
         </div>
 
