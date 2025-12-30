@@ -1,17 +1,42 @@
 import React from "react";
-// 1. Import the specific tumor image
+// Import the specific tumor image for Kamal
 import tumorImage from "../../assets/images/meningioma-segmentation.png";
 
 export default function DoctorReportModal({ patient, onClose }) {
   if (!patient) return null;
 
-  const aiReport = {
-    tumorType: "Meningioma",
-    location: "Right Frontal Lobe", // Updated to match the visual location roughly
-    size: "3.2cm x 2.8cm",
-    confidence: "98.5%", // Increased confidence for segmented image
-    clinicalNote: "Well-defined extra-axial mass with homogeneous enhancement. Significant mass effect noted on the adjacent frontal lobe.",
-    imageUrl: tumorImage // 2. Use the imported image here
+  // --- MOCK DATABASE ---
+  // In a real app, you would fetch this from an API using patient.id
+  const reports = {
+    "P001": { // Kamal Gunawardena (The Tumor Case)
+      tumorType: "Meningioma",
+      location: "Right Frontal Lobe",
+      size: "3.2cm x 2.8cm",
+      confidence: "98.5%",
+      clinicalNote: "Well-defined extra-axial mass with homogeneous enhancement. Significant mass effect noted on the adjacent frontal lobe.",
+      imageUrl: tumorImage, // The uploaded segmentation image
+      hasTumor: true
+    },
+    "P002": { // Nimali Perera (The Healthy Case)
+      tumorType: "None Detected",
+      location: "N/A",
+      size: "N/A",
+      confidence: "99.1%",
+      clinicalNote: "Brain parenchyma appears normal. No evidence of mass effect, midline shift, or intracranial hemorrhage. Ventricles are within normal limits.",
+      imageUrl: "https://img.daisyui.com/images/stock/photo-1551963831-b3b1ca40c98e.webp", // Generic clear scan
+      hasTumor: false
+    }
+  };
+
+  // Select the report based on ID, or fallback to a default if ID doesn't exist
+  const aiReport = reports[patient.id] || {
+    tumorType: "Processing...",
+    location: "Pending",
+    size: "--",
+    confidence: "--",
+    clinicalNote: "Data not yet available.",
+    imageUrl: "https://via.placeholder.com/400x400?text=Scan+Pending",
+    hasTumor: false
   };
 
   return (
@@ -31,19 +56,15 @@ export default function DoctorReportModal({ patient, onClose }) {
           
           {/* LEFT: MRI Visual with AI Marks */}
           <div className="lg:w-3/5 bg-black flex items-center justify-center p-4 relative group">
-             {/* Display the uploaded segmentation image */}
              <img 
                 src={aiReport.imageUrl} 
-                alt="MRI Scan with AI Segmentation" 
+                alt="MRI Scan" 
                 className="max-h-full object-contain" 
              />
              
-             {/* NOTE: I removed the CSS 'absolute border' bounding box 
-                because your image already has the purple AI segmentation mask.
-             */}
-             
+             {/* Only show the confidence badge if analysis is done */}
              <div className="absolute bottom-4 left-4">
-                <div className="badge badge-warning gap-2 p-3 font-mono shadow-lg">
+                <div className={`badge ${aiReport.hasTumor ? 'badge-warning' : 'badge-success'} gap-2 p-3 font-mono shadow-lg`}>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   AI Confidence: {aiReport.confidence}
                 </div>
@@ -59,7 +80,9 @@ export default function DoctorReportModal({ patient, onClose }) {
              <div className="stats stats-vertical shadow border border-base-200 w-full mb-4">
                <div className="stat p-3">
                  <div className="stat-title text-xs">Pathology</div>
-                 <div className="stat-value text-lg text-error">{aiReport.tumorType}</div>
+                 <div className={`stat-value text-lg ${aiReport.hasTumor ? 'text-error' : 'text-success'}`}>
+                    {aiReport.tumorType}
+                 </div>
                  <div className="stat-desc">{aiReport.location}</div>
                </div>
                <div className="stat p-3">
@@ -70,7 +93,7 @@ export default function DoctorReportModal({ patient, onClose }) {
              </div>
 
              {/* Clinical Note from AI */}
-             <div className="alert alert-soft bg-base-200 text-sm mb-6 rounded-lg">
+             <div className={`alert alert-soft ${aiReport.hasTumor ? 'bg-warning/10 text-warning-content' : 'bg-success/10 text-success-content'} text-sm mb-6 rounded-lg`}>
                <div>
                  <span className="font-bold block mb-1">Radiological Impression:</span>
                  {aiReport.clinicalNote}
@@ -88,9 +111,11 @@ export default function DoctorReportModal({ patient, onClose }) {
                  <button className="btn btn-primary w-full" onClick={onClose}>
                     Approve & Send to Patient
                  </button>
-                 <button className="btn btn-outline btn-warning w-full">
-                    Request Radiologist Re-eval
-                 </button>
+                 {aiReport.hasTumor && (
+                    <button className="btn btn-outline btn-warning w-full">
+                        Request Radiologist Re-eval
+                    </button>
+                 )}
                </div>
              </div>
 
