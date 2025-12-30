@@ -12,7 +12,7 @@ export default function RadiologistSidebar() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-base-100 w-80 border-r border-base-300">
+    <div className="h-full flex flex-col bg-base-100 w-64 border-r border-base-300">
       <div className="p-6 flex items-center gap-3">
         <img src={logo} alt="RadioOneAI Logo" className="w-10 h-10 object-contain" />
         <div>
