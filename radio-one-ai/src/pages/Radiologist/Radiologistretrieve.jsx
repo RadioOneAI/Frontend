@@ -184,7 +184,6 @@ export default function Radiologistretrieve() {
               <th>Created</th>
               <th>Doctor</th>
               <th>Patient</th>
-              <th>Scan</th>
               <th>Radiographer</th>
               <th>Organ</th>
               <th>Status</th>
@@ -195,20 +194,19 @@ export default function Radiologistretrieve() {
           <tbody>
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((a) => (
-                <tr key={a.requestId} className="hover">
+                <tr key={a.requestId} className="hover:bg-base-300">
                   <td className="font-mono font-bold text-xl">{a.requestId}</td>
                   <td className="text-base">{a.createdAt}</td>
                   <td className="text-base">{a.doctor}</td>
                   <td className="text-base font-semibold">{a.patient}</td>
-                  <td className="text-base">{a.scanType}</td>
                   <td className="text-base">{a.radiographer}</td>
                   <td className="text-base">{a.organ}</td>
                   <td>{getStatusBadge(a)}</td>
 
                   <td className="text-center">
-                    <div className="flex flex-wrap justify-center gap-2">
+                    <div className="flex  justify-center gap-2">
                       <button className="btn btn-outline btn-md" onClick={() => openRetrieve(a)}>
-                        Retrieve Images
+                        MRI Images
                       </button>
                       <button className="btn btn-ghost btn-md" onClick={() => openEdit(a)}>
                         Edit Details
