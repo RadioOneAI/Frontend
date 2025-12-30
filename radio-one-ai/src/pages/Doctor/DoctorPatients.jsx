@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import DoctorReportModal from "../../component/DoctorReportModal";
+import DoctorReportModal from "../../component/Doctor/DoctorReportModal";
 
 export default function DoctorPatients() {
   const [selectedPatient, setSelectedPatient] = useState(null);
