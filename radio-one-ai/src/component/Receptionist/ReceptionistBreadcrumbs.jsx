@@ -32,9 +32,9 @@ export default function AdminBreadcrumbs() {
           
           // Don't link the last item (it's the current page)
           const isLast = index === pathnames.length - 1;
-          
-          // Skip rendering "admin" again since we have "Home" or if mapping missing
-          if (value === "admin") return null;
+
+          // Skip rendering "receptionist" again since we have "Home" or if mapping missing
+          if (value === "receptionist") return null;
 
           return (
             <li key={to}>
