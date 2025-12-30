@@ -44,10 +44,11 @@ import DoctorLayout from "./pages/Doctor/DoctorLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorPatients from "./pages/Doctor/DoctorPatients";
 
-// Patient Components (NEW)
+// Patient Components
 import PatientLayout from "./pages/Patient/PatientLayout";
 import PatientDashboard from "./pages/Patient/PatientDashboard";
 import PatientReports from "./pages/Patient/PatientReports";
+import PatientSettings from "./pages/Patient/PatientSettings"; // <--- Imported New Page
 
 
 // 1. Create a Layout component to handle conditional rendering
@@ -89,7 +90,7 @@ function Layout({ children }) {
     return <DoctorLayout>{children}</DoctorLayout>;
   }
 
-  // --- PATIENT LAYOUT LOGIC (NEW) ---
+  // --- PATIENT LAYOUT LOGIC ---
   const isPatientRoute = location.pathname.startsWith("/patient");
 
   if (isPatientRoute) {
@@ -154,9 +155,11 @@ export default function App() {
           <Route path="/doctor/patients" element={<DoctorPatients />} />
           <Route path="/doctor/settings" element={<Settings />} />
 
-          {/* --- Patient Routes (NEW) --- */}
+          {/* --- Patient Routes --- */}
           <Route path="/patient/dashboard" element={<PatientDashboard />} />
           <Route path="/patient/reports" element={<PatientReports />} />
+          {/* Updated Route to use PatientSettings */}
+          <Route path="/patient/settings" element={<PatientSettings />} />
 
         </Routes>
       </Layout>
