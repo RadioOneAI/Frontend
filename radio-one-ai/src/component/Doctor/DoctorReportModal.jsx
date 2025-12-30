@@ -1,6 +1,8 @@
 import React from "react";
-// Import the specific tumor image for Kamal
+// 1. Import the specific tumor image
 import tumorImage from "../../assets/images/meningioma-segmentation.png";
+// 2. Import the clear image
+import noTumorImage from "../../assets/images/clean-mri.png";
 
 export default function DoctorReportModal({ patient, onClose }) {
   if (!patient) return null;
@@ -12,7 +14,6 @@ export default function DoctorReportModal({ patient, onClose }) {
       location: "Right Frontal Lobe",
       size: "3.2cm x 2.8cm",
       confidence: "98.5%",
-      // UPDATED: Added suggestions for the doctor
       suggestions: [
         "Refer to Neurosurgery for potential resection assessment.",
         "Schedule follow-up MRI in 3 months to monitor growth rate.",
@@ -29,11 +30,12 @@ export default function DoctorReportModal({ patient, onClose }) {
       confidence: "99.1%",
       suggestions: ["No further radiological action required at this time."],
       clinicalNote: "Brain parenchyma appears normal. No evidence of mass effect, midline shift, or intracranial hemorrhage. Ventricles are within normal limits.",
-      imageUrl: "https://img.daisyui.com/images/stock/photo-1551963831-b3b1ca40c98e.webp", 
+      imageUrl: noTumorImage, // <--- Updated to use the clear image
       hasTumor: false
     }
   };
 
+  // Default fallback if patient ID not found
   const aiReport = reports[patient.id] || {
     tumorType: "Processing...",
     location: "Pending",
@@ -60,7 +62,7 @@ export default function DoctorReportModal({ patient, onClose }) {
 
         <div className="flex flex-col lg:flex-row h-[75vh]">
           
-          {/* LEFT: MRI Visual with AI Marks */}
+          {/* LEFT: MRI Visual */}
           <div className="lg:w-3/5 bg-black flex items-center justify-center p-4 relative group">
              <img 
                 src={aiReport.imageUrl} 
@@ -82,7 +84,7 @@ export default function DoctorReportModal({ patient, onClose }) {
              
              <div className="text-sm font-bold uppercase text-primary mb-2">AI Findings (Doctor View)</div>
              
-             {/* Key Metrics - Highlighted Size */}
+             {/* Key Metrics */}
              <div className="stats stats-vertical shadow border border-base-200 w-full mb-4">
                <div className="stat p-3">
                  <div className="stat-title text-xs">Pathology Detected</div>
@@ -92,7 +94,7 @@ export default function DoctorReportModal({ patient, onClose }) {
                  <div className="stat-desc">{aiReport.location}</div>
                </div>
                
-               {/* Show Size prominently if tumor exists */}
+               {/* Only show Size if tumor exists */}
                {aiReport.hasTumor && (
                  <div className="stat p-3 bg-base-200/30">
                    <div className="stat-title text-xs font-bold text-base-content">Estimated Size</div>
@@ -102,8 +104,7 @@ export default function DoctorReportModal({ patient, onClose }) {
                )}
              </div>
 
-             {/* Clinical Note - Fixed Readability */}
-             {/* Changed text color to text-base-content to ensure it's dark on light themes */}
+             {/* Clinical Note */}
              <div className={`alert ${aiReport.hasTumor ? 'alert-warning bg-warning/10' : 'alert-success bg-success/10'} text-sm mb-4 rounded-lg border-0`}>
                <div className="w-full">
                  <span className="font-bold block mb-1 text-base-content opacity-70 uppercase text-xs">Radiological Impression:</span>
