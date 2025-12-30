@@ -1,18 +1,17 @@
 import React from "react";
+// 1. Import the specific tumor image
+import tumorImage from "../../assets/images/meningioma-segmentation.png";
 
 export default function DoctorReportModal({ patient, onClose }) {
   if (!patient) return null;
 
-  // Mock Data: Specific AI Output for Doctor
-  // In a real app, this data would come from the backend based on the specific patient ID
   const aiReport = {
     tumorType: "Meningioma",
-    location: "Left Frontal Lobe",
-    size: "2.4cm x 1.8cm",
-    confidence: "94%",
-    clinicalNote: "Mass exerts mild mass effect on adjacent parenchyma. No midline shift observed.",
-    // Using a placeholder MRI image
-    imageUrl: "https://img.daisyui.com/images/stock/photo-1551963831-b3b1ca40c98e.webp" 
+    location: "Right Frontal Lobe", // Updated to match the visual location roughly
+    size: "3.2cm x 2.8cm",
+    confidence: "98.5%", // Increased confidence for segmented image
+    clinicalNote: "Well-defined extra-axial mass with homogeneous enhancement. Significant mass effect noted on the adjacent frontal lobe.",
+    imageUrl: tumorImage // 2. Use the imported image here
   };
 
   return (
@@ -32,13 +31,19 @@ export default function DoctorReportModal({ patient, onClose }) {
           
           {/* LEFT: MRI Visual with AI Marks */}
           <div className="lg:w-3/5 bg-black flex items-center justify-center p-4 relative group">
-             <img src={aiReport.imageUrl} alt="MRI Scan" className="max-h-full object-contain" />
+             {/* Display the uploaded segmentation image */}
+             <img 
+                src={aiReport.imageUrl} 
+                alt="MRI Scan with AI Segmentation" 
+                className="max-h-full object-contain" 
+             />
              
-             {/* Simulated Bounding Box (Only visible on hover or toggle in a real app) */}
-             <div className="absolute border-2 border-warning w-32 h-24 top-1/3 left-1/3 rounded-sm opacity-80 pointer-events-none"></div>
+             {/* NOTE: I removed the CSS 'absolute border' bounding box 
+                because your image already has the purple AI segmentation mask.
+             */}
              
              <div className="absolute bottom-4 left-4">
-                <div className="badge badge-warning gap-2 p-3 font-mono">
+                <div className="badge badge-warning gap-2 p-3 font-mono shadow-lg">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   AI Confidence: {aiReport.confidence}
                 </div>
