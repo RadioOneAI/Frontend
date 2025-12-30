@@ -43,12 +43,13 @@ import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 import DoctorLayout from "./pages/Doctor/DoctorLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorPatients from "./pages/Doctor/DoctorPatients";
+import DoctorSettings from "./pages/Doctor/DoctorSettings"; // <--- 1. IMPORT THIS
 
 // Patient Components
 import PatientLayout from "./pages/Patient/PatientLayout";
 import PatientDashboard from "./pages/Patient/PatientDashboard";
 import PatientReports from "./pages/Patient/PatientReports";
-import PatientSettings from "./pages/Patient/PatientSettings"; // <--- Imported New Page
+import PatientSettings from "./pages/Patient/PatientSettings";
 
 
 // 1. Create a Layout component to handle conditional rendering
@@ -153,12 +154,12 @@ export default function App() {
           {/* --- Doctor Routes --- */}
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor/patients" element={<DoctorPatients />} />
-          <Route path="/doctor/settings" element={<Settings />} />
+          {/* 2. UPDATE THIS ROUTE */}
+          <Route path="/doctor/settings" element={<DoctorSettings />} />
 
           {/* --- Patient Routes --- */}
           <Route path="/patient/dashboard" element={<PatientDashboard />} />
           <Route path="/patient/reports" element={<PatientReports />} />
-          {/* Updated Route to use PatientSettings */}
           <Route path="/patient/settings" element={<PatientSettings />} />
 
         </Routes>
