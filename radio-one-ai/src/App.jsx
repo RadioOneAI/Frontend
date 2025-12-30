@@ -32,13 +32,17 @@ import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
 import RadiographerDashboard from "./pages/Radiographer/RadiographerDashboard";
 
-//Radiologist Components
+// Radiologist Components
 import RadiologistDashboard from "./pages/Radiologist/RadiologistDashboard";
 import RadiologisAppointment from "./pages/Radiologist/Radiologistretrieve";
 import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
 import RadiologistSettings from "./pages/Radiologist/Settings";
 import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 
+// Doctor Components (NEW)
+import DoctorLayout from "./pages/Doctor/DoctorLayout";
+import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
+import DoctorPatients from "./pages/Doctor/DoctorPatients";
 
 
 // 1. Create a Layout component to handle conditional rendering
@@ -63,11 +67,11 @@ function Layout({ children }) {
     return <ReceptionistLayout>{children}</ReceptionistLayout>;
   }
 
-  // --- RECEPTIONIST LAYOUT LOGIC ---
-  // Check if the user is visiting a Receptionist page (any URL starting with /receptionist)
+  // --- RADIOGRAPHER LAYOUT LOGIC ---
+  // Check if the user is visiting a Radiographer page (any URL starting with /radiographer)
   const isRadiographerRoute = location.pathname.startsWith("/radiographer");
 
-  // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
+  // If it is a Radiographer route, render the RadiographerLayout (Sidebar + Content)
   if (isRadiographerRoute) {
     return <RadiographerLayout>{children}</RadiographerLayout>;
   }
@@ -78,6 +82,14 @@ function Layout({ children }) {
   // If it is a Radiologist route, render the RadiologistLayout (Sidebar + Content)
   if (isRadiologistRoute) {
     return <RadiologisrLayout>{children}</RadiologisrLayout>;
+  }
+
+  // --- DOCTOR LAYOUT LOGIC (NEW) ---
+  // Check if the user is visiting a Doctor page (any URL starting with /doctor)
+  const isDoctorRoute = location.pathname.startsWith("/doctor");
+  // If it is a Doctor route, render the DoctorLayout (Sidebar + Content)
+  if (isDoctorRoute) {
+    return <DoctorLayout>{children}</DoctorLayout>;
   }
 
   // --- PUBLIC LAYOUT LOGIC ---
@@ -153,7 +165,9 @@ export default function App() {
           {/* Radiologist System Logs Page */}
           <Route path="/radiologist/logs" element={<RadiologistSystemLogs />} />
 
-          
+          {/* --- Doctor Routes (NEW) --- */}
+          <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor/patients" element={<DoctorPatients />} />
 
         </Routes>
       </Layout>
