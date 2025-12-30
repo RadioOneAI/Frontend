@@ -39,10 +39,16 @@ import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
 import RadiologistSettings from "./pages/Radiologist/Settings";
 import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 
-// Doctor Components (NEW)
+// Doctor Components
 import DoctorLayout from "./pages/Doctor/DoctorLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorPatients from "./pages/Doctor/DoctorPatients";
+
+// Patient Components (NEW)
+import PatientLayout from "./pages/Patient/PatientLayout";
+import PatientDashboard from "./pages/Patient/PatientDashboard";
+import PatientReports from "./pages/Patient/PatientReports";
+
 
 // 1. Create a Layout component to handle conditional rendering
 function Layout({ children }) {
@@ -76,11 +82,18 @@ function Layout({ children }) {
     return <RadiologisrLayout>{children}</RadiologisrLayout>;
   }
 
-  // --- DOCTOR LAYOUT LOGIC (NEW) ---
+  // --- DOCTOR LAYOUT LOGIC ---
   const isDoctorRoute = location.pathname.startsWith("/doctor");
 
   if (isDoctorRoute) {
     return <DoctorLayout>{children}</DoctorLayout>;
+  }
+
+  // --- PATIENT LAYOUT LOGIC (NEW) ---
+  const isPatientRoute = location.pathname.startsWith("/patient");
+
+  if (isPatientRoute) {
+    return <PatientLayout>{children}</PatientLayout>;
   }
 
   // --- PUBLIC LAYOUT LOGIC ---
@@ -99,7 +112,6 @@ function Layout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* 2. Wrap routes inside the Layout to handle the switching logic */}
       <Layout>
         <Routes>
           
@@ -137,11 +149,14 @@ export default function App() {
           <Route path="/radiologist/settings" element={<RadiologistSettings />} />
           <Route path="/radiologist/logs" element={<RadiologistSystemLogs />} />
 
-          {/* --- Doctor Routes (NEW) --- */}
+          {/* --- Doctor Routes --- */}
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor/patients" element={<DoctorPatients />} />
-          {/* Reusing Admin Settings for Doctor as placeholder, or create a specific one if needed */}
           <Route path="/doctor/settings" element={<Settings />} />
+
+          {/* --- Patient Routes (NEW) --- */}
+          <Route path="/patient/dashboard" element={<PatientDashboard />} />
+          <Route path="/patient/reports" element={<PatientReports />} />
 
         </Routes>
       </Layout>
