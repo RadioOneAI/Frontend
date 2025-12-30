@@ -4,7 +4,6 @@ export default function PrescriptionFormModal({
   modalId = "add_prescription_modal",
   doctors = [],
   scanTypes = [],
-  radiographers = [],
   organs = [],
   onSubmit,
 }) {
@@ -16,7 +15,6 @@ export default function PrescriptionFormModal({
     const payload = {
       doctor: form.doctor.value,
       scanType: form.scanType.value,
-      radiographer: form.radiographer.value,
       organ: form.organ.value,
       status: "Active", // auto active
     };
@@ -85,28 +83,6 @@ export default function PrescriptionFormModal({
               {scanTypes.map((s) => (
                 <option key={s} value={s}>
                   {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Radiographer */}
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Select Radiographer</span>
-            </label>
-            <select
-              name="radiographer"
-              className="select select-bordered w-full"
-              required
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select a radiographer
-              </option>
-              {radiographers.map((r) => (
-                <option key={r} value={r}>
-                  {r}
                 </option>
               ))}
             </select>
