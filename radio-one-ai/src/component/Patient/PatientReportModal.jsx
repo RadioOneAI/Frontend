@@ -7,9 +7,6 @@ export default function PatientReportModal({ reportId, onClose }) {
   if (!reportId) return null;
 
   // --- MOCK LOGIC: AI Translation for Patients ---
-  // If reportId is the tumor case (P001/REQ-8821), show the tumor info
-  // If reportId is the clear case (P002/REQ-8822), show the clear info
-  
   const isTumorCase = reportId === "REQ-8821";
 
   const patientReport = isTumorCase ? {
