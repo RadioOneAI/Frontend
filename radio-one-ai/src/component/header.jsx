@@ -28,9 +28,10 @@ export default function Header() {
       <div className="navbar-center hidden md:flex ">
         <div className="join">
           <Link to="/" className="btn btn-ghost join-item btn-lg">Home</Link>
+          {/* UPDATED: About Us Link */}
+          <Link to="/about" className="btn btn-ghost join-item btn-lg">About Us</Link>
           <a className="btn btn-ghost join-item btn-lg">Features</a>
           <a className="btn btn-ghost join-item btn-lg">Pricing</a>
-          {/* UPDATED: Contact Link */}
           <Link to="/contact" className="btn btn-ghost join-item btn-lg">Contact</Link>
         </div>
       </div>
@@ -97,13 +98,16 @@ export default function Header() {
             <li>
               <Link to="/">Home</Link>
             </li>
+            {/* UPDATED: About Us Link for Mobile */}
+            <li>
+              <Link to="/about">About Us</Link>
+            </li>
             <li>
               <a>Features</a>
             </li>
             <li>
               <a>Pricing</a>
             </li>
-            {/* UPDATED: Contact Link for Mobile */}
             <li>
               <Link to="/contact">Contact</Link>
             </li>
