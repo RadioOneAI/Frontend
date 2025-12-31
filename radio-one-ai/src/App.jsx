@@ -47,7 +47,7 @@ import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 import DoctorLayout from "./pages/Doctor/DoctorLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorPatients from "./pages/Doctor/DoctorPatients";
-import DoctorSettings from "./pages/Doctor/DoctorSettings";
+import DoctorSettings from "./pages/Doctor/DoctorSettings"; // <--- 1. IMPORT THIS
 
 // Patient Components
 import PatientLayout from "./pages/Patient/PatientLayout";
@@ -162,6 +162,7 @@ export default function App() {
           {/* --- Doctor Routes --- */}
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor/patients" element={<DoctorPatients />} />
+          {/* 2. UPDATE THIS ROUTE */}
           <Route path="/doctor/settings" element={<DoctorSettings />} />
 
           {/* --- Patient Routes --- */}
