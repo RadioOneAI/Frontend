@@ -13,7 +13,11 @@ export default function DoctorSettings() {
     email: "sarah.j@cityhospital.com",
     hospital: "City Hospital, Colombo",
     alertCritical: true,
-    alertReportReady: true
+    alertReportReady: true,
+    // Password fields
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
 
   const handleChange = (e) => {
@@ -23,6 +27,14 @@ export default function DoctorSettings() {
 
   const handleSave = (e) => {
     e.preventDefault();
+    
+    // Simple validation check
+    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+        setToast({ message: "New passwords do not match!", type: "error" });
+        setTimeout(() => setToast(null), 3000);
+        return;
+    }
+
     // Simulate API update
     setToast({ message: "Settings saved successfully!", type: "success" });
     setTimeout(() => setToast(null), 3000);
@@ -126,14 +138,44 @@ export default function DoctorSettings() {
           <div className="card-body">
             <h2 className="card-title text-neutral border-b border-base-200 pb-2 mb-4">Security</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
+              
+              {/* Current Password - Full Width on Mobile, Span 2 on Desktop if desired, or kept as is. 
+                  Here keeping it consistent with the grid */}
+              <div className="form-control md:col-span-2">
                 <label className="label"><span className="label-text">Current Password</span></label>
-                <input type="password" placeholder="********" className="input input-bordered" />
+                <input 
+                  type="password" 
+                  name="currentPassword" 
+                  placeholder="********" 
+                  className="input input-bordered" 
+                  onChange={handleChange}
+                />
               </div>
+
+              {/* New Password */}
               <div className="form-control">
                 <label className="label"><span className="label-text">New Password</span></label>
-                <input type="password" placeholder="Leave blank to keep same" className="input input-bordered" />
+                <input 
+                  type="password" 
+                  name="newPassword" 
+                  placeholder="Enter new password" 
+                  className="input input-bordered" 
+                  onChange={handleChange}
+                />
               </div>
+
+              {/* Confirm New Password */}
+              <div className="form-control">
+                <label className="label"><span className="label-text">Confirm New Password</span></label>
+                <input 
+                  type="password" 
+                  name="confirmPassword" 
+                  placeholder="Re-enter new password" 
+                  className="input input-bordered" 
+                  onChange={handleChange}
+                />
+              </div>
+
             </div>
           </div>
         </div>
