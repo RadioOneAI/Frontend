@@ -8,6 +8,8 @@ import Hero from "./pages/Hero/hero";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
+import ContactUs from "./pages/ContactUs"; 
+import AboutUs from "./pages/AboutUs"; // <--- 1. IMPORT THIS
 
 // Admin Components
 import AdminLayout from "./pages/Admin/AdminLayout";
@@ -43,7 +45,7 @@ import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 import DoctorLayout from "./pages/Doctor/DoctorLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import DoctorPatients from "./pages/Doctor/DoctorPatients";
-import DoctorSettings from "./pages/Doctor/DoctorSettings"; // <--- 1. IMPORT THIS
+import DoctorSettings from "./pages/Doctor/DoctorSettings";
 
 // Patient Components
 import PatientLayout from "./pages/Patient/PatientLayout";
@@ -122,6 +124,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} /> {/* <--- 2. ADD THIS ROUTE */}
 
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
@@ -154,7 +158,6 @@ export default function App() {
           {/* --- Doctor Routes --- */}
           <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
           <Route path="/doctor/patients" element={<DoctorPatients />} />
-          {/* 2. UPDATE THIS ROUTE */}
           <Route path="/doctor/settings" element={<DoctorSettings />} />
 
           {/* --- Patient Routes --- */}
