@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import DashboardCharts from "../../component/Admin/DashboardCharts"; // <--- Import Component
+import DashboardCharts from "../../component/Admin/DashboardCharts"; 
 
 export default function DashboardHome() {
   return (
@@ -15,9 +15,10 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* --- STATS ROW --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Doctors */}
+      {/* --- STATS ROW (Updated to 3 columns to fit 6 items) --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {/* 1. Doctors */}
         <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-primary">
           <div className="stat-figure text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -26,7 +27,8 @@ export default function DashboardHome() {
           <div className="stat-value">24</div>
           <div className="stat-desc text-success">↗︎ 2 added this month</div>
         </div>
-        {/* Radiologists */}
+
+        {/* 2. Radiologists */}
         <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-secondary">
           <div className="stat-figure text-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -35,7 +37,28 @@ export default function DashboardHome() {
           <div className="stat-value">8</div>
           <div className="stat-desc text-secondary">All systems active</div>
         </div>
-        {/* Patients */}
+
+        {/* 3. Radiographers (NEW) */}
+        <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-warning">
+          <div className="stat-figure text-warning">
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .884-.896 1.618-2 2a4 4 0 01-4-4 2 2 0 014-4 2 2 0 012 2v2"></path></svg>
+          </div>
+          <div className="stat-title">Radiographers</div>
+          <div className="stat-value">12</div>
+          <div className="stat-desc">3 on shift now</div>
+        </div>
+
+        {/* 4. Receptionists (NEW) */}
+        <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-success">
+          <div className="stat-figure text-success">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          </div>
+          <div className="stat-title">Receptionists</div>
+          <div className="stat-value">5</div>
+          <div className="stat-desc">Front Desk A & B</div>
+        </div>
+
+        {/* 5. Patients */}
         <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-accent">
           <div className="stat-figure text-accent">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -44,7 +67,8 @@ export default function DashboardHome() {
           <div className="stat-value">1,250</div>
           <div className="stat-desc text-accent">↗︎ 15 new registrations</div>
         </div>
-        {/* Scans */}
+
+        {/* 6. Scans */}
         <div className="stat bg-base-100 shadow-md rounded-2xl border-l-4 border-info">
           <div className="stat-figure text-info">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -55,7 +79,7 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* --- CHARTS SECTION (NEW) --- */}
+      {/* --- CHARTS SECTION --- */}
       <DashboardCharts />
 
       {/* --- ACTIVITY & QUICK ACTIONS --- */}
@@ -110,9 +134,13 @@ export default function DashboardHome() {
               <h2 className="card-title">Quick Actions</h2>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Link to="/admin/doctors" className="btn btn-outline btn-primary btn-sm h-auto py-3 flex flex-col gap-1">Add Doctor</Link>
-                <Link to="/admin/radiologists" className="btn btn-outline btn-secondary btn-sm h-auto py-3 flex flex-col gap-1">Add Radio..</Link>
+                <Link to="/admin/radiologists" className="btn btn-outline btn-secondary btn-sm h-auto py-3 flex flex-col gap-1">Add Radiologist</Link>
+                {/* NEW LINKS ADDED BELOW */}
+                <Link to="/admin/radiographers" className="btn btn-outline btn-warning btn-sm h-auto py-3 flex flex-col gap-1">Add Radiographer</Link>
+                <Link to="/admin/receptionists" className="btn btn-outline btn-success btn-sm h-auto py-3 flex flex-col gap-1">Add Receptionist</Link>
+                {/* --------------------- */}
                 <Link to="/admin/patients" className="btn btn-outline btn-accent btn-sm h-auto py-3 flex flex-col gap-1">New Patient</Link>
-                <Link to="/admin/settings" className="btn btn-outline btn-neutral btn-sm h-auto py-3 flex flex-col gap-1">System Logs</Link>
+                <Link to="/admin/logs" className="btn btn-outline btn-neutral btn-sm h-auto py-3 flex flex-col gap-1">System Logs</Link>
               </div>
             </div>
           </div>
