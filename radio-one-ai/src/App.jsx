@@ -8,15 +8,17 @@ import Hero from "./pages/Hero/hero";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
+import ContactUs from "./pages/ContactUs"; 
+import AboutUs from "./pages/AboutUs"; // <--- 1. IMPORT THIS
 
 // Admin Components
 import AdminLayout from "./pages/Admin/AdminLayout";
 import DashboardHome from "./pages/Admin/DashboardHome";
-import Settings from "./pages/Admin/Settings"; // Import the Settings page
-import ManageDoctors from "./pages/Admin/ManageDoctors"; // Import Manage Doctors page
-import ManageRadiologists from "./pages/Admin/ManageRadiologists"; // Import Manage Radiologists page
-import ManagePatients from "./pages/Admin/ManagePatients"; // Import Manage Patients page
-import SystemLogs from "./pages/Admin/SystemLogs"; // Import System Logs page
+import Settings from "./pages/Admin/Settings"; 
+import ManageDoctors from "./pages/Admin/ManageDoctors"; 
+import ManageRadiologists from "./pages/Admin/ManageRadiologists"; 
+import ManagePatients from "./pages/Admin/ManagePatients"; 
+import SystemLogs from "./pages/Admin/SystemLogs"; 
 
 // Receptionist Components
 import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout"
@@ -32,13 +34,24 @@ import RadiographerSettings from "./pages/Radiographer/Settings";
 import RadiographerSystemLogs from "./pages/Radiographer/SystemLogs";
 import RadiographerDashboard from "./pages/Radiographer/RadiographerDashboard";
 
-//Radiologist Components
+// Radiologist Components
 import RadiologistDashboard from "./pages/Radiologist/RadiologistDashboard";
 import RadiologisAppointment from "./pages/Radiologist/Radiologistretrieve";
 import RadiologisrLayout from "./pages/Radiologist/RadiologisrLayout";
 import RadiologistSettings from "./pages/Radiologist/Settings";
 import RadiologistSystemLogs from "./pages/Radiologist/SystemLogs";
 
+// Doctor Components
+import DoctorLayout from "./pages/Doctor/DoctorLayout";
+import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
+import DoctorPatients from "./pages/Doctor/DoctorPatients";
+import DoctorSettings from "./pages/Doctor/DoctorSettings";
+
+// Patient Components
+import PatientLayout from "./pages/Patient/PatientLayout";
+import PatientDashboard from "./pages/Patient/PatientDashboard";
+import PatientReports from "./pages/Patient/PatientReports";
+import PatientSettings from "./pages/Patient/PatientSettings";
 
 
 // 1. Create a Layout component to handle conditional rendering
@@ -46,56 +59,55 @@ function Layout({ children }) {
   const location = useLocation();
 
   // --- ADMIN LAYOUT LOGIC ---
-  // Check if the user is visiting an Admin page (any URL starting with /admin)
   const isAdminRoute = location.pathname.startsWith("/admin");
 
-  // If it is an Admin route, render the AdminLayout (Sidebar + Content) instead of the public one
   if (isAdminRoute) {
     return <AdminLayout>{children}</AdminLayout>;
   }
 
   // --- RECEPTIONIST LAYOUT LOGIC ---
-  // Check if the user is visiting a Receptionist page (any URL starting with /receptionist)
   const isReceptionistRoute = location.pathname.startsWith("/receptionist");
 
-  // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
   if (isReceptionistRoute) {
     return <ReceptionistLayout>{children}</ReceptionistLayout>;
   }
 
-  // --- RECEPTIONIST LAYOUT LOGIC ---
-  // Check if the user is visiting a Receptionist page (any URL starting with /receptionist)
+  // --- RADIOGRAPHER LAYOUT LOGIC ---
   const isRadiographerRoute = location.pathname.startsWith("/radiographer");
 
-  // If it is a Receptionist route, render the ReceptionistLayout (Sidebar + Content)
   if (isRadiographerRoute) {
     return <RadiographerLayout>{children}</RadiographerLayout>;
   }
 
   // --- RADIOLOGIST LAYOUT LOGIC ---
-  // Check if the user is visiting a Radiologist page (any URL starting with /radiologist)
   const isRadiologistRoute = location.pathname.startsWith("/radiologist");
-  // If it is a Radiologist route, render the RadiologistLayout (Sidebar + Content)
+
   if (isRadiologistRoute) {
     return <RadiologisrLayout>{children}</RadiologisrLayout>;
   }
 
+  // --- DOCTOR LAYOUT LOGIC ---
+  const isDoctorRoute = location.pathname.startsWith("/doctor");
+
+  if (isDoctorRoute) {
+    return <DoctorLayout>{children}</DoctorLayout>;
+  }
+
+  // --- PATIENT LAYOUT LOGIC ---
+  const isPatientRoute = location.pathname.startsWith("/patient");
+
+  if (isPatientRoute) {
+    return <PatientLayout>{children}</PatientLayout>;
+  }
+
   // --- PUBLIC LAYOUT LOGIC ---
-  // Define which public paths should hide the Header/Footer (Auth pages)
   const hideOnPaths = ["/login", "/signup"];
-  
-  // Check if current path is in the list
   const showHeaderFooter = !hideOnPaths.includes(location.pathname);
 
   return (
     <>
-      {/* Show Header only if not on Login/Signup pages */}
       {showHeaderFooter && <Header />}
-      
-      {/* Render the Page Content */}
       {children}
-      
-      {/* Show Footer only if not on Login/Signup pages */}
       {showHeaderFooter && <Footer />}
     </>
   );
@@ -104,7 +116,6 @@ function Layout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* 2. Wrap routes inside the Layout to handle the switching logic */}
       <Layout>
         <Routes>
           
@@ -113,47 +124,46 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} /> {/* <--- 2. ADD THIS ROUTE */}
 
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
-          {/* New Settings Route */}
           <Route path="/admin/settings" element={<Settings />} />
-          {/* Manage Doctors Page */}
           <Route path="/admin/doctors" element={<ManageDoctors />} />
-          {/* Manage Radiologists Page */}
           <Route path="/admin/radiologists" element={<ManageRadiologists />} />
-          {/* Manage Patients Page */}
           <Route path="/admin/patients" element={<ManagePatients />} />
-          {/* System Logs Page */}
           <Route path="/admin/logs" element={<SystemLogs />} />
 
 
           {/* --- Receptionist Routes --- */}
           <Route path="/receptionist/dashboard" element={<ReceptionistDashboard />} />
           <Route path="/receptionist/patients" element={<ReceptionistManagePatients />} />
-          {/* Receptionist Settings Route */}
           <Route path="/receptionist/settings" element={<ReceptionistSettings />} />
-          {/* Receptionist System Logs Page */}
           <Route path="/receptionist/logs" element={<ReceptionistSystemLogs />} />
 
 
           {/* --- Radiographer Routes --- */}
           <Route path="/radiographer/dashboard" element={<RadiographerDashboard />} />
           <Route path="/radiographer/appointments" element={<RadiographerAppointments />} />
-          {/* Radiographer Settings Route */}
           <Route path="/radiographer/settings" element={<RadiographerSettings />} />
-          {/* Radiographer System Logs Page */}
           <Route path="/radiographer/logs" element={<RadiographerSystemLogs />} />
 
           {/* --- Radiologist Routes --- */}
           <Route path="/radiologist/dashboard" element={<RadiologistDashboard />} />
           <Route path="/radiologist/appointments" element={<RadiologisAppointment/>} />
-          {/* Radiologist Settings Route */}
           <Route path="/radiologist/settings" element={<RadiologistSettings />} />
-          {/* Radiologist System Logs Page */}
           <Route path="/radiologist/logs" element={<RadiologistSystemLogs />} />
 
-          
+          {/* --- Doctor Routes --- */}
+          <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+          <Route path="/doctor/patients" element={<DoctorPatients />} />
+          <Route path="/doctor/settings" element={<DoctorSettings />} />
+
+          {/* --- Patient Routes --- */}
+          <Route path="/patient/dashboard" element={<PatientDashboard />} />
+          <Route path="/patient/reports" element={<PatientReports />} />
+          <Route path="/patient/settings" element={<PatientSettings />} />
 
         </Routes>
       </Layout>
