@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // Import the new component
-import PatientDetailsModal from "../../component/PatientDetailsModal";
+import PatientDetailsModal from "../../component/Admin/PatientDetailsModal";
 
 export default function ManagePatients() {
   // 1. Dummy Data

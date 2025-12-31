@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import DashboardCharts from "../../component/DashboardCharts"; 
+import DashboardCharts from "../../component/Admin/DashboardCharts"; 
 import DoctorReportModal from "../../component/Doctor/DoctorReportModal"; // Import the modal
 
 export default function DoctorDashboard() {

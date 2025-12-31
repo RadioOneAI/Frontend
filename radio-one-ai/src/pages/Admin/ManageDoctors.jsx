@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import DoctorDetailsModal from "../../component/DoctorDetailsModal";
+import DoctorDetailsModal from "../../component/Admin/DoctorDetailsModal";
 import TablePagination from "../../component/TablePagination";
-import ConfirmationModal from "../../component/ConfirmationModal";
+import ConfirmationModal from "../../component/Admin/ConfirmationModal";
 import ExportButton from "../../component/ExportButton";
 import Toast from "../../component/Toast"; // <--- 1. Import Toast
 
