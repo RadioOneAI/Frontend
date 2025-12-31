@@ -8,7 +8,8 @@ import Hero from "./pages/Hero/hero";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
-import ContactUs from "./pages/ContactUs"; // <--- 1. IMPORT THIS
+import ContactUs from "./pages/ContactUs"; 
+import AboutUs from "./pages/AboutUs"; // <--- 1. IMPORT THIS
 
 // Admin Components
 import AdminLayout from "./pages/Admin/AdminLayout";
@@ -123,7 +124,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<UserProfile />} />
-          <Route path="/contact" element={<ContactUs />} /> {/* <--- 2. ADD THIS ROUTE */}
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} /> {/* <--- 2. ADD THIS ROUTE */}
 
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
