@@ -21,14 +21,15 @@ export default function ContactUs() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-start">
           
-          {/* Left Side: Contact Info */}
-          <div className="space-y-8">
+          {/* Left Side: Contact Info Details */}
+          <div className="space-y-8 order-2 xl:order-1">
             <div className="card bg-base-200 shadow-xl border border-base-300">
               <div className="card-body">
                 <h3 className="card-title text-2xl mb-4 text-emerald-600">Contact Information</h3>
                 
+                {/* Phone */}
                 <div className="flex items-start gap-4 mb-6">
                   <div className="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -42,6 +43,7 @@ export default function ContactUs() {
                   </div>
                 </div>
 
+                {/* Email */}
                 <div className="flex items-start gap-4 mb-6">
                   <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -55,6 +57,7 @@ export default function ContactUs() {
                   </div>
                 </div>
 
+                {/* Office */}
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -75,55 +78,66 @@ export default function ContactUs() {
             </div>
           </div>
 
-          {/* Right Side: Form */}
-          <div className="card bg-base-100 shadow-2xl border border-base-200">
-            <div className="card-body">
+          {/* Right Side: Form Container */}
+          <div className="card bg-base-100 shadow-2xl border border-base-200 order-1 xl:order-2">
+            <div className="card-body p-8">
               <h3 className="card-title text-2xl mb-6">Send us a message</h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit}>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="form-control w-full">
-                    <label className="label">
-                      <span className="label-text font-medium">First Name</span>
-                    </label>
-                    <input type="text" placeholder="John" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
+                {/* --- NEW GRID LAYOUT FOR FORM --- */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Left Column of Form (Inputs) */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="form-control w-full">
+                        <label className="label">
+                          <span className="label-text font-medium">First Name</span>
+                        </label>
+                        <input type="text" placeholder="John" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
+                      </div>
+                      <div className="form-control w-full">
+                        <label className="label">
+                          <span className="label-text font-medium">Last Name</span>
+                        </label>
+                        <input type="text" placeholder="Doe" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
+                      </div>
+                    </div>
+
+                    <div className="form-control w-full">
+                      <label className="label">
+                        <span className="label-text font-medium">Email Address</span>
+                      </label>
+                      <input type="email" placeholder="john@example.com" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
+                    </div>
+
+                    <div className="form-control w-full">
+                      <label className="label">
+                        <span className="label-text font-medium">Subject</span>
+                      </label>
+                      <select className="select select-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" defaultValue={"Pick a topic"}>
+                        <option disabled>Pick a topic</option>
+                        <option>General Inquiry</option>
+                        <option>Technical Support</option>
+                        <option>Sales & Pricing</option>
+                        <option>Partnership</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="form-control w-full">
+
+                  {/* Right Column of Form (Message Box positioned to the right) */}
+                  <div className="form-control w-full h-full">
                     <label className="label">
-                      <span className="label-text font-medium">Last Name</span>
+                      <span className="label-text font-medium">Message</span>
                     </label>
-                    <input type="text" placeholder="Doe" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
+                    {/* Added h-full and min-h to make it stretch nicely on the right */}
+                    <textarea className="textarea textarea-bordered h-full min-h-[250px] bg-base-200 focus:bg-base-100 transition-colors resize-none" placeholder="How can we help you?"></textarea>
                   </div>
-                </div>
 
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text font-medium">Email Address</span>
-                  </label>
-                  <input type="email" placeholder="john@example.com" className="input input-bordered w-full bg-base-200 focus:bg-base-100 transition-colors" />
                 </div>
+                {/* --- END GRID LAYOUT --- */}
 
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text font-medium">Subject</span>
-                  </label>
-                  <select className="select select-bordered w-full bg-base-200 focus:bg-base-100 transition-colors">
-                    <option disabled selected>Pick a topic</option>
-                    <option>General Inquiry</option>
-                    <option>Technical Support</option>
-                    <option>Sales & Pricing</option>
-                    <option>Partnership</option>
-                  </select>
-                </div>
-
-                <div className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text font-medium">Message</span>
-                  </label>
-                  <textarea className="textarea textarea-bordered h-32 bg-base-200 focus:bg-base-100 transition-colors" placeholder="How can we help you?"></textarea>
-                </div>
-
-                <div className="card-actions justify-end mt-6">
+                <div className="card-actions justify-end mt-8">
                   <button type="submit" className="btn btn-success text-white w-full sm:w-auto px-8 text-lg">
                     Send Message
                   </button>
