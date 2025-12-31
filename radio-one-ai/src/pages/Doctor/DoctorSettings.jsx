@@ -1,15 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Toast from "../../component/Toast"; 
 
 export default function DoctorSettings() {
   const [toast, setToast] = useState(null);
   
-  // Ref for the hidden file input
-  const fileInputRef = useRef(null);
-
-  // State for the profile image (Default image initially)
-  const [profileImage, setProfileImage] = useState("https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp");
-
   // Mock Doctor Data
   const [formData, setFormData] = useState({
     name: "Dr. Sarah Jenkins",
@@ -19,10 +13,7 @@ export default function DoctorSettings() {
     email: "sarah.j@cityhospital.com",
     hospital: "City Hospital, Colombo",
     alertCritical: true,
-    alertReportReady: true,
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: ""
+    alertReportReady: true
   });
 
   const handleChange = (e) => {
@@ -30,33 +21,8 @@ export default function DoctorSettings() {
     setFormData({ ...formData, [e.target.name]: value });
   };
 
-  // --- NEW: Handle Image Upload ---
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Create a local URL for the selected file to preview it immediately
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-      setToast({ message: "Photo updated successfully!", type: "success" });
-      setTimeout(() => setToast(null), 3000);
-    }
-  };
-
-  // --- NEW: Trigger the hidden file input ---
-  const triggerFileInput = () => {
-    fileInputRef.current.click();
-  };
-
   const handleSave = (e) => {
     e.preventDefault();
-    
-    // Simple validation check
-    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
-        setToast({ message: "New passwords do not match!", type: "error" });
-        setTimeout(() => setToast(null), 3000);
-        return;
-    }
-
     // Simulate API update
     setToast({ message: "Settings saved successfully!", type: "success" });
     setTimeout(() => setToast(null), 3000);
@@ -81,33 +47,14 @@ export default function DoctorSettings() {
             <h2 className="card-title text-primary border-b border-base-200 pb-2 mb-4">Professional Information</h2>
             
             <div className="flex flex-col md:flex-row gap-8">
-              
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-4">
                 <div className="avatar">
                   <div className="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    {/* Display the state variable profileImage */}
-                    <img src={profileImage} alt="Doctor Profile" />
+                    <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" alt="Doctor Profile" />
                   </div>
                 </div>
-                
-                {/* Hidden File Input */}
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleImageUpload} 
-                  className="hidden" 
-                  accept="image/*"
-                />
-
-                {/* Button triggers the hidden input */}
-                <button 
-                  type="button" 
-                  onClick={triggerFileInput} 
-                  className="btn btn-sm btn-outline"
-                >
-                  Update Photo
-                </button>
+                <button type="button" className="btn btn-sm btn-outline">Update Photo</button>
               </div>
 
               {/* Fields */}
@@ -178,45 +125,15 @@ export default function DoctorSettings() {
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
             <h2 className="card-title text-neutral border-b border-base-200 pb-2 mb-4">Security</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-              
-              {/* Row 1: Current Password (Left) + Empty Spacer (Right) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control">
                 <label className="label"><span className="label-text">Current Password</span></label>
-                <input 
-                  type="password" 
-                  name="currentPassword" 
-                  placeholder="********" 
-                  className="input input-bordered w-full" 
-                  onChange={handleChange}
-                />
+                <input type="password" placeholder="********" className="input input-bordered" />
               </div>
-              {/* Spacer div to push the next inputs to the next row on desktop */}
-              <div className="hidden md:block"></div>
-
-              {/* Row 2: New Password (Left) + Confirm Password (Right) */}
               <div className="form-control">
                 <label className="label"><span className="label-text">New Password</span></label>
-                <input 
-                  type="password" 
-                  name="newPassword" 
-                  placeholder="Enter new password" 
-                  className="input input-bordered w-full" 
-                  onChange={handleChange}
-                />
+                <input type="password" placeholder="Leave blank to keep same" className="input input-bordered" />
               </div>
-
-              <div className="form-control">
-                <label className="label"><span className="label-text">Confirm New Password</span></label>
-                <input 
-                  type="password" 
-                  name="confirmPassword" 
-                  placeholder="Re-enter new password" 
-                  className="input input-bordered w-full" 
-                  onChange={handleChange}
-                />
-              </div>
-
             </div>
           </div>
         </div>

@@ -49,8 +49,7 @@ export default function DoctorReportModal({ patient, onClose }) {
 
   return (
     <dialog id="doctor_report_modal" className="modal modal-open">
-      {/* INCREASED WIDTH HERE: max-w-7xl */}
-      <div className="modal-box w-11/12 max-w-7xl p-0 overflow-hidden bg-base-100">
+      <div className="modal-box w-11/12 max-w-5xl p-0 overflow-hidden bg-base-100">
         
         {/* Header */}
         <div className="p-4 bg-base-200 border-b border-base-300 flex justify-between items-center">
@@ -61,8 +60,7 @@ export default function DoctorReportModal({ patient, onClose }) {
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">✕</button>
         </div>
 
-        {/* INCREASED HEIGHT HERE: h-[85vh] */}
-        <div className="flex flex-col lg:flex-row h-[85vh]">
+        <div className="flex flex-col lg:flex-row h-[75vh]">
           
           {/* LEFT: MRI Visual */}
           <div className="lg:w-3/5 bg-black flex items-center justify-center p-4 relative group">
