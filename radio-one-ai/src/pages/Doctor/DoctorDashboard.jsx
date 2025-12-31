@@ -1,12 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import DashboardCharts from "../../component/DashboardCharts"; 
-import DoctorReportModal from "../../component/Doctor/DoctorReportModal"; // Import the modal
+import DashboardCharts from "../../component/DashboardCharts"; // Reusing your existing charts component
 
 export default function DoctorDashboard() {
-  // State to manage the open report modal
-  const [selectedPatient, setSelectedPatient] = useState(null);
-
   return (
     <div className="space-y-6">
       {/* Header with Settings Button */}
@@ -65,9 +61,8 @@ export default function DoctorDashboard() {
                 </tr>
               </thead>
               <tbody>
-                
-                {/* Row 1: Critical Finding (Kamal - P001) */}
-                <tr className="hover cursor-pointer" onClick={() => setSelectedPatient({ id: "P001", name: "Kamal Gunawardena" })}>
+                {/* Row 1: Critical Finding */}
+                <tr className="hover">
                   <td>
                     <div className="font-bold">Kamal Gunawardena</div>
                     <div className="text-xs opacity-50">Ref: #REQ-8821</div>
@@ -77,24 +72,12 @@ export default function DoctorDashboard() {
                     <span className="text-error font-bold">Meningioma Detected</span><br/>
                     <span className="text-xs">Size: 2.4cm x 1.8cm | Loc: Left Frontal</span>
                   </td>
-                  <td>
-                    {/* Button triggers modal via parent row onClick or direct click */}
-                    <button 
-                        className="btn btn-xs btn-primary"
-                        onClick={(e) => {
-                            e.stopPropagation(); // Prevent double trigger
-                            setSelectedPatient({ id: "P001", name: "Kamal Gunawardena" });
-                        }}
-                    >
-                        Review Now
-                    </button>
-                  </td>
+                  <td><button className="btn btn-xs btn-primary">Review Now</button></td>
                 </tr>
-
-                {/* Row 2: Normal Finding (Nimali - P002) */}
-                <tr className="hover cursor-pointer" onClick={() => setSelectedPatient({ id: "P002", name: "Nimali Perera" })}>
+                {/* Row 2: Normal Finding */}
+                <tr className="hover">
                   <td>
-                    <div className="font-bold">Nimali Perera</div>
+                    <div className="font-bold">Sita Kumari</div>
                     <div className="text-xs opacity-50">Ref: #REQ-8822</div>
                   </td>
                   <td>MRI - Spine <br/><span className="text-[10px] opacity-60">23 Oct 2023</span></td>
@@ -102,19 +85,8 @@ export default function DoctorDashboard() {
                     <span className="text-success font-bold">No Abnormalities</span><br/>
                     <span className="text-xs">Normal spinal alignment.</span>
                   </td>
-                  <td>
-                    <button 
-                        className="btn btn-xs btn-outline"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedPatient({ id: "P002", name: "Nimali Perera" });
-                        }}
-                    >
-                        Details
-                    </button>
-                  </td>
+                  <td><button className="btn btn-xs btn-outline">Details</button></td>
                 </tr>
-
               </tbody>
             </table>
           </div>
@@ -123,15 +95,6 @@ export default function DoctorDashboard() {
       
       {/* Charts Component Reused */}
       <DashboardCharts />
-
-      {/* RENDER THE MODAL IF A PATIENT IS SELECTED */}
-      {selectedPatient && (
-        <DoctorReportModal 
-          patient={selectedPatient} 
-          onClose={() => setSelectedPatient(null)} 
-        />
-      )}
-
     </div>
   );
 }
