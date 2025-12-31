@@ -14,7 +14,6 @@ export default function DoctorSettings() {
     hospital: "City Hospital, Colombo",
     alertCritical: true,
     alertReportReady: true,
-    // Password fields
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
@@ -137,41 +136,41 @@ export default function DoctorSettings() {
         <div className="card bg-base-100 shadow-xl mb-6">
           <div className="card-body">
             <h2 className="card-title text-neutral border-b border-base-200 pb-2 mb-4">Security</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               
-              {/* Current Password - Full Width on Mobile, Span 2 on Desktop if desired, or kept as is. 
-                  Here keeping it consistent with the grid */}
-              <div className="form-control md:col-span-2">
+              {/* Row 1: Current Password (Left) + Empty Spacer (Right) */}
+              <div className="form-control">
                 <label className="label"><span className="label-text">Current Password</span></label>
                 <input 
                   type="password" 
                   name="currentPassword" 
                   placeholder="********" 
-                  className="input input-bordered" 
+                  className="input input-bordered w-full" 
                   onChange={handleChange}
                 />
               </div>
+              {/* Spacer div to push the next inputs to the next row on desktop */}
+              <div className="hidden md:block"></div>
 
-              {/* New Password */}
+              {/* Row 2: New Password (Left) + Confirm Password (Right) */}
               <div className="form-control">
                 <label className="label"><span className="label-text">New Password</span></label>
                 <input 
                   type="password" 
                   name="newPassword" 
                   placeholder="Enter new password" 
-                  className="input input-bordered" 
+                  className="input input-bordered w-full" 
                   onChange={handleChange}
                 />
               </div>
 
-              {/* Confirm New Password */}
               <div className="form-control">
                 <label className="label"><span className="label-text">Confirm New Password</span></label>
                 <input 
                   type="password" 
                   name="confirmPassword" 
                   placeholder="Re-enter new password" 
-                  className="input input-bordered" 
+                  className="input input-bordered w-full" 
                   onChange={handleChange}
                 />
               </div>
