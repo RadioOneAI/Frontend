@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Toast from "../../component/Toast"; 
 
 export default function DoctorSettings() {
   const [toast, setToast] = useState(null);
   
+  // Ref for the hidden file input
+  const fileInputRef = useRef(null);
+
+  // State for the profile image (Default image initially)
+  const [profileImage, setProfileImage] = useState("https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp");
+
   // Mock Doctor Data
   const [formData, setFormData] = useState({
     name: "Dr. Sarah Jenkins",
@@ -22,6 +28,23 @@ export default function DoctorSettings() {
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
+  };
+
+  // --- NEW: Handle Image Upload ---
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create a local URL for the selected file to preview it immediately
+      const imageUrl = URL.createObjectURL(file);
+      setProfileImage(imageUrl);
+      setToast({ message: "Photo updated successfully!", type: "success" });
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
+  // --- NEW: Trigger the hidden file input ---
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
   };
 
   const handleSave = (e) => {
@@ -58,14 +81,33 @@ export default function DoctorSettings() {
             <h2 className="card-title text-primary border-b border-base-200 pb-2 mb-4">Professional Information</h2>
             
             <div className="flex flex-col md:flex-row gap-8">
+              
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-4">
                 <div className="avatar">
                   <div className="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                    <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" alt="Doctor Profile" />
+                    {/* Display the state variable profileImage */}
+                    <img src={profileImage} alt="Doctor Profile" />
                   </div>
                 </div>
-                <button type="button" className="btn btn-sm btn-outline">Update Photo</button>
+                
+                {/* Hidden File Input */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  className="hidden" 
+                  accept="image/*"
+                />
+
+                {/* Button triggers the hidden input */}
+                <button 
+                  type="button" 
+                  onClick={triggerFileInput} 
+                  className="btn btn-sm btn-outline"
+                >
+                  Update Photo
+                </button>
               </div>
 
               {/* Fields */}
