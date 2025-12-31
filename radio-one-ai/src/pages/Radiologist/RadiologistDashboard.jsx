@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import DashboardCharts from "../../component/DashboardCharts"; // <--- Import Component
+import DashboardCharts from "../../component/Admin/DashboardCharts"; // <--- Import Component
 
 export default function RadiologistDashboard() {
   return (

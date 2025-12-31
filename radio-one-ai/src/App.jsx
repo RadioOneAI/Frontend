@@ -8,6 +8,8 @@ import Hero from "./pages/Hero/hero";
 import Login from "./pages/Auth/Login";
 import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
+import ContactUs from "./pages/ContactUs"; 
+import AboutUs from "./pages/AboutUs";
 
 // Admin Components
 import AdminLayout from "./pages/Admin/AdminLayout";
@@ -15,7 +17,9 @@ import DashboardHome from "./pages/Admin/DashboardHome";
 import Settings from "./pages/Admin/Settings"; 
 import ManageDoctors from "./pages/Admin/ManageDoctors"; 
 import ManageRadiologists from "./pages/Admin/ManageRadiologists"; 
+import ManageRadiographers from "./pages/Admin/ManageRadiographers"; // <--- 1. IMPORT ADDED
 import ManagePatients from "./pages/Admin/ManagePatients"; 
+import ManageReceptionists from "./pages/Admin/ManageReceptionists";
 import SystemLogs from "./pages/Admin/SystemLogs"; 
 
 // Receptionist Components
@@ -122,13 +126,17 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<UserProfile />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} />
 
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
           <Route path="/admin/settings" element={<Settings />} />
           <Route path="/admin/doctors" element={<ManageDoctors />} />
           <Route path="/admin/radiologists" element={<ManageRadiologists />} />
+          <Route path="/admin/radiographers" element={<ManageRadiographers />} /> {/* <--- 2. ROUTE ADDED */}
           <Route path="/admin/patients" element={<ManagePatients />} />
+          <Route path="/admin/receptionists" element={<ManageReceptionists />} />
           <Route path="/admin/logs" element={<SystemLogs />} />
 
 

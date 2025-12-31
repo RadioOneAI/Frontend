@@ -14,14 +14,12 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-base-100 w-50 border-r border-base-300">
+    <div className="h-full flex flex-col bg-base-100 w-80 border-r border-base-300">
       
       {/* --- BRAND HEADER --- */}
       <div className="p-6 flex items-center gap-3">
-        {/* REPLACED THE "R" BOX WITH THE LOGO IMAGE */}
         <img src={logo} alt="RadioOneAI Logo" className="w-10 h-10 object-contain" />
         <div>
-          {/* UPDATED TEXT TO "RadioOneAI" */}
           <h1 className="text-xl font-bold tracking-tight">RadioOneAI</h1>
           <p className="text-xs text-base-content/50 uppercase tracking-widest font-semibold">Admin Panel</p>
         </div>
@@ -59,6 +57,26 @@ export default function AdminSidebar() {
           </Link>
         </li>
 
+        {/* Radiographers (NEW ADDITION) */}
+        <li>
+          <Link to="/admin/radiographers" className={`rounded-xl p-3 ${getLinkClass("/admin/radiographers")}`}>
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .884-.896 1.618-2 2a4 4 0 01-4-4 2 2 0 014-4 2 2 0 012 2v2" />
+             </svg>
+            Radiographers
+          </Link>
+        </li>
+
+                {/* Receptionists */}
+        <li>
+          <Link to="/admin/receptionists" className={`rounded-xl p-3 ${getLinkClass("/admin/receptionists")}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Receptionists
+          </Link>
+        </li>
+
         {/* Patients */}
         <li>
           <Link to="/admin/patients" className={`rounded-xl p-3 ${getLinkClass("/admin/patients")}`}>
@@ -84,7 +102,6 @@ export default function AdminSidebar() {
               </Link>
             </li>
 
-            {/* System Logs with new Icon */}
             <li>
             <Link to="/admin/logs" className={`rounded-lg ${getLinkClass("/admin/logs")}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
