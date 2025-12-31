@@ -19,6 +19,7 @@ import ManageDoctors from "./pages/Admin/ManageDoctors";
 import ManageRadiologists from "./pages/Admin/ManageRadiologists"; 
 import ManageRadiographers from "./pages/Admin/ManageRadiographers"; // <--- 1. IMPORT ADDED
 import ManagePatients from "./pages/Admin/ManagePatients"; 
+import ManageReceptionists from "./pages/Admin/ManageReceptionists";
 import SystemLogs from "./pages/Admin/SystemLogs"; 
 
 // Receptionist Components
@@ -135,6 +136,7 @@ export default function App() {
           <Route path="/admin/radiologists" element={<ManageRadiologists />} />
           <Route path="/admin/radiographers" element={<ManageRadiographers />} /> {/* <--- 2. ROUTE ADDED */}
           <Route path="/admin/patients" element={<ManagePatients />} />
+          <Route path="/admin/receptionists" element={<ManageReceptionists />} />
           <Route path="/admin/logs" element={<SystemLogs />} />
 
 
