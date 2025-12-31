@@ -30,13 +30,14 @@ export default function Header() {
           <Link to="/" className="btn btn-ghost join-item btn-lg">Home</Link>
           <a className="btn btn-ghost join-item btn-lg">Features</a>
           <a className="btn btn-ghost join-item btn-lg">Pricing</a>
-          <a className="btn btn-ghost join-item btn-lg">Contact</a>
+          {/* UPDATED: Contact Link */}
+          <Link to="/contact" className="btn btn-ghost join-item btn-lg">Contact</Link>
         </div>
       </div>
 
       {/* Right: Theme + Auth */}
       <div className="navbar-end gap-2">
-        {/* Auth buttons - Updated to use Link */}
+        {/* Auth buttons */}
         <Link to="/login" className="btn btn-soft btn-lg btn-ghost rounded-full">
           Login
         </Link>
@@ -102,8 +103,9 @@ export default function Header() {
             <li>
               <a>Pricing</a>
             </li>
+            {/* UPDATED: Contact Link for Mobile */}
             <li>
-              <a>Contact</a>
+              <Link to="/contact">Contact</Link>
             </li>
           </ul>
         </div>
