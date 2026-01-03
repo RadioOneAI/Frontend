@@ -122,7 +122,7 @@ export default function Radiologistretrieve() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h1 className="text-4xl font-bold">Radiologist Appointments</h1>
-          <p className="text-base-content/70 text-lg">
+          <p className="text-base-content/60">
             Edit report details, run AI analysis, or view finalized reports.
           </p>
         </div>

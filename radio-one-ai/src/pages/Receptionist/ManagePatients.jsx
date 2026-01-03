@@ -156,7 +156,7 @@ export default function ManagePatients() {
           <input
             type="text"
             placeholder="Search by Name or NIC Number..."
-            className="input input-bordered w-full max-w-md text-lg"
+            className="input input-bordered w-full max-w-2xl text-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
