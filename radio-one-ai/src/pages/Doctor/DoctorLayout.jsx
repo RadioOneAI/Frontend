@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import DoctorSidebar from "../../component/Doctor/DoctorSidebar";
 import { Link } from "react-router-dom";
 import DoctorBreadcrumbs from "../../component/Doctor/DoctorBreadcrumbs";
+import DateTimeDisplay from "../../component/DateTimeModal";
 
 export default function DoctorLayout({ children }) {
   // Theme state logic
@@ -49,15 +50,11 @@ export default function DoctorLayout({ children }) {
               Doctor Portal
             </span>
           </div>
+          <div className="flex items-center gap-4">
+            {/* DATE & TIME (LIVE) */}
 
-          {/* Right Side Actions */}
-          <div className="flex-none gap-3">
-            {/* THEME TOGGLE BUTTON */}
-            <button
-              onClick={toggleTheme}
-              className="btn btn-ghost btn-circle"
-              aria-label="Toggle Theme"
-            >
+            <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
+              {/* ... (Theme Icons) ... */}
               {theme === "dark" ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -90,20 +87,15 @@ export default function DoctorLayout({ children }) {
                 </svg>
               )}
             </button>
+            <DateTimeDisplay compact />
 
-            {/* Profile Avatar */}
-            <div className="dropdown dropdown-end">
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost btn-circle avatar"
-              >
-                <div className="w-10 rounded-full border border-base-300">
-                  <img
-                    alt="Doctor"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  />
-                </div>
+            {/* AVATAR */}
+            <div className="avatar">
+              <div className="w-9 rounded-full border">
+                <img
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                  alt="User"
+                />
               </div>
             </div>
           </div>
