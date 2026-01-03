@@ -135,11 +135,15 @@ export default function Radiologistretrieve() {
           </div>
           <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
             <div className="stat-title text-sm">Active</div>
-            <div className="stat-value text-2xl text-success">{stats.active}</div>
+            <div className="stat-value text-2xl text-success">
+              {stats.active}
+            </div>
           </div>
           <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
             <div className="stat-title text-sm">Analyzed</div>
-            <div className="stat-value text-2xl text-primary">{stats.analyzed}</div>
+            <div className="stat-value text-2xl text-primary">
+              {stats.analyzed}
+            </div>
           </div>
         </div>
       </div>
@@ -186,6 +190,12 @@ export default function Radiologistretrieve() {
                   <td className="text-center">
                     <div className="flex justify-center gap-2">
                       <button
+                        className="btn btn-outline btn-md"
+                        onClick={() => openReport(a)}
+                      >
+                        View Report
+                      </button>
+                      <button
                         className="btn btn-ghost btn-md"
                         onClick={() => openEdit(a)}
                       >
@@ -196,12 +206,6 @@ export default function Radiologistretrieve() {
                         onClick={() => openAnalyze(a)}
                       >
                         Analyze
-                      </button>
-                      <button
-                        className="btn btn-outline btn-md"
-                        onClick={() => openReport(a)}
-                      >
-                        View Report
                       </button>
                     </div>
                   </td>

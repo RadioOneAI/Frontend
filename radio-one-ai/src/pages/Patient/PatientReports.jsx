@@ -25,7 +25,7 @@ export default function PatientReports() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">My Medical Reports</h1>
+      <h1 className="text-4xl font-bold">My Medical Reports</h1>
       
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body p-0">

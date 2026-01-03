@@ -130,7 +130,7 @@ export default function ManageDoctors() {
 
       {/* Table */}
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full align-middle">
+        <table className="table w-full align-middle text-lg">
           <thead>
             <tr>
               <th>Name & Contact</th>
