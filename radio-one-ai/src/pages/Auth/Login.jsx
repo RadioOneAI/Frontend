@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import Brain from "../../assets/images/Brain.json";
@@ -22,13 +22,29 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ✅ Toast state
+  const [toast, setToast] = useState(null); // { type: "success"|"error"|"info", message: string }
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+  };
+
+  // auto hide toast
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const cleanIdentifier = identifier.trim();
     if (!cleanIdentifier || !password) {
-      setError("Please enter identifier and password.");
+      const msg = "Please enter identifier and password.";
+      setError(msg);
+      showToast("error", msg);
       return;
     }
 
@@ -46,7 +62,9 @@ export default function Login() {
       const json = await res.json();
 
       if (!res.ok || json?.success === false) {
-        setError(json?.message || "Login failed. Try again.");
+        const msg = json?.message || "Login failed. Try again.";
+        setError(msg);
+        showToast("error", msg);
         return;
       }
 
@@ -56,7 +74,9 @@ export default function Login() {
       const user = data?.user;
 
       if (!accessToken || !user?.role) {
-        setError("Invalid login response. Token or role missing.");
+        const msg = "Invalid login response. Token or role missing.";
+        setError(msg);
+        showToast("error", msg);
         return;
       }
 
@@ -65,13 +85,19 @@ export default function Login() {
       if (refreshToken) localStorage.setItem("refresh_token", refreshToken);
       localStorage.setItem("user", JSON.stringify(user));
 
+      // ✅ toast success
+      showToast("success", `Welcome ${user?.name || ""}! Redirecting...`);
+
       // ✅ Redirect by role
       const role = String(user.role || "").toLowerCase();
       const target = ROLE_ROUTES[role] || "/";
 
-      navigate(target, { replace: true });
+      // tiny delay so toast is visible
+      setTimeout(() => navigate(target, { replace: true }), 1200);
     } catch (err) {
-      setError("Server error. Check backend is running.");
+      const msg = "Server error. Check backend is running.";
+      setError(msg);
+      showToast("error", msg);
     } finally {
       setLoading(false);
     }
@@ -79,6 +105,23 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center px-4">
+      {/* ✅ Toast UI */}
+      {toast && (
+        <div className="toast toast-top toast-end z-[999]">
+          <div
+            className={`alert ${
+              toast.type === "success"
+                ? "alert-success"
+                : toast.type === "error"
+                ? "alert-error"
+                : "alert-info"
+            } shadow`}
+          >
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       <div className="card w-full max-w-md shadow-2xl bg-base-100 border border-base-300">
         <div className="card-body">
           {/* Lottie */}
@@ -91,7 +134,7 @@ export default function Login() {
             Login with username, email, or phone
           </p>
 
-          {/* Error */}
+          {/* Optional inline error */}
           {error && (
             <div className="alert alert-error mt-4">
               <span>{error}</span>
@@ -102,13 +145,11 @@ export default function Login() {
             {/* Identifier */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-semibold">
-                  Username / Email / Phone
-                </span>
+                <span className="label-text font-semibold">Username</span>
               </label>
               <input
                 type="text"
-                placeholder="recep01 or recep01@gmail.com or 0779998887"
+                placeholder="Enter your username"
                 className="input input-bordered w-full"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -124,14 +165,14 @@ export default function Login() {
               </label>
               <input
                 type="password"
-                placeholder="********"
+                placeholder="Enter your password"
                 className="input input-bordered w-full"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
               />
-              <label className="label">
+              <label className="label w-full">
                 <Link
                   to="/forgot-password"
                   className="label-text-alt link link-hover text-primary"
@@ -142,11 +183,7 @@ export default function Login() {
             </div>
 
             {/* Button */}
-            <button
-              className="btn btn-primary w-full"
-              type="submit"
-              disabled={loading}
-            >
+            <button className="btn btn-primary w-full" type="submit" disabled={loading}>
               {loading ? <span className="loading loading-spinner" /> : "Login"}
             </button>
           </form>
@@ -157,12 +194,6 @@ export default function Login() {
               Sign up
             </Link>
           </p>
-
-          {/* small helper */}
-          <div className="divider">Demo</div>
-          <div className="text-sm text-base-content/70">
-            Example identifier: <span className="font-mono">recep01</span>
-          </div>
         </div>
       </div>
     </div>
