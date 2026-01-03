@@ -129,24 +129,6 @@ export default function ViewReportModal({
           {/* RIGHT — DETAILS + FORM */}
           <div className="space-y-4">
 
-            {/* Priority */}
-            <div>
-              <div className="font-bold mb-1">Priority</div>
-              <div className="join w-full">
-                {["critical", "urgent", "routine", "normal"].map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    className={`btn join-item flex-1 ${
-                      priority === p ? "btn-neutral text-white" : "btn-outline"
-                    }`}
-                    onClick={() => setPriority(p)}
-                  >
-                    {p.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Routing */}
             <div className="flex gap-6">
