@@ -7,6 +7,7 @@ const PRIORITY_DEADLINES_MS = {
   urgent: 24 * 60 * 60 * 1000,
   routine: 48 * 60 * 60 * 1000,
   normal: null,
+  pending: null,
 };
 
 function formatRemaining(ms) {
@@ -25,11 +26,12 @@ function formatRemaining(ms) {
 }
 
 function priorityBadge(priority) {
-  const p = (priority || "normal").toLowerCase();
+  const p = (priority || "pending").toLowerCase();
   if (p === "critical") return <span className="badge badge-error text-white">Critical</span>;
   if (p === "urgent") return <span className="badge badge-warning text-white">Urgent</span>;
   if (p === "routine") return <span className="badge badge-info text-white">Routine</span>;
-  return <span className="badge badge-ghost">Normal</span>;
+  if (p === "normal") return <span className="badge badge-info text-white">Normal</span>;
+  return <span className="badge badge-ghost">Pending</span>;
 }
 
 export default function Appointments() {
@@ -44,7 +46,7 @@ export default function Appointments() {
       organ: "Brain",
       status: "Active",
       uploadedImages: [],
-      priority: "normal",
+      priority: "pending",
       dueAt: null,
     },
     {
@@ -52,12 +54,12 @@ export default function Appointments() {
       createdAt: "12/22/2025, 02:40 PM",
       doctor: "Dr. Shalini Fernando",
       patient: "Sita Kumari",
-      scanType: "CT",
+      scanType: "MRI",
       radiographer: "Radiographer I. Perera",
-      organ: "Abdominal",
+      organ: "Brain",
       status: "Active",
       uploadedImages: [],
-      priority: "normal",
+      priority: "pending",
       dueAt: null,
     },
     {
@@ -65,12 +67,12 @@ export default function Appointments() {
       createdAt: "12/26/2025, 09:05 AM",
       doctor: "Dr. Kasun Jayasinghe",
       patient: "Mohamed Riaz",
-      scanType: "X-Ray",
+      scanType: "MRI",
       radiographer: "Radiographer M. Fernando",
-      organ: "Lungs",
+      organ: "Brain",
       status: "Active",
       uploadedImages: [],
-      priority: "normal",
+      priority: "pending",
       dueAt: null,
     },
   ]);
