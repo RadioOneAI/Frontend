@@ -31,7 +31,7 @@ export default function Header() {
           {/* UPDATED: About Us Link */}
           <Link to="/about" className="btn btn-ghost join-item btn-lg">About Us</Link>
           <a className="btn btn-ghost join-item btn-lg">Features</a>
-          <a className="btn btn-ghost join-item btn-lg">Pricing</a>
+          <a className="btn btn-ghost join-item btn-lg">Feedback</a>
           <Link to="/contact" className="btn btn-ghost join-item btn-lg">Contact</Link>
         </div>
       </div>

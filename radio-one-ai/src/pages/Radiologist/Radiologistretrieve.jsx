@@ -195,7 +195,7 @@ export default function Radiologistretrieve() {
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((a) => (
                 <tr key={a.requestId} className="hover:bg-base-300">
-                  <td className="font-mono font-bold text-xl">{a.requestId}</td>
+                  <td className="text-base">{a.requestId}</td>
                   <td className="text-base">{a.createdAt}</td>
                   <td className="text-base">{a.doctor}</td>
                   <td className="text-base font-semibold">{a.patient}</td>
