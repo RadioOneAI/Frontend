@@ -8,7 +8,7 @@ export default function RadiologistDashboard() {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold">Dashboard Overview</h1>
-          <p className="text-base-content/70">Welcome back, Admin. Here is today's system summary.</p>
+          <p className="text-base-content/70">Welcome back, Radiologist. Here is today's system summary.</p>
         </div>
         <div className="text-sm font-mono opacity-50">
           Last updated: Today, 10:45 AM

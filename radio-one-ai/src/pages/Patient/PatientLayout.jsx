@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PatientSidebar from "../../component/Patient/PatientSidebar";
+import PatientBreadcrumbs from "../../component/Patient/PatientBreadcrumbs";
 
 export default function PatientLayout({ children }) {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -43,10 +44,14 @@ export default function PatientLayout({ children }) {
              </div>
         </div>
 
-        <main className="p-6 flex-grow">
-          {children}
-        </main>
-      </div>
+      <main className="p-6 flex-grow">
+                {/* ADD BREADCRUMBS HERE */}
+                <PatientBreadcrumbs />
+                
+                {children}
+              </main>
+            </div>
+      
 
       <div className="drawer-side z-40">
         <label htmlFor="patient-drawer" className="drawer-overlay"></label>
