@@ -12,7 +12,7 @@ export default function PatientSidebar() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-base-100 w-80 border-r border-base-300">
+    <div className="h-full flex flex-col bg-base-100 w-50 border-r border-base-300">
       {/* Brand Header */}
       <div className="p-6 flex items-center gap-3">
         <img
@@ -23,7 +23,7 @@ export default function PatientSidebar() {
         <div>
           <h1 className="text-xl font-bold tracking-tight">RadioOneAI</h1>
           <p className="text-xs text-base-content/50 uppercase tracking-widest font-semibold">
-            Patient Portal
+            Patient 
           </p>
         </div>
       </div>
