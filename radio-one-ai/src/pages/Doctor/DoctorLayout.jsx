@@ -33,7 +33,7 @@ export default function DoctorLayout({ children }) {
              
              {/* Title */}
              <div className="flex-1">
-               <span className="text-lg font-bold text-base-content/70">Doctor Console</span>
+               <span className="text-lg font-bold text-base-content/70">Doctor Portal</span>
              </div>
 
              {/* Right Side Actions */}

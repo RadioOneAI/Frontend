@@ -25,7 +25,7 @@ export default function PatientLayout({ children }) {
                </label>
              </div>
              <div className="flex-1 px-2 mx-2">
-               <span className="text-lg font-bold text-base-content/70">Patient Portal</span>
+               <span className="text-lg font-bold text-base-content/70">Patient Portal </span>
              </div>
              <div className="flex-none gap-2">
                <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
