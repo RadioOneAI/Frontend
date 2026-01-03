@@ -162,10 +162,13 @@ export default function ViewReportModal({
 
             {/* Diagnosis */}
             <h5 className="font-bold">Diagnosis</h5>
-            <span className="w-full pb-2" value={diagnosis}>
-              Based on the patient's presentation of progressive headaches, new-onset focal seizures, and right-sided weakness, along with MRI findings revealing a contrast-enhancing mass with significant edema in the left parietal lobe, the tentative diagnosis is a primary brain tumor, most likely a high-grade glioma such as a glioblastoma. This working diagnosis will remain until a histopathological confirmation is obtained via biopsy or surgical resection.
-            </span>
-            
+            <textarea
+              className="w-full pb-2 textarea textarea-bordered"
+              value={diagnosis}
+              placeholder="Based on the patient's presentation of progressive headaches, new-onset focal seizures, and right-sided weakness, along with MRI findings revealing a contrast-enhancing mass with significant edema in the left parietal lobe, the tentative diagnosis is a primary brain tumor, most likely a high-grade glioma such as a glioblastoma. This working diagnosis will remain until a histopathological confirmation is obtained via biopsy or surgical resection."
+            />
+
+           
             <h5 className="font-bold pt-5">Order</h5>
             <span className="w-full pb-2" value={order}>
               Activate the Rapid Response/Neuro Emergency. My patient is showing signs of cerebral herniation. I need the following done immediately.
