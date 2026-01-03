@@ -173,7 +173,7 @@ export default function DoctorReportModal({ appointment, onClose, modalId }) {
             <div className="mt-auto form-control">
               <label className="label">
                 <span className="label-text font-bold">
-                  Doctor's Final Assessment
+                  Radiologist's Final Assessment
                 </span>
               </label>
               <textarea

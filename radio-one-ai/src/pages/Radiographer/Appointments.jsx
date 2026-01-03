@@ -151,14 +151,14 @@ export default function Appointments() {
       <h1 className="text-4xl font-bold">Appointments</h1>
 
       <input
-        className="input input-bordered max-w-xl"
+        className="input input-bordered w-full max-w-2xl text-lg"
         placeholder="Search by Request ID / Patient / Doctor..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full text-lg">
+        <table className="table w-full text-sm">
           <thead>
             <tr>
               <th>Request ID</th>
