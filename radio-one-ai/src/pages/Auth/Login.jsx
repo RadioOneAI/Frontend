@@ -6,11 +6,11 @@ import Brain from "../../assets/images/Brain.json";
 const API_BASE = "http://127.0.0.1:5000";
 
 const ROLE_ROUTES = {
-  admin: "/admin",
-  receptionist: "/receptionist",
-  doctor: "/doctor",
-  radiologist: "/radiologist",
-  radiographer: "/radiographer",
+  admin: "/admin/dashboard",
+  receptionist: "/receptionist/dashboard",
+  doctor: "/doctor/dashboard",
+  radiologist: "/radiologist/dashboard",
+  radiographer: "/radiographer/dashboard",
 };
 
 export default function Login() {
