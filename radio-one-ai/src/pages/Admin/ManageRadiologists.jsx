@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // Import the new component
-import RadiologistDetailsModal from "../../component/RadiologistDetailsModal";
+import RadiologistDetailsModal from "../../component/Admin/RadiologistDetailsModal";
 
 export default function ManageRadiologists() {
   // 1. Dummy Data

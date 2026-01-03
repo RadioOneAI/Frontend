@@ -1,5 +1,5 @@
 import React from "react";
-import EditProfileModal from "../component/EditProfileModal"; // Import the new component
+import EditProfileModal from "../component/Admin/EditProfileModal"; // Import the new component
 
 export default function UserProfile() {
   // Dummy user data
