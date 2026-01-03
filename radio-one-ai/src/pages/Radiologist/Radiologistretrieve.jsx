@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import RetrieveImageModal from "../../component/Radiologist/RetriveImageModal";
 import EditDetailsModal from "../../component/Radiologist/EditDetailsModal";
 import AnalyzeModal from "../../component/Radiologist/AnalyzeModal";
+import DoctorReportModal from "../../component/Radiologist/Radiologistmodel.jsx";
 
 export default function Radiologistretrieve() {
   const [appointments, setAppointments] = useState([
@@ -14,7 +14,6 @@ export default function Radiologistretrieve() {
       radiographer: "Radiographer A. Silva",
       organ: "Brain",
       status: "Active",
-      images: [],
       report: {
         findings: "",
         impression: "",
@@ -31,78 +30,53 @@ export default function Radiologistretrieve() {
       radiographer: "Radiographer I. Perera",
       organ: "Abdominal",
       status: "Active",
-      images: [],
-      report: { findings: "", impression: "", notes: "" },
-      analysis: null,
-    },
-    {
-      requestId: "REQ-1-0003",
-      createdAt: "12/26/2025, 09:05 AM",
-      doctor: "Dr. Kasun Jayasinghe",
-      patient: "Mohamed Riaz",
-      scanType: "X-Ray",
-      radiographer: "Radiographer M. Fernando",
-      organ: "Lungs",
-      status: "Active",
-      images: [],
       report: { findings: "", impression: "", notes: "" },
       analysis: null,
     },
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
-
   const [selected, setSelected] = useState(null);
+  const [openModal, setOpenModal] = useState(null); // "edit" | "analyze" | "report" | null
 
-  const [openModal, setOpenModal] = useState(null); // "retrieve" | "edit" | "analyze" | null
-
-  const retrieveModalId = "retrieve_images_modal";
   const editModalId = "edit_details_modal";
   const analyzeModalId = "analyze_modal";
+  const reportModalId = "doctor_report_modal";
 
   const filteredAppointments = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return appointments;
 
-    return appointments.filter((a) => {
-      return (
+    return appointments.filter(
+      (a) =>
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q)
-      );
-    });
+    );
   }, [appointments, searchTerm]);
 
-  // Summary stats
+  // Stats summary
   const stats = useMemo(() => {
     const total = appointments.length;
-    const mri = appointments.filter((a) => a.scanType === "MRI").length;
-    const withImages = appointments.filter((a) => (a.images?.length || 0) > 0).length;
     const analyzed = appointments.filter((a) => !!a.analysis).length;
-    return { total, mri, withImages, analyzed };
+    const active = appointments.filter((a) => !a.analysis).length;
+    return { total, analyzed, active };
   }, [appointments]);
 
-  // Open modal AFTER render
+  // Open modal dynamically
   useEffect(() => {
     if (!selected || !openModal) return;
-
     const id =
-      openModal === "retrieve"
-        ? retrieveModalId
-        : openModal === "edit"
+      openModal === "edit"
         ? editModalId
-        : analyzeModalId;
-
+        : openModal === "analyze"
+        ? analyzeModalId
+        : reportModalId;
     const dialog = document.getElementById(id);
     if (dialog && !dialog.open) dialog.showModal();
   }, [selected, openModal]);
-
-  const openRetrieve = (appt) => {
-    setSelected(appt);
-    setOpenModal("retrieve");
-  };
 
   const openEdit = (appt) => {
     setSelected(appt);
@@ -112,6 +86,11 @@ export default function Radiologistretrieve() {
   const openAnalyze = (appt) => {
     setSelected(appt);
     setOpenModal("analyze");
+  };
+
+  const openReport = (appt) => {
+    setSelected(appt);
+    setOpenModal("report");
   };
 
   const closeAll = () => {
@@ -126,10 +105,15 @@ export default function Radiologistretrieve() {
   };
 
   const getStatusBadge = (a) => {
-    if (a.analysis) return <div className="badge badge-secondary badge-md text-white">Analyzed</div>;
-    if ((a.images?.length || 0) > 0)
-      return <div className="badge badge-info badge-md text-white">Images Ready</div>;
-    return <div className="badge badge-success badge-md text-white">Active</div>;
+    if (a.analysis)
+      return (
+        <div className="badge badge-secondary badge-md text-white">
+          Analyzed
+        </div>
+      );
+    return (
+      <div className="badge badge-success badge-md text-white">Active</div>
+    );
   };
 
   return (
@@ -139,27 +123,23 @@ export default function Radiologistretrieve() {
         <div>
           <h1 className="text-4xl font-bold">Radiologist Appointments</h1>
           <p className="text-base-content/70 text-lg">
-            Retrieve images, edit report details, and run AI analysis.
+            Edit report details, run AI analysis, or view finalized reports.
           </p>
         </div>
 
         {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
             <div className="stat-title text-sm">Total</div>
             <div className="stat-value text-2xl">{stats.total}</div>
           </div>
           <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
-            <div className="stat-title text-sm">MRI</div>
-            <div className="stat-value text-2xl text-primary">{stats.mri}</div>
-          </div>
-          <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
-            <div className="stat-title text-sm">With Images</div>
-            <div className="stat-value text-2xl">{stats.withImages}</div>
+            <div className="stat-title text-sm">Active</div>
+            <div className="stat-value text-2xl text-success">{stats.active}</div>
           </div>
           <div className="stat bg-base-100 rounded-2xl border border-base-300 shadow-sm py-3">
             <div className="stat-title text-sm">Analyzed</div>
-            <div className="stat-value text-2xl">{stats.analyzed}</div>
+            <div className="stat-value text-2xl text-primary">{stats.analyzed}</div>
           </div>
         </div>
       </div>
@@ -179,7 +159,7 @@ export default function Radiologistretrieve() {
       <div className="card bg-base-100 shadow-xl overflow-x-auto border border-base-300">
         <table className="table w-full align-middle text-lg">
           <thead>
-            <tr className="text-lg">
+            <tr className="text-sm">
               <th>Request ID</th>
               <th>Created</th>
               <th>Doctor</th>
@@ -194,25 +174,34 @@ export default function Radiologistretrieve() {
           <tbody>
             {filteredAppointments.length > 0 ? (
               filteredAppointments.map((a) => (
-                <tr key={a.requestId} className="hover:bg-base-300">
-                  <td className="text-base">{a.requestId}</td>
-                  <td className="text-base">{a.createdAt}</td>
-                  <td className="text-base">{a.doctor}</td>
-                  <td className="text-base font-semibold">{a.patient}</td>
-                  <td className="text-base">{a.radiographer}</td>
-                  <td className="text-base">{a.organ}</td>
+                <tr key={a.requestId} className="hover:bg-base-300 text-sm">
+                  <td>{a.requestId}</td>
+                  <td>{a.createdAt}</td>
+                  <td>{a.doctor}</td>
+                  <td className="font-semibold">{a.patient}</td>
+                  <td>{a.radiographer}</td>
+                  <td>{a.organ}</td>
                   <td>{getStatusBadge(a)}</td>
 
                   <td className="text-center">
-                    <div className="flex  justify-center gap-2">
-                      <button className="btn btn-outline btn-md" onClick={() => openRetrieve(a)}>
-                        MRI Images
-                      </button>
-                      <button className="btn btn-ghost btn-md" onClick={() => openEdit(a)}>
+                    <div className="flex justify-center gap-2">
+                      <button
+                        className="btn btn-ghost btn-md"
+                        onClick={() => openEdit(a)}
+                      >
                         Edit Details
                       </button>
-                      <button className="btn btn-primary btn-md" onClick={() => openAnalyze(a)}>
+                      <button
+                        className="btn btn-primary btn-md"
+                        onClick={() => openAnalyze(a)}
+                      >
                         Analyze
+                      </button>
+                      <button
+                        className="btn btn-outline btn-md"
+                        onClick={() => openReport(a)}
+                      >
+                        View Report
                       </button>
                     </div>
                   </td>
@@ -220,7 +209,10 @@ export default function Radiologistretrieve() {
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="text-center py-6 text-base-content/50 text-lg">
+                <td
+                  colSpan="9"
+                  className="text-center py-6 text-base-content/50 text-lg"
+                >
                   No appointments found.
                 </td>
               </tr>
@@ -230,15 +222,6 @@ export default function Radiologistretrieve() {
       </div>
 
       {/* Modals */}
-      <RetrieveImageModal
-        modalId={retrieveModalId}
-        appointment={selected}
-        onClose={closeAll}
-        onSaveImages={(requestId, images) => {
-          updateAppointment(requestId, { images });
-        }}
-      />
-
       <EditDetailsModal
         modalId={editModalId}
         appointment={selected}
@@ -255,6 +238,12 @@ export default function Radiologistretrieve() {
         onSaveAnalysis={(requestId, analysis) => {
           updateAppointment(requestId, { analysis });
         }}
+      />
+
+      <DoctorReportModal
+        modalId={reportModalId}
+        appointment={selected}
+        onClose={closeAll}
       />
     </div>
   );
