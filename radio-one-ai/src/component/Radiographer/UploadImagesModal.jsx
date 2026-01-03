@@ -1,166 +1,282 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 
-export default function UploadImagesModal({ modalId, appointment, onSubmit, onClose }) {
+import tumorImage from "../../assets/images/meningioma-segmentation.png";
+import noTumorImage from "../../assets/images/clean-mri.png";
+
+/**
+ * Demo clinical profiles (frontend only)
+ */
+const DEMO_PATIENT_PROFILES = {
+  "Kamal Gunawardena": {
+    hasTumor: true,
+  },
+  "Sita Kumari": {
+    hasTumor: false,
+  },
+  "Mohamed Riaz": {
+    hasTumor: false,
+  },
+};
+
+export default function UploadImagesModal({
+  modalId,
+  appointment,
+  onSubmit,
+  onClose,
+}) {
   const fileInputRef = useRef(null);
+
+  /* ================= STATE ================= */
   const [files, setFiles] = useState([]);
+  const [showReport, setShowReport] = useState(false);
+
   const [priority, setPriority] = useState("normal");
 
-  // reset when appointment changes
+  const [sendToRadiologist, setSendToRadiologist] = useState(true);
+  const [sendToPhysician, setSendToPhysician] = useState(false);
+
+  const [diagnosis, setDiagnosis] = useState("");
+  const [order, setOrder] = useState("");
+
+  const [readBackYes, setReadBackYes] = useState(false);
+  const [readBackNo, setReadBackNo] = useState(false);
+
+  const patientProfile = useMemo(() => {
+    if (!appointment) return null;
+    return (
+      DEMO_PATIENT_PROFILES[appointment.patient] || { hasTumor: false }
+    );
+  }, [appointment]);
+
+  /* ================= RESET ================= */
   useEffect(() => {
     setFiles([]);
-    setPriority(appointment?.priority || "normal");
+    setShowReport(false);
+    setPriority("normal");
+    setSendToRadiologist(true);
+    setSendToPhysician(false);
+    setDiagnosis("");
+    setOrder("");
+    setReadBackYes(false);
+    setReadBackNo(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [appointment?.requestId]);
 
   if (!appointment) return null;
 
-  const closeModal = () => {
-    document.getElementById(modalId)?.close();
-  };
-
+  /* ================= HANDLERS ================= */
   const handleFileChange = (e) => {
-    const list = Array.from(e.target.files || []).filter((f) => f.type.startsWith("image/"));
+    const list = Array.from(e.target.files || []).filter((f) =>
+      f.type.startsWith("image/")
+    );
     setFiles(list);
   };
 
-  const handleDrop = (e) => {
+  const handleSubmitUpload = (e) => {
     e.preventDefault();
-    const list = Array.from(e.dataTransfer.files || []).filter((f) => f.type.startsWith("image/"));
-    if (list.length > 0) setFiles(list);
+    setShowReport(true);
   };
 
-  const handleDragOver = (e) => e.preventDefault();
+  const handleFinalSubmit = () => {
+    onSubmit?.({
+      files,
+      priority,
+      sendToRadiologist,
+      sendToPhysician,
+      diagnosis,
+      order,
+      readBack: readBackYes ? "YES" : "NO",
+    });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit?.({ files, priority });
-
-    setFiles([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    closeModal();
+    document.getElementById(modalId)?.close();
+    onClose?.();
   };
 
+  /* ================= UI ================= */
   return (
-    <dialog id={modalId} className="modal" onClose={() => onClose?.()}>
-      <div className="modal-box w-11/12 max-w-3xl text-lg">
-        {/* Top right close */}
+    <dialog id={modalId} className="modal">
+      <div className="modal-box w-[95vw] max-w-[1400px] max-h-[85vh] overflow-y-auto">
+
+        {/* Close */}
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
         </form>
 
         <h3 className="font-bold text-2xl mb-1">Upload Scan Images</h3>
-
-        <p className="text-base-content/70 text-base mb-4">
-          Request: <span className="font-mono font-bold">{appointment.requestId}</span>
-          {" "}• Patient: <span className="font-semibold">{appointment.patient}</span>
+        <p className="text-base-content/70 mb-4">
+          Request <b>{appointment.requestId}</b> • Patient{" "}
+          <b>{appointment.patient}</b>
         </p>
 
-        <div className="divider my-2" />
-
-        {/* ✅ Priority Buttons */}
-        <div className="space-y-2">
-          <div className="font-bold">Select Priority</div>
-
-          <div className="join w-full">
-            <button
-              type="button"
-              className={`btn join-item flex-1 ${priority === "critical" ? "btn-error" : "btn-outline"}`}
-              onClick={() => setPriority("critical")}
+        {/* ================= UPLOAD ================= */}
+        {!showReport && (
+          <form onSubmit={handleSubmitUpload} className="space-y-4">
+            <div
+              className="border-2 border-dashed border-base-300 rounded-xl p-6 cursor-pointer hover:bg-base-200 transition"
+              onClick={() => fileInputRef.current?.click()}
             >
-              Critical (15 min)
-            </button>
-            <button
-              type="button"
-              className={`btn join-item flex-1 ${priority === "urgent" ? "btn-warning" : "btn-outline"}`}
-              onClick={() => setPriority("urgent")}
-            >
-              Urgent (24h)
-            </button>
-            <button
-              type="button"
-              className={`btn join-item flex-1 ${priority === "routine" ? "btn-info" : "btn-outline"}`}
-              onClick={() => setPriority("routine")}
-            >
-              Routine (48h)
-            </button>
-            <button
-              type="button"
-              className={`btn join-item flex-1 ${priority === "normal" ? "btn-neutral text-white" : "btn-outline"}`}
-              onClick={() => setPriority("normal")}
-            >
-              Normal
-            </button>
-          </div>
+              <div className="text-center">
+                <div className="text-xl font-bold">Drop images here</div>
+                <div className="text-base-content/70">or click to browse</div>
 
-          <div className="text-sm text-base-content/60">
-            Time countdown will start after you submit.
-          </div>
-        </div>
-
-        <div className="divider my-4" />
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Drop Zone */}
-          <div
-            className="border-2 border-dashed border-base-300 rounded-xl p-6 cursor-pointer hover:bg-base-200 transition"
-            onClick={() => fileInputRef.current?.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          >
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="text-xl font-bold">Drop images here</div>
-              <div className="text-base-content/70 text-base">
-                or click to browse (JPG, PNG, etc.)
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
               </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-              />
             </div>
-          </div>
 
-          {/* ✅ Preview thumbnails before submit */}
-          <div className="bg-base-200 rounded-xl p-4">
-            <div className="font-bold text-lg mb-2">Preview</div>
-
-            {files.length === 0 ? (
-              <div className="text-base-content/60 text-base">No images selected yet.</div>
-            ) : (
-              <div className="flex flex-wrap gap-3">
-                {files.map((f, idx) => (
-                  <div key={`${f.name}-${idx}`} className="card bg-base-100 border border-base-300 w-40">
-                    <figure className="px-3 pt-3">
-                      <img
-                        src={URL.createObjectURL(f)}
-                        alt={f.name}
-                        className="rounded-xl w-full h-24 object-cover"
-                        onLoad={(e) => URL.revokeObjectURL(e.currentTarget.src)} // ✅ avoid memory leak for preview
-                      />
-                    </figure>
-                    <div className="card-body p-3">
-                      <div className="text-xs font-semibold truncate">{f.name}</div>
-                    </div>
-                  </div>
+            {/* Preview before submit */}
+            {files.length > 0 && (
+              <div className="flex gap-3 flex-wrap">
+                {files.map((f, i) => (
+                  <img
+                    key={i}
+                    src={URL.createObjectURL(f)}
+                    alt="preview"
+                    className="w-28 h-28 object-cover rounded border"
+                  />
                 ))}
               </div>
             )}
-          </div>
 
-          {/* Submit */}
-          <div className="modal-action">
-            <button type="submit" className="btn btn-primary text-lg" disabled={files.length === 0}>
-              Submit Upload
-            </button>
+            <div className="modal-action">
+              <button className="btn btn-primary btn-lg" disabled={!files.length}>
+                Submit Upload
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* ================= REPORT + FORM ================= */}
+        {showReport && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {/* LEFT — RESULTS */}
+            <div>
+              <div className="bg-base-200 rounded-xl p-4">
+                <img
+                  src={patientProfile.hasTumor ? tumorImage : noTumorImage}
+                  className="rounded-xl w-full max-h-[420px] object-contain"
+                  alt="AI Result"
+                />
+                <div className="text-center mt-3">
+                  <h4 className="font-bold text-xl">AI Preliminary Result</h4>
+                  <p
+                    className={`font-semibold ${
+                      patientProfile.hasTumor
+                        ? "text-error"
+                        : "text-success"
+                    }`}
+                  >
+                    {patientProfile.hasTumor
+                      ? "Tumor Detected"
+                      : "No Abnormality Detected"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT — DETAILS + FORM */}
+            <div className="space-y-4">
+
+              {/* Priority */}
+              <div>
+                <div className="font-bold mb-1">Priority</div>
+                <div className="join w-full">
+                  {["critical", "urgent", "routine", "normal"].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`btn join-item flex-1 ${
+                        priority === p ? "btn-neutral text-white" : "btn-outline"
+                      }`}
+                      onClick={() => setPriority(p)}
+                    >
+                      {p.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Routing */}
+              <div className="flex gap-6">
+                <label className="label gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={sendToRadiologist}
+                    onChange={(e) =>
+                      setSendToRadiologist(e.target.checked)
+                    }
+                  />
+                  <span>Send to Radiologist</span>
+                </label>
+
+                <label className="label gap-2 cursor-not-allowed opacity-60">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={sendToPhysician}
+                    disabled
+                  />
+                  <span>Send to Physician</span>
+                </label>
+              </div>
+
+              {/* Diagnosis */}
+              <textarea
+                className="textarea textarea-bordered w-full"
+                placeholder="Diagnosis / Tentative Diagnosis"
+                value={diagnosis}
+                onChange={(e) => setDiagnosis(e.target.value)}
+              />
+
+              {/* Read back */}
+              <div>
+                <div className="font-bold mb-1">
+                  Read back & Verification performed
+                </div>
+                <div className="flex gap-6">
+                  <label className="label gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={readBackYes}
+                      onChange={() => {
+                        setReadBackYes(true);
+                        setReadBackNo(false);
+                      }}
+                    />
+                    <span>Yes</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Receiver */}
+              <div className="bg-base-200 rounded p-3 text-sm">
+                <b>Received By:</b> Namal Soyza <br />
+                <b>Designation:</b> Radiographer
+              </div>
+
+              <button
+                className="btn btn-success btn-lg w-full"
+                disabled={!readBackYes && !readBackNo}
+                onClick={handleFinalSubmit}
+              >
+                Submit & Start Timer
+              </button>
+            </div>
           </div>
-        </form>
+        )}
       </div>
 
-      {/* backdrop close */}
       <form method="dialog" className="modal-backdrop">
         <button onClick={onClose}>close</button>
       </form>
