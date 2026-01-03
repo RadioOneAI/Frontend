@@ -15,9 +15,6 @@ export default function Footer() {
               <img src={logo} alt="Radio One AI logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-semibold">RadioOneAI</span>
             </div>
-            <p className="opacity-80 text-sm leading-relaxed">
-              Build fast, clean UI with React + Tailwind + daisyUI.
-            </p>
             <div className="flex gap-2 pt-1">
               <a className="btn btn-ghost btn-sm" href="#">Privacy</a>
               <a className="btn btn-ghost btn-sm" href="#">Terms</a>

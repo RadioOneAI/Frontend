@@ -31,7 +31,7 @@ export default function Header() {
           {/* UPDATED: About Us Link */}
           <Link to="/about" className="btn btn-ghost join-item btn-lg">About Us</Link>
           <a className="btn btn-ghost join-item btn-lg">Features</a>
-          <a className="btn btn-ghost join-item btn-lg">Pricing</a>
+          <a className="btn btn-ghost join-item btn-lg">Feedback</a>
           <Link to="/contact" className="btn btn-ghost join-item btn-lg">Contact</Link>
         </div>
       </div>
@@ -39,12 +39,12 @@ export default function Header() {
       {/* Right: Theme + Auth */}
       <div className="navbar-end gap-2">
         {/* Auth buttons */}
-        <Link to="/login" className="btn btn-soft btn-lg btn-ghost rounded-full">
+        <Link to="/login" className="btn btn-soft btn-lg btn-ghost btn-success rounded-full">
           Login
         </Link>
-        <Link to="/signup" className="btn btn-lg btn-ghost rounded-full btn-outline btn-success">
+        {/* <Link to="/signup" className="btn btn-lg btn-ghost rounded-full btn-outline btn-success">
           Register
-        </Link>
+        </Link> */}
         
         {/* Theme toggle */}
         <button

@@ -37,7 +37,7 @@ export default function Hero() {
               <h1 className="mt-7 text-3xl sm:text-4xl xl:text-6xl font-bold leading-tight">
                 <span className="text-brand-blue"> Generate Editable</span>{" "}
                 Reports With {""}
-                <span className="text-emerald-600">DL Models</span>
+                <span className="text-emerald-700">DL Models</span>
               </h1>
 
               <p className="py-12 text-muted text-2xl">
@@ -52,21 +52,6 @@ export default function Hero() {
                 <button className="btn btn-dash btn-outline btn-xl">
                     Learn More
                 </button>
-              </div>
-              <div className="flex  gap-3 mt-3 gap-6">
-                <button className="btn btn-dash btn-outline btn-xl">
-                  Admin
-                </button>
-                <button className="btn btn-dash btn-outline btn-xl">
-                  Radiologist
-                </button>
-                <button className="btn btn-dash btn-outline btn-xl">
-                  Receptionist
-                </button>
-                <button className="btn btn-dash btn-outline btn-xl">
-                  Radiographer
-                </button>
-                
               </div>
             </div>
           </div>
