@@ -16,6 +16,8 @@ export default function PrescriptionFormModal({
       doctor: form.doctor.value,
       scanType: form.scanType.value,
       organ: form.organ.value,
+      preExistingConditions: form.preExistingConditions.value || "",
+      specialNotes: form.specialNotes.value || "",
       status: "Active", // auto active
     };
 
@@ -108,6 +110,32 @@ export default function PrescriptionFormModal({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Pre-existing Conditions */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Pre-existing Conditions</span>
+            </label>
+            <textarea
+              name="preExistingConditions"
+              className="textarea textarea-bordered w-full"
+              placeholder="e.g., Diabetes, Hypertension, Epilepsy"
+              rows={3}
+            />
+          </div>
+
+          {/* Special Notes */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Special Notes</span>
+            </label>
+            <textarea
+              name="specialNotes"
+              className="textarea textarea-bordered w-full"
+              placeholder="e.g., Contrast allergy, urgent scan, patient claustrophobic"
+              rows={3}
+            />
           </div>
 
           {/* Status */}
