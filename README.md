@@ -1,5 +1,4 @@
-# Frontend
-Frontend for the RadioOneAI
+# Frontend for the RadioOneAI - Unified Radiology Platform
 
 The RadioOneAI Frontend is a modern, responsive web interface designed to support real clinical workflows in radiology. It acts as the primary interaction layer between radiographers, radiologists, doctors, patient, receptionist and AI services. The frontend focuses on clarity, safety, and workflow efficiency, ensuring that AI outputs are presented as decision support.
 
