@@ -2,7 +2,7 @@
 
 The RadioOneAI Frontend is a modern, responsive web interface designed to support real clinical workflows in radiology. It acts as the primary interaction layer between radiographers, radiologists, doctors, patient, receptionist and AI services. The frontend focuses on clarity, safety, and workflow efficiency, ensuring that AI outputs are presented as decision support.
 
-Key Objectives
+/Key Objectives
 
 * Provide a user-centered clinical workflow
 * Reduce reporting and communication delays
@@ -10,12 +10,12 @@ Key Objectives
 * Support human-in-the-loop validation
 * Enable urgency-based prioritization and alerts
 
-# Radiographer Dashboard – Upload MRI scans, flag urgent cases, initiate AI analysis.
-# Radiologist Workspace – Review AI pre-reports, Recieve AI suggested guidance.
-# Doctor View – Access validated reports and recommendations.
-# Patient View – Patient-friendly summaries to reduce anxiety.
-# Receptionist - Manage Patients, Prescriptions and Radiology aapointments.
-# Admin - Manage and monitor every users, manage traffic.
+   * Radiographer Dashboard – Upload MRI scans, flag urgent cases, initiate AI analysis.
+   * Radiologist Workspace – Review AI pre-reports, Recieve AI suggested guidance.
+   * Doctor View – Access validated reports and recommendations.
+   * Patient View – Patient-friendly summaries to reduce anxiety.
+   * Receptionist - Manage Patients, Prescriptions and Radiology aapointments.
+   * Admin - Manage and monitor every users, manage traffic.
 
 Tech stack
 React.js(with vite)
