@@ -199,7 +199,7 @@ export default function Radiologistretrieve() {
                         className="btn btn-ghost btn-md"
                         onClick={() => openEdit(a)}
                       >
-                        Edit Details
+                        View Details
                       </button>
                       <button
                         className="btn btn-primary btn-md"

@@ -30,7 +30,8 @@ export default function UploadImagesModal({
   const [files, setFiles] = useState([]);
   const [showReport, setShowReport] = useState(false);
 
-  const [priority, setPriority] = useState("normal");
+  // ❗ normal removed → default is routine
+  const [priority, setPriority] = useState("routine");
 
   const [sendToRadiologist, setSendToRadiologist] = useState(true);
   const [sendToPhysician, setSendToPhysician] = useState(false);
@@ -52,7 +53,10 @@ export default function UploadImagesModal({
   useEffect(() => {
     setFiles([]);
     setShowReport(false);
-    setPriority("normal");
+
+    // ❗ normal removed → reset to routine
+    setPriority("routine");
+
     setSendToRadiologist(true);
     setSendToPhysician(false);
     setDiagnosis("");
@@ -190,7 +194,7 @@ export default function UploadImagesModal({
               <div>
                 <div className="font-bold mb-1">Priority</div>
                 <div className="join w-full">
-                  {["critical", "urgent", "routine", "normal"].map((p) => (
+                  {["critical", "urgent", "routine"].map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -232,32 +236,13 @@ export default function UploadImagesModal({
 
               {/* Diagnosis */}
               <textarea
-                className="textarea textarea-bordered w-full"
+                className="textarea textarea-bordered max-h-[420px] w-full"
                 placeholder="Diagnosis / Tentative Diagnosis"
                 value={diagnosis}
                 onChange={(e) => setDiagnosis(e.target.value)}
               />
 
-              {/* Read back */}
-              <div>
-                <div className="font-bold mb-1">
-                  Read back & Verification performed
-                </div>
-                <div className="flex gap-6">
-                  <label className="label gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="checkbox"
-                      checked={readBackYes}
-                      onChange={() => {
-                        setReadBackYes(true);
-                        setReadBackNo(false);
-                      }}
-                    />
-                    <span>Yes</span>
-                  </label>
-                </div>
-              </div>
+      
 
               {/* Receiver */}
               <div className="bg-base-200 rounded p-3 text-sm">
@@ -267,7 +252,7 @@ export default function UploadImagesModal({
 
               <button
                 className="btn btn-success btn-lg w-full"
-                disabled={!readBackYes && !readBackNo}
+                disabled={!diagnosis.trim()}
                 onClick={handleFinalSubmit}
               >
                 Submit & Start Timer
