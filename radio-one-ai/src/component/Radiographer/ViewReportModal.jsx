@@ -173,29 +173,6 @@ export default function ViewReportModal({
             <span className="w-full pb-2" value={order}>
               Activate the Rapid Response/Neuro Emergency. My patient is showing signs of cerebral herniation. I need the following done immediately.
             </span>
-    
-            {/* Read back */}
-            <div>
-              <div className="font-bold mb-1 pt-5">
-                Read back & Verification performed
-              </div>
-              <div className="flex gap-6">
-                <label className="label gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    checked={readBackYes}
-                    onChange={() => {
-                      setReadBackYes(true);
-                      setReadBackNo(false);
-                    }}
-                  />
-                  <span>Yes</span>
-                </label>
-
-                
-              </div>
-            </div>
 
             {/* Receiver */}
             <div className="bg-base-200 rounded p-3 text-sm">
@@ -205,8 +182,8 @@ export default function ViewReportModal({
 
             <button
               className="btn btn-success btn-lg w-full"
-              disabled={!readBackYes && !readBackNo}
               onClick={handleFinalSubmit}
+              disabled={!sendToPhysician}
             >
               Submit & Start Timer
             </button>
