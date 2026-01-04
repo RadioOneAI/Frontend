@@ -92,7 +92,7 @@ export default function ViewReportModal({
           </button>
         </form>
 
-        <h3 className="font-bold text-2xl mb-1">Upload Scan Images</h3>
+        <h3 className="font-bold text-2xl mb-1">Contact Radiologist/Physician</h3>
         <p className="text-base-content/70 mb-4">
           Request <b>{appointment.requestId}</b> • Patient{" "}
           <b>{appointment.patient}</b>
@@ -208,7 +208,7 @@ export default function ViewReportModal({
               disabled={!readBackYes && !readBackNo}
               onClick={handleFinalSubmit}
             >
-              Submit & Start Timer
+              Send to Physician
             </button>
           </div>
         </div>
