@@ -9,7 +9,7 @@ The RadioOneAI Frontend is a modern, responsive web interface designed to suppor
 * Present AI results in an interpretable and editable manner
 * Support human-in-the-loop validation
 * Enable urgency-based prioritization and alerts
-
+* Below users have dashboards
    * Radiographer Dashboard – Upload MRI scans, flag urgent cases, initiate AI analysis.
    * Radiologist Workspace – Review AI pre-reports, Recieve AI suggested guidance.
    * Doctor View – Access validated reports and recommendations.
