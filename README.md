@@ -70,7 +70,7 @@ git --version
   * npm -v
 
 03. Clone Repository
-  * git clone https://github.com/Work-Pulse/Work-Pulse-Frontend.git
+  * git clone https://github.com/RadioOneAI/Frontend.git
   * cd .\radio-one-ai\
 
 04. Install Dependencies
