@@ -29,10 +29,14 @@ function formatRemaining(ms) {
 
 function priorityBadge(priority) {
   const p = (priority || "pending").toLowerCase();
-  if (p === "critical") return <span className="badge badge-error text-white">Critical</span>;
-  if (p === "urgent") return <span className="badge badge-warning text-white">Urgent</span>;
-  if (p === "routine") return <span className="badge badge-info text-white">Routine</span>;
-  if (p === "normal") return <span className="badge badge-info text-white">Normal</span>;
+  if (p === "critical")
+    return <span className="badge badge-error text-white">Critical</span>;
+  if (p === "urgent")
+    return <span className="badge badge-warning text-white">Urgent</span>;
+  if (p === "routine")
+    return <span className="badge badge-info text-white">Routine</span>;
+  if (p === "normal")
+    return <span className="badge badge-info text-white">Normal</span>;
   return <span className="badge badge-ghost">Pending</span>;
 }
 
@@ -79,11 +83,7 @@ export default function Appointments() {
     description: item.description || "",
     createdBy: item.created_by || null,
     updatedBy: item.updated_by || null,
-    patientId:
-      item.patient_id ??
-      item.patientId ??
-      item.patient?.id ??
-      null,
+    patientId: item.patient_id ?? item.patientId ?? item.patient?.id ?? null,
     prescriptionId: item.id ?? null,
     apiImages: [],
     loadingImages: false,
@@ -111,21 +111,29 @@ export default function Appointments() {
 
   const collectImagesFromResponse = (payload, fallback) => {
     const dataRoot = payload?.data ?? payload;
-    const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
+    const rows = Array.isArray(dataRoot)
+      ? dataRoot
+      : dataRoot
+        ? [dataRoot]
+        : [];
 
     const imageCandidates = [];
     rows.forEach((row) => {
       if (!row || typeof row !== "object") return;
       if (Array.isArray(row.images)) imageCandidates.push(...row.images);
-      if (Array.isArray(row.uploaded_images)) imageCandidates.push(...row.uploaded_images);
+      if (Array.isArray(row.uploaded_images))
+        imageCandidates.push(...row.uploaded_images);
       if (Array.isArray(row.files)) imageCandidates.push(...row.files);
-      if (row.image_url || row.file_url || row.path || row.image) imageCandidates.push(row);
+      if (row.image_url || row.file_url || row.path || row.image)
+        imageCandidates.push(row);
       if (Array.isArray(row.prescriptions)) {
         row.prescriptions.forEach((p) => {
           if (Array.isArray(p?.images)) imageCandidates.push(...p.images);
-          if (Array.isArray(p?.uploaded_images)) imageCandidates.push(...p.uploaded_images);
+          if (Array.isArray(p?.uploaded_images))
+            imageCandidates.push(...p.uploaded_images);
           if (Array.isArray(p?.files)) imageCandidates.push(...p.files);
-          if (p?.image_url || p?.file_url || p?.path || p?.image) imageCandidates.push(p);
+          if (p?.image_url || p?.file_url || p?.path || p?.image)
+            imageCandidates.push(p);
         });
       }
     });
@@ -184,7 +192,9 @@ export default function Appointments() {
         a.doctor.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q) ||
-        String(a.status || "").toLowerCase().includes(q)
+        String(a.status || "")
+          .toLowerCase()
+          .includes(q),
     );
   }, [appointments, searchTerm]);
 
@@ -198,44 +208,48 @@ export default function Appointments() {
     setTimeout(() => document.getElementById(viewModalId)?.showModal(), 0);
 
     try {
-      if (a.patientId === null || a.patientId === undefined || a.patientId === "") {
-        throw new Error("Patient ID missing for this prescription.");
-      }
-
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        throw new Error("Missing access token. Please log in again.");
+      if (!token) throw new Error("Missing access token. Please log in again.");
+
+      // ✅ MUST use prescriptionId (id), NOT patientId
+      if (!a.prescriptionId) {
+        throw new Error("Prescription ID missing for this record.");
       }
 
-      const patientId = encodeURIComponent(String(a.patientId));
-      const res = await fetch(`${API_BASE}/api/prescriptions/${patientId}`, {
+      const prescId = encodeURIComponent(String(a.prescriptionId));
+
+      const res = await fetch(`${API_BASE}/api/prescriptions/${prescId}`, {
         method: "GET",
         headers: getAuthHeaders(),
       });
+
       const json = await res.json().catch(() => ({}));
 
-      if (res.status === 401) {
+      if (res.status === 401)
         throw new Error("Unauthorized. Please log in again.");
-      }
       if (!res.ok || json?.success === false) {
-        throw new Error(json?.message || "Failed to load prescription images.");
+        throw new Error(
+          json?.message || "Failed to load prescription details.",
+        );
       }
 
+      // Your API returns { data: { images: [...] } }
       const images = collectImagesFromResponse(json, a);
+
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: images, loadingImages: false }
-          : prev
+          : prev,
       );
     } catch (error) {
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: [], loadingImages: false }
-          : prev
+          : prev,
       );
       setApiMessage({
         type: "error",
-        text: error.message || "Unable to load images for this patient.",
+        text: error.message || "Unable to load images for this prescription.",
       });
     }
   };
@@ -245,7 +259,9 @@ export default function Appointments() {
 
     const p = (priority || "normal").toLowerCase();
     const deadlineMs = PRIORITY_DEADLINES_MS[p];
-    const dueAt = deadlineMs ? new Date(Date.now() + deadlineMs).toISOString() : null;
+    const dueAt = deadlineMs
+      ? new Date(Date.now() + deadlineMs).toISOString()
+      : null;
 
     const newImages = (files || []).map((f) => ({
       name: f.name,
@@ -265,8 +281,8 @@ export default function Appointments() {
               uploadedAt: new Date().toLocaleString(),
               priority: p,
               dueAt,
-            }
-      )
+            },
+      ),
     );
   };
 
@@ -311,45 +327,51 @@ export default function Appointments() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="11" className="text-center py-4 text-base-content/50">
+                <td
+                  colSpan="11"
+                  className="text-center py-4 text-base-content/50"
+                >
                   Loading prescriptions...
                 </td>
               </tr>
             ) : filteredAppointments.length > 0 ? (
               filteredAppointments.map((a) => (
-              <tr key={a.requestId}>
-                <td className="font-mono font-bold">{a.requestId}</td>
-                <td>{a.createdAt}</td>
-                <td>{a.doctor}</td>
-                <td>{a.patient}</td>
-                <td>{a.scanType}</td>
-                <td>{a.organ}</td>
-                <td>{a.imagesCount}</td>
-                <td>{priorityBadge(a.priority)}</td>
-                <td>{getRemaining(a)}</td>
-                <td>{a.status}</td>
+                <tr key={a.requestId}>
+                  <td className="font-mono font-bold">{a.requestId}</td>
+                  <td>{a.createdAt}</td>
+                  <td>{a.doctor}</td>
+                  <td>{a.patient}</td>
+                  <td>{a.scanType}</td>
+                  <td>{a.organ}</td>
+                  <td>{a.imagesCount}</td>
+                  <td>{priorityBadge(a.priority)}</td>
+                  <td>{getRemaining(a)}</td>
+                  <td>{a.status}</td>
 
-                <td className="text-center space-x-2">
-                  <button
-                    className="btn btn-outline btn-sm"
-                    onClick={() => openViewModal(a)}
-                  >
-                    View
-                  </button>
+                  <td className="text-center space-x-2">
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={() => openViewModal(a)}
+                    >
+                      View
+                    </button>
 
-                  <button
-                    className="btn btn-primary btn-sm"
-                    onClick={() => openUploadModal(a)}
-                    disabled={!!a.dueAt}
-                  >
-                    Upload Images
-                  </button>
-                </td>
-              </tr>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => openUploadModal(a)}
+                      disabled={!!a.dueAt}
+                    >
+                      Upload Images
+                    </button>
+                  </td>
+                </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="text-center py-4 text-base-content/50">
+                <td
+                  colSpan="11"
+                  className="text-center py-4 text-base-content/50"
+                >
                   No prescriptions found.
                 </td>
               </tr>
