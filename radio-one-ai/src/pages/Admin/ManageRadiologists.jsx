@@ -1,47 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // Import the new component
 import RadiologistDetailsModal from "../../component/Admin/RadiologistDetailsModal";
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManageRadiologists() {
-  // 1. Dummy Data
-  const [radiologists, setRadiologists] = useState([
-    { 
-      id: 1, 
-      name: "Dr. Kavin Perera", 
-      email: "kavin.p@cityhospital.com", 
-      spec: "Neuroradiology", 
-      regNo: "SLMC-5541", 
-      phone: "077-999-8877", 
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-    },
-    { 
-      id: 2, 
-      name: "Dr. Nimali Fernando", 
-      email: "nimali.f@general.lk", 
-      spec: "Pediatric Radiology", 
-      regNo: "SLMC-2233", 
-      phone: "071-222-3344", 
-      status: "Inactive",
-      img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-    },
-    { 
-      id: 3, 
-      name: "Dr. Sanjeewa Dias", 
-      email: "sanjeewa.d@medcare.lk", 
-      spec: "Interventional", 
-      regNo: "SLMC-7788", 
-      phone: "076-111-9999", 
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-    },
-  ]);
+  const [radiologists, setRadiologists] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSpec, setFilterSpec] = useState("All");
+  const [isLoadingRadiologists, setIsLoadingRadiologists] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
   
   // New State for Selection
   const [selectedRadiologist, setSelectedRadiologist] = useState(null);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const mapApiRadiologistToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    email: item.email || "N/A",
+    spec: item.specialization || item.role || "Radiologist",
+    regNo: item.license_number || "N/A",
+    phone: item.phone || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Radiologist"
+    )}&background=random`,
+    address: item.address || "N/A",
+    age: item.age ?? null,
+    gender: item.gender || null,
+    date_of_birth: item.date_of_birth || null,
+    username: item.username || null,
+    created_at: item.created_at || null,
+  });
+
+  const fetchRadiologists = async () => {
+    setIsLoadingRadiologists(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Missing access token. Please log in again.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/staff?role=radiologist`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load radiologists.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setRadiologists(list.map(mapApiRadiologistToUi));
+      setApiMessage({ type: "", text: "" });
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to fetch radiologists.",
+      });
+    } finally {
+      setIsLoadingRadiologists(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRadiologists();
+  }, []);
 
   // 2. Filter Logic
   const filteredRadiologists = radiologists.filter((doc) => {
@@ -89,14 +127,14 @@ export default function ManageRadiologists() {
           <h1 className="text-3xl font-bold">Manage Radiologists</h1>
           <p className="text-base-content/70">View and onboard imaging specialists.</p>
         </div>
-        <button 
-          className="btn btn-primary" 
-          onClick={() => document.getElementById("add_radiologist_modal").showModal()}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-          Add New Radiologist
-        </button>
+
       </div>
+
+      {apiMessage.text ? (
+        <div className="alert alert-error">
+          <span>{apiMessage.text}</span>
+        </div>
+      ) : null}
 
       {/* --- SEARCH & FILTER SECTION --- */}
       <div className="flex flex-col sm:flex-row gap-4 bg-base-100 p-4 rounded-xl shadow-sm">
@@ -141,7 +179,13 @@ export default function ManageRadiologists() {
           </thead>
           
           <tbody>
-            {filteredRadiologists.length > 0 ? (
+            {isLoadingRadiologists ? (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-base-content/50">
+                  Loading radiologists...
+                </td>
+              </tr>
+            ) : filteredRadiologists.length > 0 ? (
               filteredRadiologists.map((rad) => (
                 <tr key={rad.id} className="hover">
                   <td>

@@ -1,53 +1,83 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // Import the new component
 import PatientDetailsModal from "../../component/Admin/PatientDetailsModal";
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManagePatients() {
-  // 1. Dummy Data
-  const [patients, setPatients] = useState([
-    { 
-      id: 1, 
-      name: "Kamal Gunawardena", 
-      nic: "851234567V",
-      gender: "Male",
-      age: 45,
-      phone: "077-111-2222",
-      email: "kamal.g@gmail.com",
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "123, Galle Road, Colombo 03",
-      registeredDate: "2023-10-15"
-    },
-    { 
-      id: 2, 
-      name: "Sita Kumari", 
-      nic: "925678123V",
-      gender: "Female",
-      age: 32,
-      phone: "071-333-4444",
-      email: "sita.k@yahoo.com",
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "45/A, Temple Road, Kandy",
-      registeredDate: "2023-11-02"
-    },
-    { 
-      id: 3, 
-      name: "Mohamed Riaz", 
-      nic: "200112345678",
-      gender: "Male",
-      age: 23,
-      phone: "076-555-6666",
-      email: "m.riaz@outlook.com",
-      status: "Inactive",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "89, Main Street, Matara",
-      registeredDate: "2024-01-10"
-    },
-  ]);
+  const [patients, setPatients] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const mapApiPatientToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    nic: item.username || "N/A",
+    gender: item.gender
+      ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1)
+      : "N/A",
+    age: Number.isFinite(item.age) ? item.age : null,
+    phone: item.phone || "N/A",
+    email: item.email || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Patient"
+    )}&background=random`,
+    address: item.address || "N/A",
+    registeredDate: item.created_at ? String(item.created_at).split("T")[0] : "N/A",
+    dateOfBirth: item.date_of_birth || null,
+    registeredBy: item.registered_by || null,
+  });
+
+  const fetchPatients = async () => {
+    setIsLoadingPatients(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Missing access token. Please log in again.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/patients`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load patients.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setPatients(list.map(mapApiPatientToUi));
+      setApiMessage({ type: "", text: "" });
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to fetch patients.",
+      });
+    } finally {
+      setIsLoadingPatients(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
 
   // 2. Filter Logic
   const filteredPatients = patients.filter((pt) =>
@@ -94,21 +124,20 @@ export default function ManagePatients() {
           <h1 className="text-3xl font-bold">Manage Patients</h1>
           <p className="text-base-content/70">View registered patients and manage accounts.</p>
         </div>
-        <button 
-          className="btn btn-primary" 
-          onClick={() => document.getElementById("add_patient_modal").showModal()}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-          Register Patient
-        </button>
       </div>
+
+      {apiMessage.text ? (
+        <div className="alert alert-error">
+          <span>{apiMessage.text}</span>
+        </div>
+      ) : null}
 
       {/* --- SEARCH --- */}
       <div className="form-control">
         <div className="input-group">
           <input 
             type="text" 
-            placeholder="Search by Name or NIC Number..." 
+            placeholder="Search by Name or Username..." 
             className="input input-bordered w-full max-w-md"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -122,13 +151,19 @@ export default function ManagePatients() {
           <thead>
             <tr>
               <th>Name & Contact</th>
-              <th>NIC & Personal</th>
+              <th>Username & Personal</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredPatients.length > 0 ? (
+            {isLoadingPatients ? (
+              <tr>
+                <td colSpan="4" className="text-center py-4 text-base-content/50">
+                  Loading patients...
+                </td>
+              </tr>
+            ) : filteredPatients.length > 0 ? (
               filteredPatients.map((pt) => (
                 <tr key={pt.id} className="hover">
                   <td>
@@ -147,7 +182,9 @@ export default function ManagePatients() {
                   </td>
                   <td>
                     <div className="font-bold font-mono">{pt.nic}</div>
-                    <div className="text-sm opacity-50">{pt.gender}, {pt.age} Years</div>
+                    <div className="text-sm opacity-50">
+                      {pt.age !== null ? `${pt.gender}, ${pt.age} Years` : pt.gender}
+                    </div>
                   </td>
                   <td>
                     {pt.status === "Active" ? (

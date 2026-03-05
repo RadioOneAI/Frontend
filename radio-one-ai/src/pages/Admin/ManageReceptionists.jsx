@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // Imports based on your file structure
 import ReceptionistDetailsModal from "../../component/Admin/ReceptionistDetailsModal";
 import TablePagination from "../../component/TablePagination";
@@ -6,16 +6,15 @@ import ConfirmationModal from "../../component/Admin/ConfirmationModal";
 import ExportButton from "../../component/ExportButton";
 import Toast from "../../component/Toast";
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManageReceptionists() {
-  // 1. Dummy Data with Images
-  const [receptionists, setReceptionists] = useState([
-    { id: 1, name: "Alice Brown", email: "alice.b@radioone.ai", phone: "077-111-2233", staffId: "REC-101", shift: "Morning Desk", status: "Active", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-    { id: 2, name: "Mark Wilson", email: "mark.w@radioone.ai", phone: "077-444-5566", staffId: "REC-102", shift: "Night Shift", status: "Active", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-    { id: 3, name: "Jenny Lee", email: "jenny.l@radioone.ai", phone: "071-777-8899", staffId: "REC-103", shift: "Weekend", status: "On Leave", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-  ]);
+  const [receptionists, setReceptionists] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterShift, setFilterShift] = useState("All"); 
+  const [isLoadingReceptionists, setIsLoadingReceptionists] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
   const [selectedUser, setSelectedUser] = useState(null);
   
   // Track which user is being deleted
@@ -23,6 +22,71 @@ export default function ManageReceptionists() {
 
   // Toast State
   const [toast, setToast] = useState(null);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const mapApiReceptionistToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    email: item.email || "N/A",
+    phone: item.phone || "N/A",
+    staffId: item.username || "N/A",
+    shift: item.address || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Receptionist"
+    )}&background=random`,
+    role: item.role || "receptionist",
+    age: item.age ?? null,
+    gender: item.gender || null,
+    date_of_birth: item.date_of_birth || null,
+    created_at: item.created_at || null,
+  });
+
+  const fetchReceptionists = async () => {
+    setIsLoadingReceptionists(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Missing access token. Please log in again.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/staff?role=receptionist`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load receptionists.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setReceptionists(list.map(mapApiReceptionistToUi));
+      setApiMessage({ type: "", text: "" });
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to fetch receptionists.",
+      });
+    } finally {
+      setIsLoadingReceptionists(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReceptionists();
+  }, []);
 
   // Filter Logic
   const filteredUsers = receptionists.filter((user) => {
@@ -99,24 +163,20 @@ export default function ManageReceptionists() {
           <h1 className="text-3xl font-bold">Manage Receptionists</h1>
           <p className="text-base-content/70">Manage front desk staff and schedules.</p>
         </div>
-        
-        {/* --- ACTION BUTTONS --- */}
-        <div className="flex gap-3">
-          <ExportButton onExport={handleExport} />
-          
-          <button className="btn btn-primary" onClick={() => document.getElementById("add_receptionist_modal").showModal()}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-            Add Receptionist
-          </button>
-        </div>
       </div>
+
+      {apiMessage.text ? (
+        <div className="alert alert-error">
+          <span>{apiMessage.text}</span>
+        </div>
+      ) : null}
 
       {/* Filter */}
       <div className="flex flex-col sm:flex-row gap-4 bg-base-100 p-4 rounded-xl shadow-sm">
         <div className="form-control flex-1">
           <input 
             type="text" 
-            placeholder="Search by Name or Staff ID..." 
+            placeholder="Search by Name or Username..." 
             className="input input-bordered w-full" 
             value={searchTerm} 
             onChange={(e) => setSearchTerm(e.target.value)} 
@@ -129,6 +189,7 @@ export default function ManageReceptionists() {
             <option value="Night Shift">Night Shift</option>
             <option value="Weekend">Weekend</option>
             <option value="General">General</option>
+            <option value="N/A">N/A</option>
           </select>
         </div>
       </div>
@@ -146,7 +207,13 @@ export default function ManageReceptionists() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.length > 0 ? (
+            {isLoadingReceptionists ? (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-base-content/50">
+                  Loading receptionists...
+                </td>
+              </tr>
+            ) : filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <tr key={user.id} className="hover">
                   <td>
@@ -157,7 +224,7 @@ export default function ManageReceptionists() {
                   </td>
                   <td className="font-mono text-sm">{user.staffId}</td>
                   <td><span className="badge badge-ghost badge-sm font-medium">{user.shift}</span></td>
-                  <td>{user.status === "Active" ? <div className="badge badge-success gap-2 text-white badge-sm">Active</div> : <div className="badge badge-warning gap-2 text-white badge-sm">{user.status}</div>}</td>
+                  <td>{user.status === "Active" ? <div className="badge badge-success gap-2 text-white badge-sm">Active</div> : <div className="badge badge-error gap-2 text-white badge-sm">{user.status}</div>}</td>
                   <th>
                     <div className="flex gap-2">
                       <div className="tooltip" data-tip="View Details">
