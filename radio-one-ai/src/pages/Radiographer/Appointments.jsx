@@ -71,7 +71,7 @@ export default function Appointments() {
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
-    doctor: item.doctor_name || `Doctor #${item.doctor_id ?? "-"}`,
+    doctor: item.created_by?.name || "N/A",
     patient: item.patient_name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",
@@ -307,19 +307,19 @@ export default function Appointments() {
       />
 
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full text-sm">
+        <table className="table w-full text-sm text-center">
           <thead>
             <tr>
               <th>Request ID</th>
-              <th>Created</th>
-              <th>Doctor</th>
+              <th>Receptionist Name</th>
               <th>Patient</th>
-              <th>Scan</th>
+              <th>Scan Type</th>
               <th>Organ</th>
               <th>Images</th>
               <th>Priority</th>
               <th>Time Left</th>
               <th>Status</th>
+              <th>Created</th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -338,7 +338,6 @@ export default function Appointments() {
               filteredAppointments.map((a) => (
                 <tr key={a.requestId}>
                   <td className="font-mono font-bold">{a.requestId}</td>
-                  <td>{a.createdAt}</td>
                   <td>{a.doctor}</td>
                   <td>{a.patient}</td>
                   <td>{a.scanType}</td>
@@ -347,6 +346,7 @@ export default function Appointments() {
                   <td>{priorityBadge(a.priority)}</td>
                   <td>{getRemaining(a)}</td>
                   <td>{a.status}</td>
+                  <td>{a.createdAt}</td>
 
                   <td className="text-center space-x-2">
                     <button
