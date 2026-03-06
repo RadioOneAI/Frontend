@@ -315,11 +315,10 @@ export default function Appointments() {
               <th>Request ID</th>
               <th>Doctor Name</th>
               <th>Receptionist Name</th>
-              <th>Patient</th>
+              <th>Patient Name</th>
               <th>Scan Type</th>
               <th>Organ</th>
               <th>Images</th>
-              <th>Priority</th>
               <th>Time Left</th>
               <th>Status</th>
               <th>Created</th>
@@ -347,7 +346,6 @@ export default function Appointments() {
                   <td>{a.scanType}</td>
                   <td>{a.organ}</td>
                   <td>{a.imagesCount}</td>
-                  <td>{priorityBadge(a.priority)}</td>
                   <td>{getRemaining(a)}</td>
                   <td>{a.status}</td>
                   <td>{a.createdAt}</td>
