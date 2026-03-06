@@ -71,8 +71,9 @@ export default function Appointments() {
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
-    doctor: item.created_by?.name || "N/A",
-    patient: item.patient_name || `Patient #${item.patient_id ?? "-"}`,
+    Receptionist: item.created_by?.name || "N/A",
+    doctor:item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",
     status: item.status || "pending",
@@ -190,6 +191,7 @@ export default function Appointments() {
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
+        a.Receptionist.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q) ||
         String(a.status || "")
@@ -301,7 +303,7 @@ export default function Appointments() {
 
       <input
         className="input input-bordered w-full max-w-2xl text-lg"
-        placeholder="Search by Request ID / Patient / Doctor..."
+        placeholder="Search by Request ID / Patient / Receptionist..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -311,6 +313,7 @@ export default function Appointments() {
           <thead>
             <tr>
               <th>Request ID</th>
+              <th>Doctor Name</th>
               <th>Receptionist Name</th>
               <th>Patient</th>
               <th>Scan Type</th>
@@ -339,6 +342,7 @@ export default function Appointments() {
                 <tr key={a.requestId}>
                   <td className="font-mono font-bold">{a.requestId}</td>
                   <td>{a.doctor}</td>
+                  <td>{a.Receptionist}</td>
                   <td>{a.patient}</td>
                   <td>{a.scanType}</td>
                   <td>{a.organ}</td>
