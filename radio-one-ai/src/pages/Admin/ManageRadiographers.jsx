@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // REMOVED: import AdminLayout from "./AdminLayout"; 
 import RadiographerDetailsModal from "../../component/Admin/RadiographerDetailsModal";
 import TablePagination from "../../component/TablePagination";
@@ -6,16 +6,15 @@ import ConfirmationModal from "../../component/Admin/ConfirmationModal";
 import ExportButton from "../../component/ExportButton";
 import Toast from "../../component/Toast";
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManageRadiographers() {
-  // 1. Dummy Data
-  const [radiographers, setRadiographers] = useState([
-    { id: 1, name: "Sarah Jenkins", email: "sarah.j@radioone.ai", phone: "077-123-4567", licenseId: "RAD-8892", branch: "Main Hospital", status: "Active", img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" },
-    { id: 2, name: "David Kim", email: "david.k@radioone.ai", phone: "077-987-6543", licenseId: "RAD-1123", branch: "City Clinic", status: "On Leave", img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-    { id: 3, name: "Priya Patel", email: "priya.p@radioone.ai", phone: "071-555-0192", licenseId: "RAD-5561", branch: "Main Hospital", status: "Active", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-  ]);
+  const [radiographers, setRadiographers] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBranch, setFilterBranch] = useState("All");
+  const [isLoadingRadiographers, setIsLoadingRadiographers] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
   const [selectedUser, setSelectedUser] = useState(null);
   
   // Track which user is being deleted
@@ -23,6 +22,72 @@ export default function ManageRadiographers() {
 
   // New State for Toast Notification
   const [toast, setToast] = useState(null);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const mapApiRadiographerToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    email: item.email || "N/A",
+    phone: item.phone || "N/A",
+    licenseId: item.license_number || "N/A",
+    branch: item.address || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Radiographer"
+    )}&background=random`,
+    role: item.role || "radiographer",
+    username: item.username || null,
+    age: item.age ?? null,
+    gender: item.gender || null,
+    date_of_birth: item.date_of_birth || null,
+    created_at: item.created_at || null,
+  });
+
+  const fetchRadiographers = async () => {
+    setIsLoadingRadiographers(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Missing access token. Please log in again.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/staff?role=radiographer`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load radiographers.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setRadiographers(list.map(mapApiRadiographerToUi));
+      setApiMessage({ type: "", text: "" });
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to fetch radiographers.",
+      });
+    } finally {
+      setIsLoadingRadiographers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRadiographers();
+  }, []);
 
   // Filter Logic
   const filteredUsers = radiographers.filter((user) => {
@@ -99,16 +164,13 @@ export default function ManageRadiographers() {
             <p className="text-base-content/70">Oversee imaging technicians and staff.</p>
           </div>
           
-          {/* --- ACTION BUTTONS --- */}
-          <div className="flex gap-3">
-            <ExportButton onExport={handleExport} />
-            
-            <button className="btn btn-primary" onClick={() => document.getElementById("add_radiographer_modal").showModal()}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-              Add Radiographer
-            </button>
-          </div>
         </div>
+
+        {apiMessage.text ? (
+          <div className="alert alert-error">
+            <span>{apiMessage.text}</span>
+          </div>
+        ) : null}
 
         {/* Filter */}
         <div className="flex flex-col sm:flex-row gap-4 bg-base-100 p-4 rounded-xl shadow-sm">
@@ -127,6 +189,7 @@ export default function ManageRadiographers() {
               <option value="Main Hospital">Main Hospital</option>
               <option value="City Clinic">City Clinic</option>
               <option value="Emergency Unit">Emergency Unit</option>
+              <option value="N/A">N/A</option>
             </select>
           </div>
         </div>
@@ -144,7 +207,13 @@ export default function ManageRadiographers() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length > 0 ? (
+              {isLoadingRadiographers ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-base-content/50">
+                    Loading radiographers...
+                  </td>
+                </tr>
+              ) : filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="hover">
                     <td>
@@ -155,7 +224,7 @@ export default function ManageRadiographers() {
                     </td>
                     <td className="font-mono text-sm">{user.licenseId}</td>
                     <td><span className="badge badge-ghost badge-sm font-medium">{user.branch}</span></td>
-                    <td>{user.status === "Active" ? <div className="badge badge-success gap-2 text-white badge-sm">Active</div> : <div className="badge badge-warning gap-2 text-white badge-sm">{user.status}</div>}</td>
+                    <td>{user.status === "Active" ? <div className="badge badge-success gap-2 text-white badge-sm">Active</div> : <div className="badge badge-error gap-2 text-white badge-sm">{user.status}</div>}</td>
                     <th>
                       <div className="flex gap-2">
                         <div className="tooltip" data-tip="View Details">

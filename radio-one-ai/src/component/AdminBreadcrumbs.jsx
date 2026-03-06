@@ -11,6 +11,7 @@ export default function AdminBreadcrumbs() {
   const breadcrumbNameMap = {
     admin: "Admin Console",
     dashboard: "Dashboard",
+    "add-user": "Add User",
     doctors: "Manage Doctors",
     radiologists: "Manage Radiologists",
     patients: "Manage Patients",

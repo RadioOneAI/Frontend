@@ -1,74 +1,111 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function PrescriptionFormModal({
   modalId = "add_prescription_modal",
   doctors = [],
   scanTypes = [],
   organs = [],
+  loadingDoctors = false,
   onSubmit,
 }) {
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [formError, setFormError] = useState("");
+
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const raw = String(reader.result || "");
+        const base64 = raw.includes(",") ? raw.split(",")[1] : raw;
+        resolve(base64);
+      };
+      reader.onerror = () => reject(new Error("Failed to read image file."));
+      reader.readAsDataURL(file);
+    });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     const form = e.target;
+    setIsSubmitting(true);
+    setFormError("");
 
-    const payload = {
-      doctor: form.doctor.value,
-      scanType: form.scanType.value,
-      organ: form.organ.value,
-      preExistingConditions: form.preExistingConditions.value || "",
-      specialNotes: form.specialNotes.value || "",
-      status: "Active", // auto active
-    };
+    try {
+      const imageFile = form.prescriptionImage.files?.[0];
+      if (!imageFile) {
+        setFormError("Prescription image is required.");
+        return;
+      }
 
-    onSubmit?.(payload);
+      const payload = {
+        doctorId: form.doctorId.value,
+        scanType: form.scanType.value,
+        organ: form.organ.value,
+        description: form.description.value || "description",
+        prescriptionFile: imageFile, // ✅ send File, not base64
+      };
 
-    // close modal + reset form
-    document.getElementById(modalId)?.close();
-    form.reset();
+      const ok = await onSubmit?.(payload);
+      if (ok) {
+        document.getElementById(modalId)?.close();
+        form.reset();
+        setSelectedFileName("");
+      } else {
+        setFormError(
+          "Failed to submit prescription. Check API error message above.",
+        );
+      }
+    } catch (error) {
+      setFormError(error.message || "Unable to process prescription image.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box w-11/12 max-w-2xl">
-        {/* X button */}
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-            ✕
+            x
           </button>
         </form>
 
         <h3 className="font-bold text-lg">Add a Prescription</h3>
         <p className="text-sm text-base-content/70 mt-1">
-          Select required options and submit.
+          Fill fields and upload image.
         </p>
 
         <div className="divider my-3" />
 
+        {formError ? (
+          <div className="alert alert-error mb-3">
+            <span>{formError}</span>
+          </div>
+        ) : null}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Doctor */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Select Doctor</span>
             </label>
             <select
-              name="doctor"
+              name="doctorId"
               className="select select-bordered w-full"
               required
               defaultValue=""
             >
               <option value="" disabled>
-                Select a doctor
+                {loadingDoctors ? "Loading doctors..." : "Select a doctor"}
               </option>
               {doctors.map((d) => (
-                <option key={d} value={d}>
-                  {d}
+                <option key={d.id} value={d.id}>
+                  {d.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Scan type */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Select Scan Type</span>
@@ -90,7 +127,6 @@ export default function PrescriptionFormModal({
             </select>
           </div>
 
-          {/* Organ */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Select Organ</span>
@@ -102,7 +138,7 @@ export default function PrescriptionFormModal({
               defaultValue=""
             >
               <option value="" disabled>
-                Select an organ
+                Select organ
               </option>
               {organs.map((o) => (
                 <option key={o} value={o}>
@@ -112,33 +148,40 @@ export default function PrescriptionFormModal({
             </select>
           </div>
 
-          {/* Pre-existing Conditions */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Pre-existing Conditions</span>
+              <span className="label-text">Description</span>
             </label>
             <textarea
-              name="preExistingConditions"
+              name="description"
               className="textarea textarea-bordered w-full"
-              placeholder="e.g., Diabetes, Hypertension, Epilepsy"
               rows={3}
+              placeholder="description"
+              required
             />
           </div>
 
-          {/* Special Notes */}
           <div className="form-control">
             <label className="label">
-              <span className="label-text">Special Notes</span>
+              <span className="label-text">Prescription Image</span>
             </label>
-            <textarea
-              name="specialNotes"
-              className="textarea textarea-bordered w-full"
-              placeholder="e.g., Contrast allergy, urgent scan, patient claustrophobic"
-              rows={3}
+            <input
+              name="prescriptionImage"
+              type="file"
+              accept="image/*"
+              className="file-input file-input-bordered w-full"
+              required
+              onChange={(e) =>
+                setSelectedFileName(e.target.files?.[0]?.name || "")
+              }
             />
+            {selectedFileName ? (
+              <span className="text-xs text-base-content/60 mt-1">
+                {selectedFileName}
+              </span>
+            ) : null}
           </div>
 
-          {/* Status */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Status</span>
@@ -146,21 +189,24 @@ export default function PrescriptionFormModal({
             <input
               type="text"
               className="input input-bordered w-full"
-              value="Active"
+              value="pending"
               disabled
               readOnly
             />
           </div>
 
           <div className="modal-action">
-            <button type="submit" className="btn btn-primary w-full md:w-auto">
-              Submit Prescription
+            <button
+              type="submit"
+              className="btn btn-primary w-full md:w-auto"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Prescription"}
             </button>
           </div>
         </form>
       </div>
 
-      {/* Click background to close */}
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>

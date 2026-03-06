@@ -1,21 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DoctorDetailsModal from "../../component/Admin/DoctorDetailsModal";
 import TablePagination from "../../component/TablePagination";
 import ConfirmationModal from "../../component/Admin/ConfirmationModal";
-import ExportButton from "../../component/ExportButton";
 import Toast from "../../component/Toast"; // <--- 1. Import Toast
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManageDoctors() {
-  // 1. Dummy Data
-  const [doctors, setDoctors] = useState([
-    { id: 1, name: "Dr. Sarah Jenkins", email: "sarah.j@cityhospital.com", spec: "Neurologist", regNo: "SLMC-8901", phone: "077-123-4567", status: "Active", img: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" },
-    { id: 2, name: "Dr. Amal Perera", email: "amal.p@general.lk", spec: "Oncologist", regNo: "SLMC-3321", phone: "071-987-6543", status: "Active", img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-    { id: 3, name: "Dr. Kasun Silva", email: "kasun.s@medcare.lk", spec: "General Physician", regNo: "SLMC-1122", phone: "076-555-0101", status: "Inactive", img: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" },
-  ]);
+  const [doctors, setDoctors] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSpec, setFilterSpec] = useState("All"); 
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [isLoadingDoctors, setIsLoadingDoctors] = useState(false);
   
   // Track which doctor is being deleted
   const [doctorToDelete, setDoctorToDelete] = useState(null);
@@ -23,9 +20,76 @@ export default function ManageDoctors() {
   // 2. New State for Toast Notification
   const [toast, setToast] = useState(null);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const mapApiDoctorToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    email: item.email || "N/A",
+    spec: item.specialization || item.role || "Doctor",
+    regNo: item.license_number || "N/A",
+    phone: item.phone || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Doctor"
+    )}&background=random`,
+    address: item.address || "N/A",
+    age: item.age ?? null,
+    gender: item.gender || null,
+    date_of_birth: item.date_of_birth || null,
+    username: item.username || null,
+    created_at: item.created_at || null,
+  });
+
+  const fetchDoctors = async () => {
+    setIsLoadingDoctors(true);
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("Missing access token. Please log in again.");
+      }
+
+      const res = await fetch(`${API_BASE}/api/admin/staff?role=doctor`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load doctors.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setDoctors(list.map(mapApiDoctorToUi));
+    } catch (error) {
+      setToast({
+        message: error.message || "Unable to fetch doctors.",
+        type: "error",
+      });
+    } finally {
+      setIsLoadingDoctors(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
   // Filter Logic
   const filteredDoctors = doctors.filter((doc) => {
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.regNo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.regNo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpec = filterSpec === "All" || doc.spec === filterSpec;
     return matchesSearch && matchesSpec;
   });
@@ -98,17 +162,6 @@ export default function ManageDoctors() {
           <h1 className="text-3xl font-bold">Manage Doctors</h1>
           <p className="text-base-content/70">View and onboard medical professionals.</p>
         </div>
-        
-        {/* --- ACTION BUTTONS --- */}
-        <div className="flex gap-3">
-          {/* Export Button Component */}
-          <ExportButton onExport={handleExport} />
-          
-          <button className="btn btn-primary" onClick={() => document.getElementById("add_doctor_modal").showModal()}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-            Add New Doctor
-          </button>
-        </div>
       </div>
 
       {/* Filter */}
@@ -141,7 +194,13 @@ export default function ManageDoctors() {
             </tr>
           </thead>
           <tbody>
-            {filteredDoctors.length > 0 ? (
+            {isLoadingDoctors ? (
+              <tr>
+                <td colSpan="5" className="text-center py-4 text-base-content/50">
+                  Loading doctors...
+                </td>
+              </tr>
+            ) : filteredDoctors.length > 0 ? (
               filteredDoctors.map((doc) => (
                 <tr key={doc.id} className="hover">
                   <td>
@@ -174,9 +233,7 @@ export default function ManageDoctors() {
             )}
           </tbody>
         </table>
-        
-        {/* Pagination */}
-        <TablePagination />
+       
       </div>
 
       {/* --- MODALS --- */}

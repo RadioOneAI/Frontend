@@ -22,6 +22,7 @@ import ManageRadiographers from "./pages/Admin/ManageRadiographers"; // <--- 1. 
 import ManagePatients from "./pages/Admin/ManagePatients";
 import ManageReceptionists from "./pages/Admin/ManageReceptionists";
 import SystemLogs from "./pages/Admin/SystemLogs";
+import AddUsers from "./pages/Admin/AddUsers";
 
 // Receptionist Components
 import ReceptionistLayout from "./pages/Receptionist/ReceptionistLayout";
@@ -131,6 +132,7 @@ export default function App() {
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />
           <Route path="/admin/settings" element={<Settings />} />
+          <Route path="/admin/add-user" element={<AddUsers />} />
           <Route path="/admin/doctors" element={<ManageDoctors />} />
           <Route path="/admin/radiologists" element={<ManageRadiologists />} />
           <Route

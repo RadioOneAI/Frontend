@@ -11,6 +11,7 @@ const ROLE_ROUTES = {
   doctor: "/doctor/dashboard",
   radiologist: "/radiologist/dashboard",
   radiographer: "/radiographer/dashboard",
+  patient: "/patient/dashboard"
 };
 
 export default function Login() {

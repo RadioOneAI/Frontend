@@ -1,56 +1,81 @@
 // src/pages/Receptionist/ManagePatients.jsx
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PatientDetailsModal from "../../component/Receptionist/PatientDetailsModal";
 
+const API_BASE = "http://127.0.0.1:5000";
+
 export default function ManagePatients() {
-  // 1. Dummy Data
-  const [patients, setPatients] = useState([
-    {
-      id: 1,
-      name: "Kamal Gunawardena",
-      nic: "851234567V",
-      gender: "Male",
-      age: 45,
-      phone: "077-111-2222",
-      email: "kamal.g@gmail.com",
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "123, Galle Road, Colombo 03",
-      registeredDate: "2023-10-15",
-    },
-    {
-      id: 2,
-      name: "Sita Kumari",
-      nic: "925678123V",
-      gender: "Female",
-      age: 32,
-      phone: "071-333-4444",
-      email: "sita.k@yahoo.com",
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "45/A, Temple Road, Kandy",
-      registeredDate: "2023-11-02",
-    },
-    {
-      id: 3,
-      name: "Mohamed Riaz",
-      nic: "200112345678",
-      gender: "Male",
-      age: 23,
-      phone: "076-555-6666",
-      email: "m.riaz@outlook.com",
-      status: "Active",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      address: "89, Main Street, Matara",
-      registeredDate: "2024-01-10",
-    },
-  ]);
+  const [patients, setPatients] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
 
   // ✅ Ref to the TOP HEADER area ("Manage Patients")
   const pageTopRef = useRef(null);
+
+  const mapApiPatientToUi = (item) => ({
+    id: item.id,
+    name: item.name || "N/A",
+    nic: item.username || "N/A",
+    gender: item.gender
+      ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1)
+      : "N/A",
+    age: Number.isFinite(item.age) ? item.age : null,
+    phone: item.phone || "N/A",
+    email: item.email || "N/A",
+    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      item.name || "Patient"
+    )}&background=random`,
+    address: item.address || "N/A",
+    registeredDate: item.created_at ? String(item.created_at).split("T")[0] : "N/A",
+    dateOfBirth: item.date_of_birth || null,
+    role: item.role || "patient",
+    registeredBy: item.registered_by || null,
+  });
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+  };
+
+  const fetchPatients = async () => {
+    setIsLoadingPatients(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/patients`, {
+        headers: getAuthHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load patients.");
+      }
+
+      const list = Array.isArray(json?.data) ? json.data : [];
+      setPatients(list.map(mapApiPatientToUi));
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to fetch patients.",
+      });
+    } finally {
+      setIsLoadingPatients(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
 
   // 2. Filter Logic
   const filteredPatients = patients.filter(
@@ -60,29 +85,71 @@ export default function ManagePatients() {
   );
 
   // 3. Handle Add Patient
-  const handleAddPatient = (e) => {
+  const handleAddPatient = async (e) => {
     e.preventDefault();
     const form = e.target;
+    const dobRaw = form.date_of_birth.value;
 
-    const newPt = {
-      id: patients.length + 1,
-      name: form.name.value,
-      nic: form.nic.value,
-      gender: form.gender.value,
-      age: Number(form.age.value),
-      phone: form.phone.value,
-      email: form.email.value,
-      status: "Active",
-      img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        form.name.value
-      )}&background=random`,
-      address: "N/A",
-      registeredDate: new Date().toISOString().split("T")[0],
+    const payload = {
+      name: form.name.value.trim(),
+      username: form.username.value.trim(),
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      address: form.address.value.trim(),
+      gender: form.gender.value.toLowerCase(),
+      date_of_birth: dobRaw,
+      password: form.password.value,
     };
 
-    setPatients([...patients, newPt]);
-    document.getElementById("add_patient_modal")?.close();
-    form.reset();
+    setIsSubmitting(true);
+    setApiMessage({ type: "", text: "" });
+    try {
+      const res = await fetch(`${API_BASE}/api/patients`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Patient registration failed.");
+      }
+
+      const createdPatient = json?.data;
+      const newPt = createdPatient
+        ? mapApiPatientToUi(createdPatient)
+        : {
+            id: Date.now(),
+            name: payload.name,
+            nic: payload.username,
+            gender: payload.gender.charAt(0).toUpperCase() + payload.gender.slice(1),
+            age: null,
+            phone: payload.phone,
+            email: payload.email,
+            status: "Active",
+            img: `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.name)}&background=random`,
+            address: payload.address || "N/A",
+            registeredDate: new Date().toISOString().split("T")[0],
+            dateOfBirth: payload.date_of_birth,
+          };
+
+      setPatients((prev) => [newPt, ...prev]);
+      setApiMessage({ type: "success", text: "Patient registered successfully." });
+      document.getElementById("add_patient_modal")?.close();
+      form.reset();
+      fetchPatients();
+    } catch (error) {
+      setApiMessage({
+        type: "error",
+        text: error.message || "Unable to register patient.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // ✅ View Details: show details AND scroll to top where "Manage Patients" is visible
@@ -147,6 +214,16 @@ export default function ManagePatients() {
         </button>
       </div>
 
+      {apiMessage.text ? (
+        <div
+          className={`alert ${
+            apiMessage.type === "error" ? "alert-error" : "alert-success"
+          }`}
+        >
+          <span>{apiMessage.text}</span>
+        </div>
+      ) : null}
+
       {/* ✅ INLINE DETAILS */}
       <PatientDetailsModal patient={selectedPatient} onBack={handleBackToPatients} />
 
@@ -155,7 +232,7 @@ export default function ManagePatients() {
         <div className="input-group">
           <input
             type="text"
-            placeholder="Search by Name or NIC Number..."
+            placeholder="Search by Name or Username..."
             className="input input-bordered w-full max-w-2xl text-lg"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -173,14 +250,20 @@ export default function ManagePatients() {
           <thead>
             <tr className="text-lg">
               <th>Name & Contact</th>
-              <th>NIC & Personal</th>
+              <th>Username & Personal</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredPatients.length > 0 ? (
+            {isLoadingPatients ? (
+              <tr>
+                <td colSpan="4" className="text-center py-6 text-base-content/50 text-lg">
+                  Loading patients...
+                </td>
+              </tr>
+            ) : filteredPatients.length > 0 ? (
               filteredPatients.map((pt) => (
                 <tr key={pt.id} className="hover">
                   <td>
@@ -204,7 +287,7 @@ export default function ManagePatients() {
                   <td>
                     <div className="font-bold font-mono text-xl">{pt.nic}</div>
                     <div className="text-base opacity-50">
-                      {pt.gender}, {pt.age} Years
+                      {pt.age !== null ? `${pt.gender}, ${pt.age} Years` : pt.gender}
                     </div>
                   </td>
 
@@ -293,12 +376,12 @@ export default function ManagePatients() {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text text-lg">NIC Number</span>
+                  <span className="label-text text-lg">Username</span>
                 </label>
                 <input
-                  name="nic"
+                  name="username"
                   type="text"
-                  placeholder="NIC Number"
+                  placeholder="Username"
                   className="input input-bordered w-full text-lg"
                   required
                 />
@@ -326,12 +409,11 @@ export default function ManagePatients() {
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text text-lg">Age</span>
+                  <span className="label-text text-lg">Date of Birth</span>
                 </label>
                 <input
-                  name="age"
-                  type="number"
-                  placeholder="Age"
+                  name="date_of_birth"
+                  type="date"
                   className="input input-bordered w-full text-lg"
                   required
                 />
@@ -366,9 +448,41 @@ export default function ManagePatients() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-lg">Address</span>
+                </label>
+                <input
+                  name="address"
+                  type="text"
+                  placeholder="Address"
+                  className="input input-bordered w-full text-lg"
+                  required
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-lg">Password</span>
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  className="input input-bordered w-full text-lg"
+                  minLength={6}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="modal-action">
-              <button type="submit" className="btn btn-primary w-full md:w-auto text-lg">
-                Register Patient
+              <button
+                type="submit"
+                className="btn btn-primary w-full md:w-auto text-lg"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Registering..." : "Register Patient"}
               </button>
             </div>
           </form>

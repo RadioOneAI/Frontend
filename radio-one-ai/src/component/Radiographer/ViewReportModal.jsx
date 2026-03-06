@@ -1,22 +1,6 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import tumorImage from "../../assets/images/meningioma-segmentation.png";
-import noTumorImage from "../../assets/images/clean-mri.png";
-
-/**
- * Demo clinical profiles (frontend only)
- */
-const DEMO_PATIENT_PROFILES = {
-  "Kamal Gunawardena": {
-    hasTumor: true,
-  },
-  "Sita Kumari": {
-    hasTumor: false,
-  },
-  "Mohamed Riaz": {
-    hasTumor: false,
-  },
-};
+const API_BASE = "http://127.0.0.1:5000";
 
 export default function ViewReportModal({
   modalId,
@@ -26,45 +10,114 @@ export default function ViewReportModal({
 }) {
   const fileInputRef = useRef(null);
 
-  /* ================= STATE ================= */
-  const [files, setFiles] = useState([]); // kept intentionally
-  const [showReport, setShowReport] = useState(true); // directly show report UI
-
+  const [files, setFiles] = useState([]);
   const [priority, setPriority] = useState("normal");
-
-  const [sendToRadiologist, setSendToRadiologist] = useState(false);
-  const [sendToPhysician, setSendToPhysician] = useState(true);
-
+  const [sendToRadiologist, setSendToRadiologist] = useState(true);
+  const [sendToPhysician, setSendToPhysician] = useState(false);
   const [diagnosis, setDiagnosis] = useState("");
-  const [order, setOrder] = useState("");
-
   const [readBackYes, setReadBackYes] = useState(false);
   const [readBackNo, setReadBackNo] = useState(false);
 
-  const patientProfile = useMemo(() => {
-    if (!appointment) return null;
-    return (
-      DEMO_PATIENT_PROFILES[appointment.patient] || { hasTumor: false }
-    );
-  }, [appointment]);
+  const [imgBlobUrls, setImgBlobUrls] = useState({});
 
-  /* ================= RESET ================= */
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState("");
+  const [previewName, setPreviewName] = useState("");
+
+  const resolveApiUrl = (rawUrl) => {
+    if (!rawUrl) return "";
+    if (/^https?:\/\//i.test(rawUrl) || rawUrl.startsWith("blob:"))
+      return rawUrl;
+    if (rawUrl.startsWith("/")) return `${API_BASE}${rawUrl}`;
+    return `${API_BASE}/${rawUrl}`;
+  };
+
+  const getAuthOnlyHeaders = () => {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const openPreview = (src, name) => {
+    if (!src) return;
+    setPreviewSrc(src);
+    setPreviewName(name || "Image");
+    setPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setPreviewOpen(false);
+    setPreviewSrc("");
+    setPreviewName("");
+  };
+
+  // Reset form when appointment changes
   useEffect(() => {
     setFiles([]);
-    setShowReport(true);
     setPriority("normal");
     setSendToRadiologist(true);
     setSendToPhysician(false);
     setDiagnosis("");
-    setOrder("");
     setReadBackYes(false);
     setReadBackNo(false);
+    closePreview();
+
     if (fileInputRef.current) fileInputRef.current.value = "";
   }, [appointment?.requestId]);
 
-  if (!appointment) return null;
+  // Load protected images as blobs (because <img> can't send Authorization header)
+  useEffect(() => {
+    let cancelled = false;
 
-  /* ================= HANDLERS ================= */
+    const loadBlobs = async () => {
+      if (!appointment?.apiImages?.length) return;
+
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      const entries = await Promise.all(
+        appointment.apiImages.map(async (img) => {
+          const rawUrl = img.url || img.file_path;
+          const fullUrl = resolveApiUrl(rawUrl);
+          if (!fullUrl) return [img.id, ""];
+
+          try {
+            const res = await fetch(fullUrl, {
+              method: "GET",
+              headers: getAuthOnlyHeaders(),
+            });
+            if (!res.ok) return [img.id, ""];
+
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            return [img.id, blobUrl];
+          } catch {
+            return [img.id, ""];
+          }
+        }),
+      );
+
+      if (cancelled) {
+        entries.forEach(
+          ([_, u]) => u && u.startsWith("blob:") && URL.revokeObjectURL(u),
+        );
+        return;
+      }
+
+      setImgBlobUrls((prev) => {
+        Object.values(prev).forEach(
+          (u) => u && u.startsWith("blob:") && URL.revokeObjectURL(u),
+        );
+        return Object.fromEntries(entries);
+      });
+    };
+
+    loadBlobs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appointment?.apiImages]);
+
   const handleFinalSubmit = () => {
     onSubmit?.({
       files,
@@ -72,7 +125,6 @@ export default function ViewReportModal({
       sendToRadiologist,
       sendToPhysician,
       diagnosis,
-      order,
       readBack: readBackYes ? "YES" : "NO",
     });
 
@@ -80,57 +132,64 @@ export default function ViewReportModal({
     onClose?.();
   };
 
-  /* ================= UI ================= */
+  if (!appointment) return null;
+
   return (
-    <dialog id={modalId} className="modal">
-      <div className="modal-box w-[95vw] max-w-[1400px] max-h-[85vh] overflow-y-auto">
+    <>
+      <dialog id={modalId} className="modal">
+        <div className="modal-box w-[95vw] max-w-[1400px] max-h-[85vh] overflow-y-auto">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              x
+            </button>
+          </form>
 
-        {/* Close */}
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-            ✕
-          </button>
-        </form>
+          <h3 className="font-bold text-2xl mb-1">
+            Contact Radiologist/Physician
+          </h3>
+          <p className="text-base-content/70 mb-4">
+            Request <b>{appointment.requestId}</b> - Patient{" "}
+            <b>{appointment.patient}</b>
+          </p>
 
-        <h3 className="font-bold text-2xl mb-1">Contact Radiologist/Physician</h3>
-        <p className="text-base-content/70 mb-4">
-          Request <b>{appointment.requestId}</b> • Patient{" "}
-          <b>{appointment.patient}</b>
-        </p>
+          <div className="mb-5">
+            <h4 className="font-bold mb-2">Retrieved Images</h4>
 
-        {/* ================= REPORT + FORM ================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {appointment.loadingImages ? (
+              <div className="text-base-content/60">Loading images...</div>
+            ) : appointment.apiImages?.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {appointment.apiImages.map((img) => (
+                  <div
+                    key={img.id}
+                    className="rounded-lg border border-base-300 p-2 bg-base-200"
+                  >
+                    <button
+                      type="button"
+                      className="w-full text-left"
+                      onClick={() => openPreview(imgBlobUrls[img.id], img.name)}
+                    >
+                      <img
+                        src={imgBlobUrls[img.id] || ""}
+                        alt={img.name || "Prescription image"}
+                        className="w-full h-28 object-cover rounded cursor-zoom-in"
+                      />
+                    </button>
 
-          {/* LEFT — RESULTS */}
-          <div>
-            <div className="bg-base-200 rounded-xl p-4">
-              <img
-                src={patientProfile.hasTumor ? tumorImage : noTumorImage}
-                className="rounded-xl w-full max-h-[420px] object-contain"
-                alt="AI Result"
-              />
-              <div className="text-center mt-3">
-                <h4 className="font-bold text-xl">AI Preliminary Result</h4>
-                <p
-                  className={`font-semibold ${
-                    patientProfile.hasTumor
-                      ? "text-error"
-                      : "text-success"
-                  }`}
-                >
-                  {patientProfile.hasTumor
-                    ? "Tumor Detected"
-                    : "No Abnormality Detected"}
-                </p>
+                    <div className="text-xs mt-2 truncate">
+                      {img.name || "Image"}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="text-base-content/60">
+                No images found for this prescription.
+              </div>
+            )}
           </div>
 
-          {/* RIGHT — DETAILS + FORM */}
           <div className="space-y-4">
-
-
-            {/* Routing */}
             <div className="flex gap-6">
               <label className="label gap-2 cursor-pointer">
                 <input
@@ -138,43 +197,30 @@ export default function ViewReportModal({
                   className="checkbox"
                   checked={sendToRadiologist}
                   disabled
-                  onChange={(e) =>
-                    setSendToRadiologist(e.target.checked)
-                  
-                  }
+                  onChange={(e) => setSendToRadiologist(e.target.checked)}
                 />
                 <span>Sent to Radiologist</span>
               </label>
 
-              <label className="label gap-2 cursor-not-allowed opacity-60">
+              <label className="label gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   className="checkbox"
                   checked={sendToPhysician}
-                  onChange={(e) =>
-                    setSendToPhysician(e.target.checked)
-                  
-                  }
+                  onChange={(e) => setSendToPhysician(e.target.checked)}
                 />
                 <span>Send to Physician</span>
               </label>
             </div>
 
-            {/* Diagnosis */}
             <h5 className="font-bold">Diagnosis</h5>
             <textarea
               className="w-full pb-2 textarea textarea-bordered"
               value={diagnosis}
-              placeholder="Based on the patient's presentation of progressive headaches, new-onset focal seizures, and right-sided weakness, along with MRI findings revealing a contrast-enhancing mass with significant edema in the left parietal lobe, the tentative diagnosis is a primary brain tumor, most likely a high-grade glioma such as a glioblastoma. This working diagnosis will remain until a histopathological confirmation is obtained via biopsy or surgical resection."
+              onChange={(e) => setDiagnosis(e.target.value)}
+              placeholder="Enter diagnosis"
             />
 
-           
-            <h5 className="font-bold pt-5">Order</h5>
-            <span className="w-full pb-2" value={order}>
-              Activate the Rapid Response/Neuro Emergency. My patient is showing signs of cerebral herniation. I need the following done immediately.
-            </span>
-    
-            {/* Read back */}
             <div>
               <div className="font-bold mb-1 pt-5">
                 Read back & Verification performed
@@ -193,11 +239,21 @@ export default function ViewReportModal({
                   <span>Yes</span>
                 </label>
 
-                
+                <label className="label gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={readBackNo}
+                    onChange={() => {
+                      setReadBackNo(true);
+                      setReadBackYes(false);
+                    }}
+                  />
+                  <span>No</span>
+                </label>
               </div>
             </div>
 
-            {/* Receiver */}
             <div className="bg-base-200 rounded p-3 text-sm">
               <b>Received By:</b> Namal Soyza <br />
               <b>Designation:</b> Radiographer
@@ -211,12 +267,39 @@ export default function ViewReportModal({
               Send to Physician
             </button>
           </div>
-        </div>
-      </div>
+          {previewOpen ? (
+            <div
+              className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4"
+              onClick={closePreview}
+            >
+              <div
+                className="relative max-w-[95vw] max-h-[95vh]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="btn btn-sm btn-circle absolute -top-3 -right-3"
+                  onClick={closePreview}
+                >
+                  ✕
+                </button>
 
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
-      </form>
-    </dialog>
+                <div className="text-white text-sm mb-2">{previewName}</div>
+
+                <img
+                  src={previewSrc}
+                  alt={previewName}
+                  className="max-w-[95vw] max-h-[85vh] object-contain rounded-lg"
+                />
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={onClose}>close</button>
+        </form>
+      </dialog>
+    </>
   );
 }

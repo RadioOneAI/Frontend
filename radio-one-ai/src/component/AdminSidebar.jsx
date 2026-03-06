@@ -63,6 +63,30 @@ export default function AdminSidebar() {
           </span>
         </li>
 
+        {/* Add User */}
+        <li>
+          <Link
+            to="/admin/add-user"
+            className={`rounded-xl p-3 ${getLinkClass("/admin/add-user")}`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3M9 7a4 4 0 100 8 4 4 0 000-8zm-7 13a7 7 0 1114 0H2z"
+              />
+            </svg>
+            Add User
+          </Link>
+        </li>
+
         {/* Doctors */}
         <li>
           <Link
