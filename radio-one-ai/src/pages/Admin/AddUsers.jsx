@@ -8,6 +8,7 @@ export default function AddUsers() {
   const [formData, setFormData] = useState({
     name: "",
     role: "receptionist",
+    license_number: "",
     username: "",
     email: "",
     phone: "",
@@ -60,6 +61,7 @@ export default function AddUsers() {
       setFormData({
         name: "",
         role: "receptionist",
+        license_number: "",
         username: "",
         email: "",
         phone: "",
@@ -131,6 +133,21 @@ export default function AddUsers() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">License Number</span>
+                </label>
+                <input
+                  name="license_number"
+                  type="text"
+                  className="input input-bordered"
+                  value={formData.license_number}
+                  onChange={handleChange}
+                  placeholder="SLMC-665544"
+                  required
+                />
+              </div>
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Username</span>
