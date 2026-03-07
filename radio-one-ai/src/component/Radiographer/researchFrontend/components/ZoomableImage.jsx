@@ -68,11 +68,11 @@ function InlineImageModal({ src, alt, onClose }) {
       onClick={onClose}
     >
       <div
-        className="flex h-[90vh] w-[92vw] max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-base-100 shadow-2xl"
+        className="flex h-[60vh] w-[92vw] max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-base-100 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-3">
-          <span className="text-sm font-semibold">{alt || "Image Viewer"}</span>
+          <span className="text-lg font-semibold">{alt || "Image Viewer"}</span>
 
           <div className="flex items-center gap-2">
             <button
@@ -114,7 +114,7 @@ function InlineImageModal({ src, alt, onClose }) {
         </div>
 
         <div
-          className="flex flex-1 items-center justify-center overflow-hidden bg-black"
+          className="flex flex-1 items-center  justify-center overflow-hidden bg-black"
           onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
