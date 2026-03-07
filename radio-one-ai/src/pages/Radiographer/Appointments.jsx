@@ -27,19 +27,6 @@ function formatRemaining(ms) {
   return `${mins}m ${secs}s`;
 }
 
-function priorityBadge(priority) {
-  const p = (priority || "pending").toLowerCase();
-  if (p === "critical")
-    return <span className="badge badge-error text-white">Critical</span>;
-  if (p === "urgent")
-    return <span className="badge badge-warning text-white">Urgent</span>;
-  if (p === "routine")
-    return <span className="badge badge-info text-white">Routine</span>;
-  if (p === "normal")
-    return <span className="badge badge-info text-white">Normal</span>;
-  return <span className="badge badge-ghost">Pending</span>;
-}
-
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +40,7 @@ export default function Appointments() {
   const viewModalId = "view_report_modal";
 
   const [now, setNow] = useState(Date.now());
+
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
@@ -71,8 +59,8 @@ export default function Appointments() {
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
-    Receptionist: item.created_by?.name || "N/A",
-    doctor:item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    receptionist: item.created_by?.name || "N/A",
+    doctor: item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
     patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",
@@ -92,6 +80,7 @@ export default function Appointments() {
 
   const normalizeApiImage = (img, idx, fallback) => {
     if (!img) return null;
+
     const url =
       img.url ||
       img.image_url ||
@@ -101,6 +90,7 @@ export default function Appointments() {
       (typeof img === "string" ? img : "");
 
     if (!url) return null;
+
     return {
       id: img.id || `${fallback.requestId}-IMG-${idx + 1}`,
       name: img.name || img.filename || `Image ${idx + 1}`,
@@ -112,29 +102,29 @@ export default function Appointments() {
 
   const collectImagesFromResponse = (payload, fallback) => {
     const dataRoot = payload?.data ?? payload;
-    const rows = Array.isArray(dataRoot)
-      ? dataRoot
-      : dataRoot
-        ? [dataRoot]
-        : [];
+    const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
 
     const imageCandidates = [];
+
     rows.forEach((row) => {
       if (!row || typeof row !== "object") return;
+
       if (Array.isArray(row.images)) imageCandidates.push(...row.images);
-      if (Array.isArray(row.uploaded_images))
-        imageCandidates.push(...row.uploaded_images);
+      if (Array.isArray(row.uploaded_images)) imageCandidates.push(...row.uploaded_images);
       if (Array.isArray(row.files)) imageCandidates.push(...row.files);
-      if (row.image_url || row.file_url || row.path || row.image)
+
+      if (row.image_url || row.file_url || row.path || row.image) {
         imageCandidates.push(row);
+      }
+
       if (Array.isArray(row.prescriptions)) {
         row.prescriptions.forEach((p) => {
           if (Array.isArray(p?.images)) imageCandidates.push(...p.images);
-          if (Array.isArray(p?.uploaded_images))
-            imageCandidates.push(...p.uploaded_images);
+          if (Array.isArray(p?.uploaded_images)) imageCandidates.push(...p.uploaded_images);
           if (Array.isArray(p?.files)) imageCandidates.push(...p.files);
-          if (p?.image_url || p?.file_url || p?.path || p?.image)
+          if (p?.image_url || p?.file_url || p?.path || p?.image) {
             imageCandidates.push(p);
+          }
         });
       }
     });
@@ -146,6 +136,7 @@ export default function Appointments() {
 
   const fetchPrescriptions = async () => {
     setIsLoading(true);
+
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -156,6 +147,7 @@ export default function Appointments() {
         method: "GET",
         headers: getAuthHeaders(),
       });
+
       const json = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
@@ -186,17 +178,16 @@ export default function Appointments() {
   const filteredAppointments = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return appointments;
+
     return appointments.filter(
       (a) =>
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
-        a.Receptionist.toLowerCase().includes(q) ||
+        a.receptionist.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q) ||
-        String(a.status || "")
-          .toLowerCase()
-          .includes(q),
+        String(a.status || "").toLowerCase().includes(q)
     );
   }, [appointments, searchTerm]);
 
@@ -213,7 +204,6 @@ export default function Appointments() {
       const token = localStorage.getItem("access_token");
       if (!token) throw new Error("Missing access token. Please log in again.");
 
-      // ✅ MUST use prescriptionId (id), NOT patientId
       if (!a.prescriptionId) {
         throw new Error("Prescription ID missing for this record.");
       }
@@ -227,28 +217,28 @@ export default function Appointments() {
 
       const json = await res.json().catch(() => ({}));
 
-      if (res.status === 401)
+      if (res.status === 401) {
         throw new Error("Unauthorized. Please log in again.");
-      if (!res.ok || json?.success === false) {
-        throw new Error(
-          json?.message || "Failed to load prescription details.",
-        );
       }
 
-      // Your API returns { data: { images: [...] } }
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load prescription details.");
+      }
+
       const images = collectImagesFromResponse(json, a);
 
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: images, loadingImages: false }
-          : prev,
+          : prev
       );
     } catch (error) {
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: [], loadingImages: false }
-          : prev,
+          : prev
       );
+
       setApiMessage({
         type: "error",
         text: error.message || "Unable to load images for this prescription.",
@@ -261,9 +251,7 @@ export default function Appointments() {
 
     const p = (priority || "normal").toLowerCase();
     const deadlineMs = PRIORITY_DEADLINES_MS[p];
-    const dueAt = deadlineMs
-      ? new Date(Date.now() + deadlineMs).toISOString()
-      : null;
+    const dueAt = deadlineMs ? new Date(Date.now() + deadlineMs).toISOString() : null;
 
     const newImages = (files || []).map((f) => ({
       name: f.name,
@@ -283,8 +271,8 @@ export default function Appointments() {
               uploadedAt: new Date().toLocaleString(),
               priority: p,
               dueAt,
-            },
-      ),
+            }
+      )
     );
   };
 
@@ -329,10 +317,7 @@ export default function Appointments() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td
-                  colSpan="11"
-                  className="text-center py-4 text-base-content/50"
-                >
+                <td colSpan="11" className="text-center py-4 text-base-content/50">
                   Loading prescriptions...
                 </td>
               </tr>
@@ -341,7 +326,7 @@ export default function Appointments() {
                 <tr key={a.requestId}>
                   <td className="font-mono font-bold">{a.requestId}</td>
                   <td>{a.doctor}</td>
-                  <td>{a.Receptionist}</td>
+                  <td>{a.receptionist}</td>
                   <td>{a.patient}</td>
                   <td>{a.scanType}</td>
                   <td>{a.organ}</td>
@@ -370,10 +355,7 @@ export default function Appointments() {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="11"
-                  className="text-center py-4 text-base-content/50"
-                >
+                <td colSpan="11" className="text-center py-4 text-base-content/50">
                   No prescriptions found.
                 </td>
               </tr>
