@@ -127,6 +127,7 @@ export default function UploadImagesModal({
             <ResearchAnalysisPanel
               initialFile={files[0] || null}
               autoAnalyze={true}
+              appointment={appointment}
             />
 
             <div className="divider">Radiographer Workflow</div>

@@ -38,7 +38,7 @@ function ImageBox({ children }) {
   );
 }
 
-function SummaryView({ data, originalImage }) {
+function SummaryView({ data, originalImage, onSendData, sending, sendStatus }) {
   const s = data?.summary || {};
   const cls = s?.classification || {};
   const det = s?.detection || {};
@@ -71,6 +71,24 @@ function SummaryView({ data, originalImage }) {
 
   return (
     <div className="space-y-8">
+      <div className="flex items-center justify-end gap-3">
+        {sendStatus?.text ? (
+          <span
+            className={`text-sm ${sendStatus.type === "success" ? "text-success" : "text-error"}`}
+          >
+            {sendStatus.text}
+          </span>
+        ) : null}
+        <button
+          type="button"
+          className={`btn btn-primary ${sending ? "btn-disabled" : ""}`}
+          onClick={onSendData}
+          disabled={sending || !onSendData}
+        >
+          {sending ? "Sending..." : "Send Data"}
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 ">
         {originalImage && (
           <ImageBox>
@@ -85,7 +103,7 @@ function SummaryView({ data, originalImage }) {
           <ImageBox>
             <ZoomableImage
               src={`data:image/png;base64,${clsImages.sidu}`}
-              label="SIDU Saliency"
+              label="Classification Overlay"
             />
           </ImageBox>
         )}

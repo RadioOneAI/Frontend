@@ -56,11 +56,13 @@ export default function Appointments() {
 
   const mapApiPrescriptionToUi = (item) => ({
     requestId: item.scan_req_id || `REQ-${item.id}`,
+    scanRequestId: item.scan_req_id || null,
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
     receptionist: item.created_by?.name || "N/A",
     doctor: item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    doctorId: item.doctor_id ?? item.doctor?.id ?? null,
     patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",

@@ -7,10 +7,12 @@ import SegmentationReport from "./components/SegmentationReport";
 import VLMReport from "./components/VLMReport";
 
 const API_URL = "http://localhost:5001";
+const REPORTS_API_URL = "http://127.0.0.1:5000/api/reports";
 
 export default function ResearchAnalysisPanel({
   initialFile = null,
   autoAnalyze = false,
+  appointment = null,
 }) {
   const [selectedFile, setSelectedFile] = useState(initialFile);
   const [preview, setPreview] = useState(
@@ -21,7 +23,129 @@ export default function ResearchAnalysisPanel({
   const [results, setResults] = useState(null);
   const [activeTab, setActiveTab] = useState("summary");
   const [dragOver, setDragOver] = useState(false);
+  const [reportSending, setReportSending] = useState(false);
+  const [reportStatus, setReportStatus] = useState(null);
   const fileInputRef = useRef(null);
+
+  const toCleanBase64 = (value) => {
+    if (!value || typeof value !== "string") return value;
+    if (!value.startsWith("data:image")) return value;
+    const parts = value.split(",");
+    return parts.length > 1 ? parts[1] : value;
+  };
+
+  const buildReportPayload = (analysisData) => {
+    const classification = analysisData?.classification || {};
+    const detection = analysisData?.detection || {};
+    const segmentation = analysisData?.segmentation || {};
+    let loggedInRadiographerId = null;
+
+    try {
+      const userRaw = localStorage.getItem("user");
+      const user = userRaw ? JSON.parse(userRaw) : null;
+      loggedInRadiographerId = user?.id ?? null;
+    } catch {
+      loggedInRadiographerId = null;
+    }
+
+    return {
+      analysis_time_ms: analysisData?.summary?.total_pipeline_ms ?? null,
+      classification,
+      detection,
+      segmentation,
+      summary: analysisData?.summary || {},
+      images: {
+        original_mri: toCleanBase64(analysisData?.original_image),
+        gradcam: toCleanBase64(
+          classification?._images?.gradcam || classification?.gradcam_image,
+        ),
+        sidu: toCleanBase64(classification?._images?.sidu),
+        detection_overlay: toCleanBase64(
+          detection?._images?.clinical_overlay ||
+            detection?._images?.detection_overlay,
+        ),
+        segmentation_overlay: toCleanBase64(
+          segmentation?._images?.clinical_overlay ||
+            segmentation?._images?.segmentation_overlay,
+        ),
+      },
+      scan_req_id: appointment?.scanRequestId || appointment?.requestId || null,
+      scan_request_id:
+        appointment?.scanRequestId || appointment?.requestId || null,
+      prescription_id: appointment?.prescriptionId ?? null,
+      patient_id: appointment?.patientId ?? null,
+      doctor_id: appointment?.doctorId ?? null,
+      radiographer_id: loggedInRadiographerId ?? appointment?.radiographerId ?? null,
+      scan_type: appointment?.scanType || "MRI",
+      organ: appointment?.organ || "brain",
+      status: "pending",
+    };
+  };
+
+  const postAnalysisReport = async (analysisData) => {
+    const payload = buildReportPayload(analysisData);
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      throw new Error("No access token found. Please log in again.");
+    }
+
+    const res = await fetch(REPORTS_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const errData = await res.json().catch(() => ({}));
+
+    if (res.status === 401) {
+      const apiMessage = String(
+        errData?.message || errData?.error || "Unauthorized",
+      ).toLowerCase();
+      const isExpired =
+        apiMessage.includes("token has expired") ||
+        apiMessage.includes("expired") ||
+        apiMessage.includes("unauthorized");
+
+      if (isExpired) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
+      }
+
+      throw new Error("Session expired (401). Please log in again.");
+    }
+
+    if (!res.ok) {
+      throw new Error(errData.message || `Failed to save report (${res.status})`);
+    }
+
+    return errData;
+  };
+
+  const handleSendReport = async () => {
+    if (!results || reportSending) return;
+
+    setReportSending(true);
+    setReportStatus(null);
+
+    try {
+      const response = await postAnalysisReport(results);
+      setReportStatus({
+        type: "success",
+        text: response?.message || "Report created successfully",
+      });
+    } catch (err) {
+      setReportStatus({
+        type: "error",
+        text: err?.message || "Failed to save report",
+      });
+    } finally {
+      setReportSending(false);
+    }
+  };
 
   useEffect(() => {
     if (!initialFile) {
@@ -80,6 +204,7 @@ export default function ResearchAnalysisPanel({
       const data = await res.json();
       setResults(data);
       setActiveTab("summary");
+      setReportStatus(null);
     } catch (err) {
       setError(err.message || "Failed to connect to AI server");
     } finally {
@@ -99,6 +224,8 @@ export default function ResearchAnalysisPanel({
     setResults(null);
     setError(null);
     setActiveTab("summary");
+    setReportStatus(null);
+    setReportSending(false);
   };
 
   const tabs = [
@@ -213,6 +340,9 @@ export default function ResearchAnalysisPanel({
                 <SummaryView
                   data={results}
                   originalImage={results.original_image}
+                  onSendData={handleSendReport}
+                  sending={reportSending}
+                  sendStatus={reportStatus}
                 />
               )}
               {activeTab === "classification" && (
