@@ -71,8 +71,9 @@ export default function Appointments() {
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
-    doctor: item.doctor_name || `Doctor #${item.doctor_id ?? "-"}`,
-    patient: item.patient_name || `Patient #${item.patient_id ?? "-"}`,
+    Receptionist: item.created_by?.name || "N/A",
+    doctor:item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",
     status: item.status || "pending",
@@ -190,6 +191,7 @@ export default function Appointments() {
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
+        a.Receptionist.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q) ||
         String(a.status || "")
@@ -301,25 +303,25 @@ export default function Appointments() {
 
       <input
         className="input input-bordered w-full max-w-2xl text-lg"
-        placeholder="Search by Request ID / Patient / Doctor..."
+        placeholder="Search by Request ID / Patient / Receptionist..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full text-sm">
+        <table className="table w-full text-sm text-center">
           <thead>
             <tr>
               <th>Request ID</th>
-              <th>Created</th>
-              <th>Doctor</th>
-              <th>Patient</th>
-              <th>Scan</th>
+              <th>Doctor Name</th>
+              <th>Receptionist Name</th>
+              <th>Patient Name</th>
+              <th>Scan Type</th>
               <th>Organ</th>
               <th>Images</th>
-              <th>Priority</th>
               <th>Time Left</th>
               <th>Status</th>
+              <th>Created</th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -338,15 +340,15 @@ export default function Appointments() {
               filteredAppointments.map((a) => (
                 <tr key={a.requestId}>
                   <td className="font-mono font-bold">{a.requestId}</td>
-                  <td>{a.createdAt}</td>
                   <td>{a.doctor}</td>
+                  <td>{a.Receptionist}</td>
                   <td>{a.patient}</td>
                   <td>{a.scanType}</td>
                   <td>{a.organ}</td>
                   <td>{a.imagesCount}</td>
-                  <td>{priorityBadge(a.priority)}</td>
                   <td>{getRemaining(a)}</td>
                   <td>{a.status}</td>
+                  <td>{a.createdAt}</td>
 
                   <td className="text-center space-x-2">
                     <button
