@@ -39,7 +39,7 @@ export default function Header() {
       {/* Right: Theme + Auth */}
       <div className="navbar-end gap-2">
         {/* Auth buttons */}
-        <Link to="/login" className="btn btn-soft btn-lg btn-ghost btn-success rounded-full">
+        <Link to="/login" className="btn btn-soft btn-lg btn-ghost btn-primary rounded-full">
           Login
         </Link>
         {/* <Link to="/signup" className="btn btn-lg btn-ghost rounded-full btn-outline btn-success">
