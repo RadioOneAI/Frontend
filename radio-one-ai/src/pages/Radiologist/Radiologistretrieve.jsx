@@ -1,47 +1,108 @@
 import React, { useEffect, useMemo, useState } from "react";
 import EditDetailsModal from "../../component/Radiologist/EditDetailsModal";
-import AnalyzeModal from "../../component/Radiologist/AnalyzeModal";
-import DoctorReportModal from "../../component/Radiologist/Radiologistmodel.jsx";
+import PdfReportModal from "../../component/Radiographer/PdfReportModal";
+
+const API_BASE = "http://127.0.0.1:5000";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("access_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+function mapApiPrescriptionToUi(item) {
+  return {
+    requestId: item.scan_req_id || `REQ-${item.id}`,
+    scanRequestId: item.scan_req_id || item.scan_request_id || null,
+    createdAt: item.created_at
+      ? new Date(item.created_at).toLocaleString()
+      : "N/A",
+    doctor: item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
+    scanType: item.scan_type || "N/A",
+    radiographer: item.created_by?.name || "N/A",
+    organ: item.organ || "N/A",
+    status: item.status || "pending",
+    prescriptionId: item.id ?? null,
+    reportId: item.report_id ?? item.report?.id ?? null,
+    report: {
+      findings: "",
+      impression: "",
+      notes: "",
+    },
+    analysis: null,
+  };
+}
+
+function extractReportFromPayload(payload, requestedId) {
+  const dataRoot = payload?.data ?? payload;
+  const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
+  if (!rows.length) return null;
+
+  const reqNum = Number(requestedId);
+  const exact = rows.find((r) => Number(r?.id) === reqNum);
+  return exact || rows[0] || null;
+}
 
 export default function Radiologistretrieve() {
-  const [appointments, setAppointments] = useState([
-    {
-      requestId: "REQ-1-0001",
-      createdAt: "12/20/2025, 10:15 AM",
-      doctor: "Dr. Nimal Perera",
-      patient: "Kamal Gunawardena",
-      scanType: "MRI",
-      radiographer: "Radiographer A. Silva",
-      organ: "Brain",
-      status: "Active",
-      report: {
-        findings: "",
-        impression: "",
-        notes: "",
-      },
-      analysis: null,
-    },
-    {
-      requestId: "REQ-1-0002",
-      createdAt: "12/22/2025, 02:40 PM",
-      doctor: "Dr. Shalini Fernando",
-      patient: "Nimali Perera",
-      scanType: "MRI",
-      radiographer: "Radiographer I. Perera",
-      organ: "Brain",
-      status: "Active",
-      report: { findings: "", impression: "", notes: "" },
-      analysis: null,
-    },
-  ]);
+  const [appointments, setAppointments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selected, setSelected] = useState(null);
-  const [openModal, setOpenModal] = useState(null); // "edit" | "analyze" | "report" | null
+  const [openModal, setOpenModal] = useState(null); // "edit" | "analyze" | null
+  const [pdfReportState, setPdfReportState] = useState({
+    loading: false,
+    error: "",
+    requestedId: null,
+    resolvedId: null,
+    report: null,
+  });
 
   const editModalId = "edit_details_modal";
   const analyzeModalId = "analyze_modal";
-  const reportModalId = "doctor_report_modal";
+  const pdfModalId = "radiologist_pdf_report_modal";
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      setIsLoading(true);
+
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token)
+          throw new Error("Missing access token. Please log in again.");
+
+        const res = await fetch(`${API_BASE}/api/prescriptions`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+        const json = await res.json().catch(() => ({}));
+
+        if (res.status === 401)
+          throw new Error("Unauthorized. Please log in again.");
+        if (!res.ok || json?.success === false) {
+          throw new Error(json?.message || "Failed to load prescriptions.");
+        }
+
+        const list = Array.isArray(json?.data) ? json.data : [];
+        setAppointments(list.map(mapApiPrescriptionToUi));
+        setApiMessage({ type: "", text: "" });
+      } catch (error) {
+        setApiMessage({
+          type: "error",
+          text: error.message || "Unable to load prescriptions.",
+        });
+        setAppointments([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPrescriptions();
+  }, []);
 
   const filteredAppointments = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -52,8 +113,12 @@ export default function Radiologistretrieve() {
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
+        a.radiographer.toLowerCase().includes(q) ||
+        String(a.status || "")
+          .toLowerCase()
+          .includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
-        a.organ.toLowerCase().includes(q)
+        a.organ.toLowerCase().includes(q),
     );
   }, [appointments, searchTerm]);
 
@@ -68,12 +133,7 @@ export default function Radiologistretrieve() {
   // Open modal dynamically
   useEffect(() => {
     if (!selected || !openModal) return;
-    const id =
-      openModal === "edit"
-        ? editModalId
-        : openModal === "analyze"
-        ? analyzeModalId
-        : reportModalId;
+    const id = openModal === "edit" ? editModalId : analyzeModalId;
     const dialog = document.getElementById(id);
     if (dialog && !dialog.open) dialog.showModal();
   }, [selected, openModal]);
@@ -88,9 +148,63 @@ export default function Radiologistretrieve() {
     setOpenModal("analyze");
   };
 
-  const openReport = (appt) => {
-    setSelected(appt);
-    setOpenModal("report");
+  const openPdfReportModal = async (a) => {
+    const reportId = a?.reportId ?? null;
+
+    if (reportId == null) {
+      setApiMessage({
+        type: "error",
+        text: "Can't display report. Report ID is missing for this record.",
+      });
+      return;
+    }
+
+    setPdfReportState({
+      loading: true,
+      error: "",
+      requestedId: reportId,
+      resolvedId: null,
+      report: null,
+    });
+    setTimeout(() => document.getElementById(pdfModalId)?.showModal(), 0);
+
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) throw new Error("Missing access token. Please log in again.");
+      const res = await fetch(
+        `${API_BASE}/api/reports/${encodeURIComponent(String(reportId))}`,
+        {
+          method: "GET",
+          headers: getAuthHeaders(),
+        },
+      );
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401)
+        throw new Error("Unauthorized. Please log in again.");
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load report details.");
+      }
+
+      const report = extractReportFromPayload(json, reportId);
+      if (!report) throw new Error("Report details not found.");
+
+      setPdfReportState({
+        loading: false,
+        error: "",
+        requestedId: reportId,
+        resolvedId: report.id ?? null,
+        report,
+      });
+    } catch (error) {
+      setPdfReportState({
+        loading: false,
+        error: error.message || "Unable to load report details.",
+        requestedId: reportId,
+        resolvedId: null,
+        report: null,
+      });
+    }
   };
 
   const closeAll = () => {
@@ -100,19 +214,20 @@ export default function Radiologistretrieve() {
 
   const updateAppointment = (requestId, patch) => {
     setAppointments((prev) =>
-      prev.map((a) => (a.requestId === requestId ? { ...a, ...patch } : a))
+      prev.map((a) => (a.requestId === requestId ? { ...a, ...patch } : a)),
     );
   };
 
   const getStatusBadge = (a) => {
-    if (a.analysis)
+    const s = String(a.status || "").toLowerCase();
+    if (a.analysis || s.includes("completed") || s.includes("ready"))
       return (
         <div className="badge badge-secondary badge-md text-white">
-          Analyzed
+          Report Ready
         </div>
       );
     return (
-      <div className="badge badge-success badge-md text-white">Active</div>
+      <div className="badge badge-success badge-md text-white">Pending</div>
     );
   };
 
@@ -148,6 +263,12 @@ export default function Radiologistretrieve() {
         </div>
       </div>
 
+      {apiMessage.text ? (
+        <div className="alert alert-error">
+          <span>{apiMessage.text}</span>
+        </div>
+      ) : null}
+
       {/* Search */}
       <div className="form-control">
         <input
@@ -161,13 +282,14 @@ export default function Radiologistretrieve() {
 
       {/* Table */}
       <div className="card bg-base-100 shadow-xl overflow-x-auto border border-base-300">
-        <table className="table w-full align-middle text-lg">
+        <table className="table w-full align-middle text-lg text-center">
           <thead>
             <tr className="text-sm">
               <th>Request ID</th>
               <th>Created</th>
               <th>Doctor</th>
               <th>Patient</th>
+              <th>Scan Type</th>
               <th>Radiographer</th>
               <th>Organ</th>
               <th>Status</th>
@@ -176,36 +298,34 @@ export default function Radiologistretrieve() {
           </thead>
 
           <tbody>
-            {filteredAppointments.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan="9"
+                  className="text-center py-6 text-base-content/50 text-lg"
+                >
+                  Loading prescriptions...
+                </td>
+              </tr>
+            ) : filteredAppointments.length > 0 ? (
               filteredAppointments.map((a) => (
                 <tr key={a.requestId} className="hover:bg-base-300 text-sm">
                   <td>{a.requestId}</td>
                   <td>{a.createdAt}</td>
                   <td>{a.doctor}</td>
                   <td className="font-semibold">{a.patient}</td>
+                  <td>{a.scanType}</td>
                   <td>{a.radiographer}</td>
                   <td>{a.organ}</td>
-                  <td>{getStatusBadge(a)}</td>
+                  <td>{a.status}</td>
 
                   <td className="text-center">
                     <div className="flex justify-center gap-2">
                       <button
                         className="btn btn-outline btn-md"
-                        onClick={() => openReport(a)}
+                        onClick={() => openPdfReportModal(a)}
                       >
-                        View Report
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-md"
-                        onClick={() => openEdit(a)}
-                      >
-                        View Details
-                      </button>
-                      <button
-                        className="btn btn-primary btn-md"
-                        onClick={() => openAnalyze(a)}
-                      >
-                        Analyze
+                        Diagnostic report
                       </button>
                     </div>
                   </td>
@@ -226,28 +346,19 @@ export default function Radiologistretrieve() {
       </div>
 
       {/* Modals */}
-      <EditDetailsModal
-        modalId={editModalId}
-        appointment={selected}
-        onClose={closeAll}
-        onSaveReport={(requestId, report) => {
-          updateAppointment(requestId, { report });
-        }}
-      />
 
-      <AnalyzeModal
-        modalId={analyzeModalId}
-        appointment={selected}
-        onClose={closeAll}
-        onSaveAnalysis={(requestId, analysis) => {
-          updateAppointment(requestId, { analysis });
-        }}
-      />
-
-      <DoctorReportModal
-        modalId={reportModalId}
-        appointment={selected}
-        onClose={closeAll}
+      <PdfReportModal
+        modalId={pdfModalId}
+        state={pdfReportState}
+        onClose={() =>
+          setPdfReportState({
+            loading: false,
+            error: "",
+            requestedId: null,
+            resolvedId: null,
+            report: null,
+          })
+        }
       />
     </div>
   );
