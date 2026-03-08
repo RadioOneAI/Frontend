@@ -75,7 +75,8 @@ export default function ResearchAnalysisPanel({
       prescription_id: appointment?.prescriptionId ?? null,
       patient_id: appointment?.patientId ?? null,
       doctor_id: appointment?.doctorId ?? null,
-      radiographer_id: loggedInRadiographerId ?? appointment?.radiographerId ?? null,
+      radiographer_id:
+        loggedInRadiographerId ?? appointment?.radiographerId ?? null,
       scan_type: appointment?.scanType || "MRI",
       organ: appointment?.organ || "brain",
       status: "pending",
@@ -119,7 +120,9 @@ export default function ResearchAnalysisPanel({
     }
 
     if (!res.ok) {
-      throw new Error(errData.message || `Failed to save report (${res.status})`);
+      throw new Error(
+        errData.message || `Failed to save report (${res.status})`,
+      );
     }
 
     return errData;
@@ -232,8 +235,8 @@ export default function ResearchAnalysisPanel({
     { id: "summary", label: "Summary" },
     { id: "classification", label: "Classification" },
     { id: "detection", label: "Detection" },
-    { id: "segmentation", label: "Segmentation"},
-    { id: "vlm", label: "AI Explanation"},
+    { id: "segmentation", label: "Segmentation" },
+    { id: "vlm", label: "AI Explanation" },
   ];
 
   return (
@@ -249,8 +252,8 @@ export default function ResearchAnalysisPanel({
       {!results && !loading && (
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="card w-96 bg-base-100 shadow-xl">
-            <div 
-              className={`card-body items-center text-center ${dragOver ? 'border-2 border-primary border-dashed' : ''}`}
+            <div
+              className={`card-body items-center text-center ${dragOver ? "border-2 border-primary border-dashed" : ""}`}
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragOver(true);
@@ -260,7 +263,9 @@ export default function ResearchAnalysisPanel({
             >
               <div className="text-6xl mb-4">🧠</div>
               <h2 className="card-title">Upload Brain MRI Scan</h2>
-              <p className="text-sm opacity-70">Drag and drop an MRI image or click to browse</p>
+              <p className="text-sm opacity-70">
+                Drag and drop an MRI image or click to browse
+              </p>
 
               <input
                 ref={fileInputRef}
@@ -278,7 +283,10 @@ export default function ResearchAnalysisPanel({
                   Select Image
                 </button>
               ) : (
-                <button className="btn btn-primary" onClick={() => handleAnalyze()}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => handleAnalyze()}
+                >
                   Analyze Scan
                 </button>
               )}
@@ -286,9 +294,15 @@ export default function ResearchAnalysisPanel({
               {preview && (
                 <div className="mt-4">
                   <figure className="px-4">
-                    <img src={preview} alt="Preview" className="rounded-lg shadow-md max-h-48" />
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="rounded-lg shadow-md max-h-48"
+                    />
                   </figure>
-                  <div className="text-sm mt-2 opacity-70">{selectedFile?.name}</div>
+                  <div className="text-sm mt-2 opacity-70">
+                    {selectedFile?.name}
+                  </div>
                 </div>
               )}
             </div>
@@ -297,23 +311,94 @@ export default function ResearchAnalysisPanel({
       )}
 
       {loading && (
-        <div className="fixed inset-0 bg-base-100/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="card bg-base-100 shadow-xl p-8 text-center">
-            <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
-            <h2 className="text-xl font-bold mb-2">Analyzing MRI Scan...</h2>
-            <p className="text-sm opacity-70">Running Classification, Detection, and Segmentation pipeline</p>
+  <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div 
+      className="
+        bg-white/15 
+        backdrop-blur-2xl 
+        border border-white/20 
+        rounded-2xl 
+        shadow-2xl 
+        p-10 
+        w-full 
+        max-w-lg 
+        mx-6 
+        text-white/95
+        overflow-hidden
+        relative
+      "
+    >
+      {/* Optional subtle shine/gradient overlay for premium liquid-glass feel */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 pointer-events-none" />
+
+      {/* Header / Branding */}
+      <div className="flex items-center justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-xl font-semibold">RadioOne AI</h2>
+            <p className="text-xs text-white/60">Advanced MRI Diagnostics</p>
           </div>
         </div>
-      )}
+        <span className="text-xs text-white/50">v2.1.0</span>
+      </div>
+
+      {/* Main Loading Content */}
+      <div className="flex items-start gap-6 mb-8 relative z-10">
+        <div className="relative flex-shrink-0">
+          <div className="w-16 h-16 border-4 border-white/30 border-t-blue-400 rounded-full animate-spin shadow-lg"></div>
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-xl font-medium mb-2">
+            Analyzing MRI Scan
+          </h3>
+          <p className="text-sm text-white/70 mb-6">
+            Scan ID: MRI-{Math.random().toString(36).substring(2, 10).toUpperCase()}
+          </p>
+
+          {/* Progress Steps – glassy style */}
+          <div className="space-y-5">
+            <div className="flex items-center gap-4 text-sm">
+              <div className="w-6 h-6 rounded-full bg-green-500/30 backdrop-blur-sm border border-green-400/40 flex items-center justify-center shadow-sm">
+                <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-white/80">DICOM validation & preprocessing</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-sm">
+              <div className="w-6 h-6 rounded-full bg-blue-500/40 border-4 border-blue-400/60 animate-pulse shadow-md"></div>
+              <span className="font-medium text-white">AI classification & abnormality scoring</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-sm opacity-60">
+              <div className="w-6 h-6 rounded-full border-2 border-white/30"></div>
+              <span className="text-white/70">Lesion detection & localization</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-sm opacity-60">
+              <div className="w-6 h-6 rounded-full border-2 border-white/30"></div>
+              <span className="text-white/70">Segmentation & volumetric analysis</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer / ETA */}
+      <div className="pt-6 border-t border-white/10 text-xs text-white/50 flex justify-between items-center relative z-10">
+        <span>Estimated time remaining: ~15–45 seconds</span>
+        <span>Powered by multimodal AI pipeline</span>
+      </div>
+    </div>
+  </div>
+)}
 
       {results && (
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Analysis Report</h2>
-            <button
-              className="btn btn-lg btn-primary"
-              onClick={handleReset}
-            >
+            <button className="btn btn-lg btn-primary" onClick={handleReset}>
               Upload Image
             </button>
           </div>
@@ -324,10 +409,12 @@ export default function ResearchAnalysisPanel({
               {tabs.map((t) => (
                 <button
                   key={t.id}
-                  className={`flex-1 text-lg btn btn-md ${activeTab === t.id ? 'btn-primary' : 'btn-ghost'}`}
+                  className={`flex-1 text-lg btn btn-md ${activeTab === t.id ? "btn-primary" : "btn-ghost"}`}
                   onClick={() => setActiveTab(t.id)}
                 >
-                  <span className={`w-2 h-2 rounded-full ${t.color} mr-2`}></span>
+                  <span
+                    className={`w-2 h-2 rounded-full ${t.color} mr-2`}
+                  ></span>
                   {t.label}
                 </button>
               ))}

@@ -68,6 +68,46 @@ export default function ViewReportModal({
   useEffect(() => {
     let cancelled = false;
 
+    const getImageCandidates = (img) => {
+      const values = [
+        img?.file_path,
+        img?.image_url,
+        img?.file_url,
+        img?.path,
+        img?.image,
+        img?.url,
+      ].filter(Boolean);
+
+      const seen = new Set();
+      return values.filter((v) => {
+        const key = String(v);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    };
+
+    const tryFetchBlobUrl = async (candidates) => {
+      for (const raw of candidates) {
+        const fullUrl = resolveApiUrl(raw);
+        if (!fullUrl) continue;
+
+        try {
+          const res = await fetch(fullUrl, {
+            method: "GET",
+            headers: getAuthOnlyHeaders(),
+          });
+          if (!res.ok) continue;
+
+          const blob = await res.blob();
+          return URL.createObjectURL(blob);
+        } catch {
+          // Try next candidate URL
+        }
+      }
+      return "";
+    };
+
     const loadBlobs = async () => {
       if (!appointment?.apiImages?.length) return;
 
@@ -76,23 +116,10 @@ export default function ViewReportModal({
 
       const entries = await Promise.all(
         appointment.apiImages.map(async (img) => {
-          const rawUrl = img.url || img.file_path;
-          const fullUrl = resolveApiUrl(rawUrl);
-          if (!fullUrl) return [img.id, ""];
-
-          try {
-            const res = await fetch(fullUrl, {
-              method: "GET",
-              headers: getAuthOnlyHeaders(),
-            });
-            if (!res.ok) return [img.id, ""];
-
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            return [img.id, blobUrl];
-          } catch {
-            return [img.id, ""];
-          }
+          const candidates = getImageCandidates(img);
+          if (!candidates.length) return [img.id, ""];
+          const blobUrl = await tryFetchBlobUrl(candidates);
+          return [img.id, blobUrl];
         }),
       );
 
@@ -164,17 +191,23 @@ export default function ViewReportModal({
                     key={img.id}
                     className="rounded-lg border border-base-300 p-2 bg-base-200"
                   >
-                    <button
-                      type="button"
-                      className="w-full text-left"
-                      onClick={() => openPreview(imgBlobUrls[img.id], img.name)}
-                    >
-                      <img
-                        src={imgBlobUrls[img.id] || ""}
-                        alt={img.name || "Prescription image"}
-                        className="w-full h-28 object-cover rounded cursor-zoom-in"
-                      />
-                    </button>
+                    {imgBlobUrls[img.id] ? (
+                      <button
+                        type="button"
+                        className="w-full text-left"
+                        onClick={() => openPreview(imgBlobUrls[img.id], img.name)}
+                      >
+                        <img
+                          src={imgBlobUrls[img.id]}
+                          alt={img.name || "Prescription image"}
+                          className="w-full h-28 object-cover rounded cursor-zoom-in"
+                        />
+                      </button>
+                    ) : (
+                      <div className="w-full h-28 rounded bg-base-300 flex items-center justify-center text-xs text-base-content/70 text-center px-2">
+                        Image file missing on server
+                      </div>
+                    )}
 
                     <div className="text-xs mt-2 truncate">
                       {img.name || "Image"}

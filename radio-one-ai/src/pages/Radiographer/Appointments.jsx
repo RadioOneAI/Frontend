@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import UploadImagesModal from "../../component/Radiographer/UploadImagesModal";
 import ViewReportModal from "../../component/Radiographer/ViewReportModal";
+import PdfReportModal from "../../component/Radiographer/PdfReportModal";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -38,8 +39,16 @@ export default function Appointments() {
 
   const uploadModalId = "upload_images_modal";
   const viewModalId = "view_report_modal";
+  const pdfModalId = "pdf_report_modal";
 
   const [now, setNow] = useState(Date.now());
+  const [pdfReportState, setPdfReportState] = useState({
+    loading: false,
+    error: "",
+    requestedId: null,
+    resolvedId: null,
+    report: null,
+  });
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -76,6 +85,7 @@ export default function Appointments() {
     updatedBy: item.updated_by || null,
     patientId: item.patient_id ?? item.patientId ?? item.patient?.id ?? null,
     prescriptionId: item.id ?? null,
+    reportId: item.report_id ?? item.report?.id ?? null,
     apiImages: [],
     loadingImages: false,
   });
@@ -248,6 +258,115 @@ export default function Appointments() {
     }
   };
 
+  const extractReportFromPayload = (payload, requestedId) => {
+    const dataRoot = payload?.data ?? payload;
+    const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
+    if (!rows.length) return null;
+
+    const reqNum = Number(requestedId);
+    const exact = rows.find((r) => Number(r?.id) === reqNum);
+    return exact || rows[0] || null;
+  };
+
+  const openPdfReportModal = async (a) => {
+    const reportId = a?.reportId ?? null;
+
+    if (reportId == null) {
+      setApiMessage({
+        type: "error",
+        text: "Can't give diagnostic report. Report ID is missing for this record.",
+      });
+      return;
+    }
+
+    setPdfReportState({
+      loading: true,
+      error: "",
+      requestedId: reportId,
+      resolvedId: null,
+      report: null,
+    });
+    setTimeout(() => document.getElementById(pdfModalId)?.showModal(), 0);
+
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) throw new Error("Missing access token. Please log in again.");
+      if (!reportId) throw new Error("Report ID missing for this record.");
+
+      const res = await fetch(`${API_BASE}/api/reports/${encodeURIComponent(String(reportId))}`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      let report = null;
+
+      if (res.ok && json?.success !== false) {
+        report = extractReportFromPayload(json, reportId);
+      }
+
+      if (!report) {
+        const listRes = await fetch(`${API_BASE}/api/reports`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+        const listJson = await listRes.json().catch(() => ({}));
+
+        if (listRes.status === 401) {
+          throw new Error("Unauthorized. Please log in again.");
+        }
+
+        if (!listRes.ok || listJson?.success === false) {
+          throw new Error(listJson?.message || "Failed to load report list.");
+        }
+
+        const rows = Array.isArray(listJson?.data) ? listJson.data : [];
+        const scanReq = a?.scanRequestId || a?.requestId || null;
+        const byPrescription = rows.filter(
+          (r) =>
+            Number(r?.prescription_id) === Number(a?.prescriptionId) &&
+            a?.prescriptionId != null,
+        );
+        const byScanReq = rows.filter(
+          (r) =>
+            (r?.scan_req_id && r.scan_req_id === scanReq) ||
+            (r?.scan_request_id && r.scan_request_id === scanReq),
+        );
+
+        const candidates = byPrescription.length ? byPrescription : byScanReq;
+        const sorted = [...candidates].sort((x, y) => {
+          const tx = new Date(x?.created_at || 0).getTime();
+          const ty = new Date(y?.created_at || 0).getTime();
+          return ty - tx;
+        });
+        report = sorted[0] || null;
+      }
+
+      if (!report) throw new Error("Report details not found.");
+
+      setPdfReportState({
+        loading: false,
+        error: "",
+        requestedId: reportId,
+        resolvedId: report.id ?? null,
+        report,
+      });
+    } catch (error) {
+      setPdfReportState({
+        loading: false,
+        error: error.message || "Unable to load report details.",
+        requestedId: reportId,
+        resolvedId: null,
+        report: null,
+      });
+    }
+  };
+
   const handleUploadSubmit = ({ files, priority }) => {
     if (!selectedAppointment) return;
 
@@ -346,6 +465,13 @@ export default function Appointments() {
                     </button>
 
                     <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => openPdfReportModal(a)}
+                    >
+                      Diagnostics Report
+                    </button>
+
+                    <button
                       className="btn btn-primary btn-sm"
                       onClick={() => openUploadModal(a)}
                       disabled={!!a.dueAt}
@@ -377,6 +503,20 @@ export default function Appointments() {
         modalId={viewModalId}
         appointment={viewAppointment}
         onClose={() => setViewAppointment(null)}
+      />
+
+      <PdfReportModal
+        modalId={pdfModalId}
+        state={pdfReportState}
+        onClose={() =>
+          setPdfReportState({
+            loading: false,
+            error: "",
+            requestedId: null,
+            resolvedId: null,
+            report: null,
+          })
+        }
       />
     </div>
   );
