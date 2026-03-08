@@ -341,7 +341,7 @@ export default function PdfReportModal({ modalId, state, onClose }) {
           }
         `}</style>
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 no-print">
+          <button className="btn btn-lg btn-circle btn-ghost absolute right-2 top-2 no-print ">
             x
           </button>
         </form>
@@ -355,7 +355,7 @@ export default function PdfReportModal({ modalId, state, onClose }) {
               Resolved Report ID: <code>{state?.resolvedId ?? "-"}</code>
             </p>
           </div>
-          <button className="btn btn-primary" type="button" onClick={handleDownloadPdf}>
+          <button className="btn mt-10 btn-primary" type="button" onClick={handleDownloadPdf}>
             Download PDF
           </button>
         </div>
