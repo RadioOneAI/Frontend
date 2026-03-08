@@ -37,7 +37,7 @@ export default function Hero() {
               <h1 className="mt-7 text-3xl sm:text-4xl xl:text-6xl font-bold leading-tight">
                 <span className="text-brand-blue"> Generate Editable</span>{" "}
                 Reports With {""}
-                <span className="text-emerald-700">DL Models</span>
+                <span className="text-primary">DL Models</span>
               </h1>
 
               <p className="py-12 text-muted text-2xl">
@@ -46,7 +46,7 @@ export default function Hero() {
               </p>
 
               <div className="flex flex-wrap gap-3 mt-4 gap-6">
-                <button className="btn btn-dash btn-success btn-xl">
+                <button className="btn btn-dash btn-primary btn-xl">
                   Get Started
                 </button>
                 <button className="btn btn-dash btn-outline btn-xl">
