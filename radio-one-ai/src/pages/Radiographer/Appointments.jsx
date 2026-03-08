@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import UploadImagesModal from "../../component/Radiographer/UploadImagesModal";
 import ViewReportModal from "../../component/Radiographer/ViewReportModal";
+import PdfReportModal from "../../component/Radiographer/PdfReportModal";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -27,19 +28,6 @@ function formatRemaining(ms) {
   return `${mins}m ${secs}s`;
 }
 
-function priorityBadge(priority) {
-  const p = (priority || "pending").toLowerCase();
-  if (p === "critical")
-    return <span className="badge badge-error text-white">Critical</span>;
-  if (p === "urgent")
-    return <span className="badge badge-warning text-white">Urgent</span>;
-  if (p === "routine")
-    return <span className="badge badge-info text-white">Routine</span>;
-  if (p === "normal")
-    return <span className="badge badge-info text-white">Normal</span>;
-  return <span className="badge badge-ghost">Pending</span>;
-}
-
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,8 +39,17 @@ export default function Appointments() {
 
   const uploadModalId = "upload_images_modal";
   const viewModalId = "view_report_modal";
+  const pdfModalId = "pdf_report_modal";
 
   const [now, setNow] = useState(Date.now());
+  const [pdfReportState, setPdfReportState] = useState({
+    loading: false,
+    error: "",
+    requestedId: null,
+    resolvedId: null,
+    report: null,
+  });
+
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
@@ -68,11 +65,13 @@ export default function Appointments() {
 
   const mapApiPrescriptionToUi = (item) => ({
     requestId: item.scan_req_id || `REQ-${item.id}`,
+    scanRequestId: item.scan_req_id || null,
     createdAt: item.created_at
       ? new Date(item.created_at).toLocaleString()
       : "N/A",
-    Receptionist: item.created_by?.name || "N/A",
-    doctor:item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    receptionist: item.created_by?.name || "N/A",
+    doctor: item.doctor?.name || `Doctor #${item.doctor_id ?? "-"}`,
+    doctorId: item.doctor_id ?? item.doctor?.id ?? null,
     patient: item.patient?.name || `Patient #${item.patient_id ?? "-"}`,
     scanType: item.scan_type || "N/A",
     organ: item.organ || "N/A",
@@ -86,12 +85,14 @@ export default function Appointments() {
     updatedBy: item.updated_by || null,
     patientId: item.patient_id ?? item.patientId ?? item.patient?.id ?? null,
     prescriptionId: item.id ?? null,
+    reportId: item.report_id ?? item.report?.id ?? null,
     apiImages: [],
     loadingImages: false,
   });
 
   const normalizeApiImage = (img, idx, fallback) => {
     if (!img) return null;
+
     const url =
       img.url ||
       img.image_url ||
@@ -101,6 +102,7 @@ export default function Appointments() {
       (typeof img === "string" ? img : "");
 
     if (!url) return null;
+
     return {
       id: img.id || `${fallback.requestId}-IMG-${idx + 1}`,
       name: img.name || img.filename || `Image ${idx + 1}`,
@@ -112,29 +114,29 @@ export default function Appointments() {
 
   const collectImagesFromResponse = (payload, fallback) => {
     const dataRoot = payload?.data ?? payload;
-    const rows = Array.isArray(dataRoot)
-      ? dataRoot
-      : dataRoot
-        ? [dataRoot]
-        : [];
+    const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
 
     const imageCandidates = [];
+
     rows.forEach((row) => {
       if (!row || typeof row !== "object") return;
+
       if (Array.isArray(row.images)) imageCandidates.push(...row.images);
-      if (Array.isArray(row.uploaded_images))
-        imageCandidates.push(...row.uploaded_images);
+      if (Array.isArray(row.uploaded_images)) imageCandidates.push(...row.uploaded_images);
       if (Array.isArray(row.files)) imageCandidates.push(...row.files);
-      if (row.image_url || row.file_url || row.path || row.image)
+
+      if (row.image_url || row.file_url || row.path || row.image) {
         imageCandidates.push(row);
+      }
+
       if (Array.isArray(row.prescriptions)) {
         row.prescriptions.forEach((p) => {
           if (Array.isArray(p?.images)) imageCandidates.push(...p.images);
-          if (Array.isArray(p?.uploaded_images))
-            imageCandidates.push(...p.uploaded_images);
+          if (Array.isArray(p?.uploaded_images)) imageCandidates.push(...p.uploaded_images);
           if (Array.isArray(p?.files)) imageCandidates.push(...p.files);
-          if (p?.image_url || p?.file_url || p?.path || p?.image)
+          if (p?.image_url || p?.file_url || p?.path || p?.image) {
             imageCandidates.push(p);
+          }
         });
       }
     });
@@ -146,6 +148,7 @@ export default function Appointments() {
 
   const fetchPrescriptions = async () => {
     setIsLoading(true);
+
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -156,6 +159,7 @@ export default function Appointments() {
         method: "GET",
         headers: getAuthHeaders(),
       });
+
       const json = await res.json().catch(() => ({}));
 
       if (res.status === 401) {
@@ -186,17 +190,16 @@ export default function Appointments() {
   const filteredAppointments = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return appointments;
+
     return appointments.filter(
       (a) =>
         a.requestId.toLowerCase().includes(q) ||
         a.patient.toLowerCase().includes(q) ||
         a.doctor.toLowerCase().includes(q) ||
-        a.Receptionist.toLowerCase().includes(q) ||
+        a.receptionist.toLowerCase().includes(q) ||
         a.scanType.toLowerCase().includes(q) ||
         a.organ.toLowerCase().includes(q) ||
-        String(a.status || "")
-          .toLowerCase()
-          .includes(q),
+        String(a.status || "").toLowerCase().includes(q)
     );
   }, [appointments, searchTerm]);
 
@@ -213,7 +216,6 @@ export default function Appointments() {
       const token = localStorage.getItem("access_token");
       if (!token) throw new Error("Missing access token. Please log in again.");
 
-      // ✅ MUST use prescriptionId (id), NOT patientId
       if (!a.prescriptionId) {
         throw new Error("Prescription ID missing for this record.");
       }
@@ -227,31 +229,140 @@ export default function Appointments() {
 
       const json = await res.json().catch(() => ({}));
 
-      if (res.status === 401)
+      if (res.status === 401) {
         throw new Error("Unauthorized. Please log in again.");
-      if (!res.ok || json?.success === false) {
-        throw new Error(
-          json?.message || "Failed to load prescription details.",
-        );
       }
 
-      // Your API returns { data: { images: [...] } }
+      if (!res.ok || json?.success === false) {
+        throw new Error(json?.message || "Failed to load prescription details.");
+      }
+
       const images = collectImagesFromResponse(json, a);
 
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: images, loadingImages: false }
-          : prev,
+          : prev
       );
     } catch (error) {
       setViewAppointment((prev) =>
         prev && prev.requestId === a.requestId
           ? { ...prev, apiImages: [], loadingImages: false }
-          : prev,
+          : prev
       );
+
       setApiMessage({
         type: "error",
         text: error.message || "Unable to load images for this prescription.",
+      });
+    }
+  };
+
+  const extractReportFromPayload = (payload, requestedId) => {
+    const dataRoot = payload?.data ?? payload;
+    const rows = Array.isArray(dataRoot) ? dataRoot : dataRoot ? [dataRoot] : [];
+    if (!rows.length) return null;
+
+    const reqNum = Number(requestedId);
+    const exact = rows.find((r) => Number(r?.id) === reqNum);
+    return exact || rows[0] || null;
+  };
+
+  const openPdfReportModal = async (a) => {
+    const reportId = a?.reportId ?? null;
+
+    if (reportId == null) {
+      setApiMessage({
+        type: "error",
+        text: "Can't give diagnostic report. Report ID is missing for this record.",
+      });
+      return;
+    }
+
+    setPdfReportState({
+      loading: true,
+      error: "",
+      requestedId: reportId,
+      resolvedId: null,
+      report: null,
+    });
+    setTimeout(() => document.getElementById(pdfModalId)?.showModal(), 0);
+
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) throw new Error("Missing access token. Please log in again.");
+      if (!reportId) throw new Error("Report ID missing for this record.");
+
+      const res = await fetch(`${API_BASE}/api/reports/${encodeURIComponent(String(reportId))}`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      }
+
+      let report = null;
+
+      if (res.ok && json?.success !== false) {
+        report = extractReportFromPayload(json, reportId);
+      }
+
+      if (!report) {
+        const listRes = await fetch(`${API_BASE}/api/reports`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+        const listJson = await listRes.json().catch(() => ({}));
+
+        if (listRes.status === 401) {
+          throw new Error("Unauthorized. Please log in again.");
+        }
+
+        if (!listRes.ok || listJson?.success === false) {
+          throw new Error(listJson?.message || "Failed to load report list.");
+        }
+
+        const rows = Array.isArray(listJson?.data) ? listJson.data : [];
+        const scanReq = a?.scanRequestId || a?.requestId || null;
+        const byPrescription = rows.filter(
+          (r) =>
+            Number(r?.prescription_id) === Number(a?.prescriptionId) &&
+            a?.prescriptionId != null,
+        );
+        const byScanReq = rows.filter(
+          (r) =>
+            (r?.scan_req_id && r.scan_req_id === scanReq) ||
+            (r?.scan_request_id && r.scan_request_id === scanReq),
+        );
+
+        const candidates = byPrescription.length ? byPrescription : byScanReq;
+        const sorted = [...candidates].sort((x, y) => {
+          const tx = new Date(x?.created_at || 0).getTime();
+          const ty = new Date(y?.created_at || 0).getTime();
+          return ty - tx;
+        });
+        report = sorted[0] || null;
+      }
+
+      if (!report) throw new Error("Report details not found.");
+
+      setPdfReportState({
+        loading: false,
+        error: "",
+        requestedId: reportId,
+        resolvedId: report.id ?? null,
+        report,
+      });
+    } catch (error) {
+      setPdfReportState({
+        loading: false,
+        error: error.message || "Unable to load report details.",
+        requestedId: reportId,
+        resolvedId: null,
+        report: null,
       });
     }
   };
@@ -261,9 +372,7 @@ export default function Appointments() {
 
     const p = (priority || "normal").toLowerCase();
     const deadlineMs = PRIORITY_DEADLINES_MS[p];
-    const dueAt = deadlineMs
-      ? new Date(Date.now() + deadlineMs).toISOString()
-      : null;
+    const dueAt = deadlineMs ? new Date(Date.now() + deadlineMs).toISOString() : null;
 
     const newImages = (files || []).map((f) => ({
       name: f.name,
@@ -283,8 +392,8 @@ export default function Appointments() {
               uploadedAt: new Date().toLocaleString(),
               priority: p,
               dueAt,
-            },
-      ),
+            }
+      )
     );
   };
 
@@ -329,10 +438,7 @@ export default function Appointments() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td
-                  colSpan="11"
-                  className="text-center py-4 text-base-content/50"
-                >
+                <td colSpan="11" className="text-center py-4 text-base-content/50">
                   Loading prescriptions...
                 </td>
               </tr>
@@ -341,7 +447,7 @@ export default function Appointments() {
                 <tr key={a.requestId}>
                   <td className="font-mono font-bold">{a.requestId}</td>
                   <td>{a.doctor}</td>
-                  <td>{a.Receptionist}</td>
+                  <td>{a.receptionist}</td>
                   <td>{a.patient}</td>
                   <td>{a.scanType}</td>
                   <td>{a.organ}</td>
@@ -359,6 +465,13 @@ export default function Appointments() {
                     </button>
 
                     <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => openPdfReportModal(a)}
+                    >
+                      Diagnostics Report
+                    </button>
+
+                    <button
                       className="btn btn-primary btn-sm"
                       onClick={() => openUploadModal(a)}
                       disabled={!!a.dueAt}
@@ -370,10 +483,7 @@ export default function Appointments() {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan="11"
-                  className="text-center py-4 text-base-content/50"
-                >
+                <td colSpan="11" className="text-center py-4 text-base-content/50">
                   No prescriptions found.
                 </td>
               </tr>
@@ -393,6 +503,20 @@ export default function Appointments() {
         modalId={viewModalId}
         appointment={viewAppointment}
         onClose={() => setViewAppointment(null)}
+      />
+
+      <PdfReportModal
+        modalId={pdfModalId}
+        state={pdfReportState}
+        onClose={() =>
+          setPdfReportState({
+            loading: false,
+            error: "",
+            requestedId: null,
+            resolvedId: null,
+            report: null,
+          })
+        }
       />
     </div>
   );
