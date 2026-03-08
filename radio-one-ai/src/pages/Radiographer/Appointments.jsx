@@ -418,7 +418,7 @@ export default function Appointments() {
       />
 
       <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full text-sm text-center">
+        <table className="table w-full min-w-[1100px] text-sm text-center">
           <thead>
             <tr>
               <th>Request ID</th>
@@ -456,28 +456,30 @@ export default function Appointments() {
                   <td>{a.status}</td>
                   <td>{a.createdAt}</td>
 
-                  <td className="text-center space-x-2">
+                  <td className="min-w-[240px]">
+                    <div className="flex  items-center justify-center gap-2">
                     <button
-                      className="btn btn-outline btn-sm"
+                      className="btn btn-outline btn-sm whitespace-nowrap"
                       onClick={() => openViewModal(a)}
                     >
                       View
                     </button>
 
                     <button
-                      className="btn btn-secondary btn-sm"
+                      className="btn btn-secondary btn-sm whitespace-nowrap"
                       onClick={() => openPdfReportModal(a)}
                     >
                       Diagnostics Report
                     </button>
 
                     <button
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-primary btn-sm whitespace-nowrap"
                       onClick={() => openUploadModal(a)}
                       disabled={!!a.dueAt}
                     >
                       Upload Images
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))

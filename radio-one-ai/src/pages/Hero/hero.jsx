@@ -28,7 +28,7 @@ export default function Hero() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="badge badge-info badge-outline text-xl">
+                  <span className="badge badge-ghost badge-outline text-xl">
                     AI Assisted
                   </span>
                 </div>
