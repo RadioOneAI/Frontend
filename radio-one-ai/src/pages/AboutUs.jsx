@@ -147,8 +147,8 @@ export default function AboutUs() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
               {[
                 { label: "Diagnostic Accuracy", value: 98.6, suffix: "%", color: "primary" },
-                { label: "Partner Hospitals", value: 50, suffix: "+", color: "secondary" },
-                { label: "Scans Processed", value: 10, suffix: "k+", color: "accent" },
+                { label: "Partner Hospitals", value: 50, suffix: "+", color: "primary" },
+                { label: "Scans Processed", value: 10, suffix: "k+", color: "primary" },
               ].map((stat, i) => (
                 <div key={i} className="stat-item space-y-2">
                     <div className={`text-6xl font-black text-${stat.color}`}>
@@ -179,4 +179,4 @@ export default function AboutUs() {
       </section>
     </div>
   );
-}
+}
