@@ -17,111 +17,117 @@ export default function DoctorDetailsModal({ doctor }) {
 
   if (!doctor) return null;
 
+  // Get initials for the avatar if no image is available or as a fallback
+  const initials = doctor.name
+    ? doctor.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2)
+    : "DR";
+
   return (
     <dialog id="view_doctor_modal" className="modal overflow-hidden">
-      <div ref={container} className="modal-box w-11/12 max-w-4xl p-0 rounded-[2.5rem] border border-base-content/10 bg-base-100 shadow-2xl overflow-hidden relative">
+      <div ref={container} className="modal-box w-11/12 max-w-4xl p-0 rounded-[3rem] border-none bg-white shadow-2xl overflow-hidden relative">
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-6 top-6 z-50 bg-base-content/5 hover:bg-base-content/10 transition-colors">✕</button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-8 top-8 z-50 bg-base-200/50 hover:bg-base-200 transition-colors">✕</button>
         </form>
 
-        <div className="flex flex-col lg:flex-row min-h-[500px]">
+        <div className="flex flex-col lg:flex-row min-h-[550px]">
           
-          {/* --- LEFT SIDE: PREMIUM PROFILE CARD --- */}
-          <div className="lg:w-2/5 p-12 flex flex-col items-center justify-center relative profile-section bg-linear-to-br from-primary/5 via-transparent to-primary/10">
-            <div className="absolute inset-0 bg-primary/5 opacity-20 blur-3xl rounded-full scale-150 -z-10" />
+          {/* --- LEFT SIDE: PROFILE CARD --- */}
+          <div className="lg:w-[40%] p-12 flex flex-col items-center justify-center relative profile-section bg-linear-to-b from-base-100 to-base-200/30">
             
-            <div className="relative group mb-8">
-              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-0 group-hover:opacity-100" />
-              <div className="avatar">
-                <div className="w-40 h-40 rounded-full ring-4 ring-primary/20 ring-offset-4 ring-offset-base-100 shadow-2xl overflow-hidden">
-                  <img src={doctor.img} alt={doctor.name} className="transition-transform duration-700 group-hover:scale-110" />
-                </div>
-              </div>
+            {/* Avatar Circle with Initials */}
+            <div className="w-48 h-48 rounded-full border-[6px] border-white shadow-2xl bg-blue-50 flex items-center justify-center mb-8 relative group">
+               <span className="text-6xl font-medium text-slate-700 tracking-tighter">{initials}</span>
             </div>
 
-            <h3 className="text-3xl font-black tracking-tight text-center mb-2">{doctor.name}</h3>
-            <div className="badge badge-primary font-black uppercase text-[10px] tracking-[0.2em] px-4 py-3 rounded-xl shadow-lg shadow-primary/20">
-              {doctor.spec}
+            <h3 className="text-4xl font-black tracking-tighter text-slate-900 text-center mb-4 leading-tight">
+              {doctor.name}
+            </h3>
+            
+            <div className="bg-red-900 text-white font-black uppercase text-[11px] tracking-[0.2em] px-6 py-2 rounded-full mb-12 shadow-lg shadow-red-900/20">
+              {doctor.role || "DOCTOR"}
             </div>
 
-            <div className="mt-8 w-full space-y-4">
-              <div className="glass-card p-4 rounded-2xl border border-primary/10 bg-primary/5 text-center">
-                <div className="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Status</div>
-                <div className={`text-sm font-black uppercase ${doctor.status === 'Active' ? 'text-success' : 'text-error'}`}>
-                   {doctor.status} Account
+            <div className="w-full max-w-[240px] bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-300 mb-2">Status</div>
+                <div className="text-[13px] font-black uppercase text-emerald-500 tracking-wider">
+                   {doctor.status === 'Active' ? 'ACTIVE ACCOUNT' : 'INACTIVE ACCOUNT'}
                 </div>
-              </div>
             </div>
           </div>
 
-          {/* --- RIGHT SIDE: DETAILED INFORMATION --- */}
-          <div className="flex-1 p-12 lg:p-16 details-section space-y-12">
+          {/* --- RIGHT SIDE: DETAILS GRID --- */}
+          <div className="flex-1 p-12 lg:p-20 details-section space-y-12">
             
-            {/* Professional Grid */}
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-base-content/30 flex items-center gap-3">
+            {/* Professional Credentials Section */}
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">
                 Professional Credentials
-                <span className="flex-1 h-px bg-base-content/5" />
+                <span className="flex-1 h-px bg-slate-100" />
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">SLMC Reg No</span>
-                  <p className="font-mono font-black text-xl text-primary tracking-tight">{doctor.regNo}</p>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">SLMC Reg No</span>
+                  <p className="font-black text-2xl text-red-800 tracking-tighter">{doctor.regNo || 'N/A'}</p>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Specialization</span>
-                  <p className="font-black text-lg text-base-content/80">{doctor.spec}</p>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Specialization</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter">{doctor.spec || 'doctor'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Contact Grid */}
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-base-content/30 flex items-center gap-3">
+            {/* Contact Information Section */}
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">
                 Contact Information
-                <span className="flex-1 h-px bg-base-content/5" />
+                <span className="flex-1 h-px bg-slate-100" />
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Mobile Phone</span>
-                  <p className="font-black text-lg text-base-content/80">{doctor.phone}</p>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Mobile Phone</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter">{doctor.phone || 'N/A'}</p>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Email Address</span>
-                  <p className="font-black text-lg text-base-content/80 truncate">{doctor.email}</p>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Email Address</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter truncate">{doctor.email || 'N/A'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Account Details */}
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-base-content/30 flex items-center gap-3">
+            {/* System Metadata Section */}
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">
                 System Metadata
-                <span className="flex-1 h-px bg-base-content/5" />
+                <span className="flex-1 h-px bg-slate-100" />
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Username</span>
-                  <p className="font-black text-base-content/60 italic">@{doctor.username || 'N/A'}</p>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Username</span>
+                  <p className="font-black text-2xl text-slate-400 tracking-tighter italic">@{doctor.username || 'N/A'}</p>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">Account Created</span>
-                  <p className="font-black text-base-content/60">{doctor.created_at ? new Date(doctor.created_at).toLocaleDateString() : 'N/A'}</p>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Account Created</span>
+                  <p className="font-black text-2xl text-slate-400 tracking-tighter">{doctor.created_at ? new Date(doctor.created_at).toLocaleDateString() : 'N/A'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="pt-8 flex gap-4">
-              <button className="btn btn-ghost flex-1 rounded-2xl h-14 font-black bg-base-content/5 hover:bg-base-content/10 border-none transition-all uppercase tracking-widest text-[10px]">Edit Profile</button>
-              <button className="btn btn-error flex-1 rounded-2xl h-14 font-black text-white shadow-xl shadow-error/20 border-none transition-all uppercase tracking-widest text-[10px]">Revoke Access</button>
+            {/* Action Buttons */}
+            <div className="pt-12 flex gap-6">
+              <button className="btn btn-ghost flex-1 rounded-2xl h-20 font-black bg-slate-50 hover:bg-slate-100 border-none transition-all uppercase tracking-widest text-xs text-slate-600">Edit Profile</button>
+              <button className="btn btn-error flex-1 rounded-2xl h-20 font-black text-white shadow-2xl shadow-red-500/30 border-none transition-all uppercase tracking-widest text-xs bg-red-500 hover:bg-red-600">Revoke Access</button>
             </div>
           </div>
 
         </div>
       </div>
       
-      <form method="dialog" className="modal-backdrop bg-base-content/20 backdrop-blur-sm">
+      <form method="dialog" className="modal-backdrop bg-slate-900/40 backdrop-blur-md">
         <button>close</button>
       </form>
     </dialog>

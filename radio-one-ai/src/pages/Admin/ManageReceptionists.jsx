@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Toast from "../../component/Toast";
+import ReceptionistDetailsModal from "../../component/Admin/ReceptionistDetailsModal";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -10,6 +11,7 @@ export default function ManageReceptionists() {
   const [receptionists, setReceptionists] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedReceptionist, setSelectedReceptionist] = useState(null);
   const [toast, setToast] = useState(null);
 
   useGSAP(
@@ -36,6 +38,11 @@ export default function ManageReceptionists() {
     phone: item.phone || "N/A",
     status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
     img: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || "Receptionist")}&background=random`,
+    role: "RECEPTIONIST",
+    staffId: item.username || item.id || "N/A",
+    created_at: item.created_at || null,
+    shift: item.shift || "General",
+    username: item.username || item.id || "N/A",
   });
 
   const fetchUsers = async () => {
@@ -62,6 +69,11 @@ export default function ManageReceptionists() {
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     r.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleViewDetails = (r) => {
+    setSelectedReceptionist(r);
+    setTimeout(() => { document.getElementById("view_receptionist_modal").showModal(); }, 0);
+  };
 
   return (
     <div ref={container} className="space-y-8 p-4">
@@ -128,7 +140,7 @@ export default function ManageReceptionists() {
                     </td>
                     <td className="px-8 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300">VIEW</button>
+                        <button onClick={() => handleViewDetails(r)} className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300">VIEW</button>
                         <button className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10">DELETE</button>
                       </div>
                     </td>
@@ -141,6 +153,8 @@ export default function ManageReceptionists() {
           </table>
         </div>
       </div>
+
+      <ReceptionistDetailsModal user={selectedReceptionist} onClose={() => setSelectedReceptionist(null)} />
     </div>
   );
 }
