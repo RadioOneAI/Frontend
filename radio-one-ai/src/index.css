@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root {
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+
 @plugin "daisyui/theme" {
   name: "dark";
   default: false;
@@ -69,4 +77,27 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+@layer utilities {
+  .bg-mesh {
+    background-color: var(--color-base-100);
+    background-image: 
+      radial-gradient(at 0% 0%, var(--color-primary) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, var(--color-secondary) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, var(--color-primary) 0px, transparent 50%);
+    background-blend-mode: soft-light;
+    opacity: 0.8;
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
 }
