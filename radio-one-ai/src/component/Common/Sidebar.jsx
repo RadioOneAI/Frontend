@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+
 
 /**
  * Common Sidebar Component
@@ -15,18 +14,7 @@ export default function Sidebar({ role, links = [], user = {} }) {
   const location = useLocation();
   const container = useRef();
 
-  useGSAP(
-    () => {
-      gsap.from(".nav-item", {
-        x: -20,
-        opacity: 0,
-        stagger: 0.05,
-        duration: 0.6,
-        ease: "power3.out",
-      });
-    },
-    { scope: container }
-  );
+  
 
   const getLinkClass = (path) => {
     const isActive = location.pathname === path;
