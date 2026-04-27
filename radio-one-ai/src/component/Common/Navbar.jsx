@@ -3,7 +3,7 @@ import DateTimeDisplay from "../DateTimeModal";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-export default function Navbar({ title, theme, toggleTheme, user = {} }) {
+export default function Navbar({ title, theme, toggleTheme, user = {}, drawerId = "admin-drawer" }) {
   const container = useRef();
 
   useGSAP(
@@ -28,7 +28,7 @@ export default function Navbar({ title, theme, toggleTheme, user = {} }) {
 
         {/* Mobile Menu Toggle */}
         <div className="flex-none lg:hidden">
-          <label htmlFor="admin-drawer" className="btn btn-square btn-ghost rounded-2xl hover:bg-primary/10 hover:text-primary transition-all">
+          <label htmlFor={drawerId} className="btn btn-square btn-ghost rounded-2xl hover:bg-primary/10 hover:text-primary transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
