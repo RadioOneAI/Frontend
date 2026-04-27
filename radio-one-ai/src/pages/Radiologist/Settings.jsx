@@ -1,109 +1,118 @@
-import React from "react";
+import React, { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Settings() {
+  const container = useRef();
+
+  useGSAP(
+    () => {
+      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
+      gsap.from(".settings-card", { y: 20, opacity: 0, stagger: 0.15, duration: 0.8, delay: 0.2, ease: "power3.out" });
+    },
+    { scope: container }
+  );
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">System Settings</h1>
-      <p className="text-base-content/70">Manage your account details and system-wide configurations.</p>
+    <div ref={container} className="space-y-8 p-4 max-w-6xl mx-auto pb-20">
+      
+      {/* --- HEADER --- */}
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight mb-2">
+            System <span className="text-gradient">Intelligence</span>
+          </h1>
+          <p className="text-base-content/50 font-medium italic">Configure your clinical identity and diagnostic protocols.</p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* --- 1. ADMIN PROFILE SETTINGS --- */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-              Admin Profile
-            </h2>
-            <div className="divider my-0"></div>
-            
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Full Name</span>
-              </label>
-              <input type="text" placeholder="Admin Name" defaultValue="System Administrator" className="input input-bordered w-full" />
+        {/* --- PROFILE SETTINGS --- */}
+        <div className="settings-card glass-card p-10 rounded-[2.5rem] border border-base-content/5 bg-base-100/40 shadow-xl shadow-base-content/5">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-8 flex items-center gap-3">
+            Radiologist Identity
+            <span className="flex-1 h-px bg-primary/10" />
+          </h2>
+          
+          <div className="flex flex-col gap-6">
+            <div className="form-control">
+              <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Full Professional Name</span></label>
+              <input type="text" defaultValue="Radiologist Account" className="input input-ghost font-bold text-lg bg-base-content/5 focus:bg-base-content/10 rounded-2xl h-14" />
             </div>
 
-            <div className="form-control w-full mt-3">
-              <label className="label">
-                <span className="label-text">Email Address</span>
-              </label>
-              <input type="email" placeholder="admin@radioone.com" defaultValue="admin@radioone.com" className="input input-bordered w-full" />
+            <div className="form-control">
+              <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Clinical Email Handle</span></label>
+              <input type="email" defaultValue="radiologist@radioone.ai" className="input input-ghost font-bold text-lg bg-base-content/5 focus:bg-base-content/10 rounded-2xl h-14" />
             </div>
 
-            <div className="card-actions justify-end mt-6">
-              <button className="btn btn-primary btn-sm">Update Profile</button>
+            <div className="pt-4">
+              <button className="btn btn-primary w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] border-none shadow-lg shadow-primary/20">Update Profile</button>
             </div>
           </div>
         </div>
 
-        {/* --- 2. SECURITY SETTINGS --- */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-              Security
-            </h2>
-            <div className="divider my-0"></div>
+        {/* --- SECURITY SETTINGS --- */}
+        <div className="settings-card glass-card p-10 rounded-[2.5rem] border border-base-content/5 bg-base-100/40 shadow-xl shadow-base-content/5">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-error mb-8 flex items-center gap-3">
+            Access Protocols
+            <span className="flex-1 h-px bg-error/10" />
+          </h2>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Current Password</span>
-              </label>
-              <input type="password" placeholder="••••••••" className="input input-bordered w-full" />
+          <div className="space-y-6">
+            <div className="form-control">
+              <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Current Password</span></label>
+              <input type="password" placeholder="••••••••" className="input input-ghost font-bold text-lg bg-base-content/5 focus:bg-base-content/10 rounded-2xl h-14" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className="label-text">New Password</span>
-                </label>
-                <input type="password" placeholder="New Password" className="input input-bordered w-full" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="form-control">
+                <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">New Key</span></label>
+                <input type="password" placeholder="••••••••" className="input input-ghost font-bold text-lg bg-base-content/5 focus:bg-base-content/10 rounded-2xl h-14" />
               </div>
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className="label-text">Confirm</span>
-                </label>
-                <input type="password" placeholder="Confirm" className="input input-bordered w-full" />
+              <div className="form-control">
+                <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Confirm</span></label>
+                <input type="password" placeholder="••••••••" className="input input-ghost font-bold text-lg bg-base-content/5 focus:bg-base-content/10 rounded-2xl h-14" />
               </div>
             </div>
 
-            <div className="card-actions justify-end mt-6">
-              <button className="btn btn-error btn-outline btn-sm">Change Password</button>
+            <div className="pt-4">
+              <button className="btn btn-outline btn-error w-full h-14 rounded-2xl font-black uppercase tracking-widest text-[10px] border-2">Change Password</button>
             </div>
           </div>
         </div>
 
-        {/* --- 3. SYSTEM PREFERENCES --- */}
-        <div className="card bg-base-100 shadow-xl lg:col-span-2">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-              Notifications & Logs
-            </h2>
-            <div className="divider my-0"></div>
+        {/* --- NOTIFICATIONS --- */}
+        <div className="settings-card glass-card p-10 rounded-[2.5rem] border border-base-content/5 bg-base-100/40 shadow-xl shadow-base-content/5 lg:col-span-2">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary mb-8 flex items-center gap-3">
+            Diagnostic Notifications
+            <span className="flex-1 h-px bg-secondary/10" />
+          </h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <div className="form-control">
-                  <label className="label cursor-pointer justify-between">
-                    <span className="label-text">Email Alert on New Registration</span>
-                    <input type="checkbox" className="toggle toggle-accent" defaultChecked />
-                  </label>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 bg-base-content/5 rounded-2xl border border-base-content/5">
+                <div>
+                  <p className="font-black text-sm text-base-content/80">New Scan Alerts</p>
+                  <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest">Email notification on new scans</p>
                 </div>
+                <input type="checkbox" className="toggle toggle-primary toggle-lg" defaultChecked />
+              </div>
 
-                <div className="form-control">
-                  <label className="label cursor-pointer justify-between">
-                    <span className="label-text">System Error Reports</span>
-                    <input type="checkbox" className="toggle toggle-accent" defaultChecked />
-                  </label>
+              <div className="flex items-center justify-between p-4 bg-base-content/5 rounded-2xl border border-base-content/5">
+                <div>
+                  <p className="font-black text-sm text-base-content/80">System Health Logs</p>
+                  <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest">Push notifications for sync errors</p>
                 </div>
+                <input type="checkbox" className="toggle toggle-primary toggle-lg" defaultChecked />
               </div>
-              
-              <div className="flex flex-col justify-center items-end border-l pl-6 border-base-200">
-                <span className="text-xs opacity-50 mb-2">Last Backup: Today, 10:00 AM</span>
-                <button className="btn btn-outline btn-accent btn-sm">Download System Logs</button>
-              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center p-8 bg-primary/5 rounded-[2rem] border border-primary/10 text-center">
+               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-4">Diagnostic Sync Status</div>
+               <div className="text-3xl font-black text-primary mb-2 tracking-tighter">ALL SYSTEMS GO</div>
+               <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-6 italic">Last Database Sync: 4m ago</p>
+               <button className="btn btn-ghost btn-xs h-10 px-6 rounded-xl font-black uppercase tracking-widest bg-primary/10 text-primary border-none">Download Backup</button>
             </div>
           </div>
         </div>
