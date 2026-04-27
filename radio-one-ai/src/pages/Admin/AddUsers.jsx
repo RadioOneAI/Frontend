@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import Toast from "../../component/Toast";
 
 const API_BASE = "http://127.0.0.1:5000";
 
 export default function AddUsers() {
+  const container = useRef();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
+  const [toast, setToast] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     role: "receptionist",
@@ -17,6 +21,14 @@ export default function AddUsers() {
     address: "",
     password: "",
   });
+
+  useGSAP(
+    () => {
+      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
+      gsap.from(".form-section", { y: 20, opacity: 0, stagger: 0.15, duration: 0.8, delay: 0.2, ease: "power3.out" });
+    },
+    { scope: container }
+  );
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("access_token");
@@ -33,277 +45,150 @@ export default function AddUsers() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiMessage({ type: "", text: "" });
+    setToast(null);
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        throw new Error("Missing access token. Please log in again.");
-      }
-
       const res = await fetch(`${API_BASE}/api/admin/staff`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(formData),
       });
-
       const json = await res.json().catch(() => ({}));
 
-      if (res.status === 401) {
-        throw new Error("Unauthorized. Please log in again.");
-      }
+      if (!res.ok || json?.success === false) throw new Error(json?.message || "User creation failed.");
 
-      if (!res.ok || json?.success === false) {
-        throw new Error(json?.message || "User creation failed.");
-      }
-
-      setApiMessage({
-        type: "success",
-        text: json?.message || "User created successfully.",
-      });
-
+      setToast({ message: "User created successfully!", type: "success" });
       setFormData({
-        name: "",
-        role: "receptionist",
-        license_number: "",
-        username: "",
-        email: "",
-        phone: "",
-        gender: "male",
-        date_of_birth: "",
-        address: "",
-        password: "",
+        name: "", role: "receptionist", license_number: "", username: "",
+        email: "", phone: "", gender: "male", date_of_birth: "", address: "", password: "",
       });
     } catch (error) {
-      setApiMessage({
-        type: "error",
-        text: error.message || "Unable to create user.",
-      });
+      setToast({ message: error.message || "Unable to create user.", type: "error" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Add User</h1>
-          <p className="text-base-content/70">
-            Create doctors, radiologists, radiographers, and receptionists.
-          </p>
-        </div>
+  const SectionHeader = ({ title, subtitle, icon, color }) => (
+    <div className="flex items-center gap-4 mb-8">
+      <div className={`p-4 rounded-2xl bg-${color}/10 text-${color} shadow-lg shadow-${color}/5`}>
+        {icon}
       </div>
-
-      {apiMessage.text && (
-        <div
-          className={`alert mb-6 shadow-md ${
-            apiMessage.type === "error" ? "alert-error" : "alert-success"
-          }`}
-        >
-          <span>{apiMessage.text}</span>
-        </div>
-      )}
-
-      <div className="card bg-base-100 shadow-2xl border border-base-300">
-        <div className="card-body p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <h2 className="text-xl font-bold mb-4 text-secondary">
-                Personal Information
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Full Name</span>
-                  </label>
-                  <input
-                    name="name"
-                    type="text"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter full name"
-                    required
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Role</span>
-                  </label>
-                  <select
-                    name="role"
-                    className="select select-bordered w-full focus:select-primary"
-                    value={formData.role}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="receptionist">Receptionist</option>
-                    <option value="doctor">Doctor</option>
-                    <option value="radiologist">Radiologist</option>
-                    <option value="radiographer">Radiographer</option>
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Gender</span>
-                  </label>
-                  <select
-                    name="gender"
-                    className="select select-bordered w-full focus:select-primary"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Date of Birth</span>
-                  </label>
-                  <input
-                    name="date_of_birth"
-                    type="date"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.date_of_birth}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold mb-4 text-secondary">
-                Account Information
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Username</span>
-                  </label>
-                  <input
-                    name="username"
-                    type="text"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="Enter username"
-                    required
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Password</span>
-                  </label>
-                  <input
-                    name="password"
-                    type="password"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter password"
-                    minLength={6}
-                    required
-                  />
-                </div>
-
-                <div className="form-control md:col-span-2">
-                  <label className="label">
-                    <span className="label-text font-medium">Email</span>
-                  </label>
-                  <input
-                    name="email"
-                    type="email"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold mb-4 text-secondary">
-                Professional & Contact Details
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">License Number</span>
-                  </label>
-                  <input
-                    name="license_number"
-                    type="text"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.license_number}
-                    onChange={handleChange}
-                    placeholder="SLMC-665544"
-                    required
-                  />
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Phone</span>
-                  </label>
-                  <input
-                    name="phone"
-                    type="tel"
-                    className="input input-bordered w-full focus:input-primary"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
-
-                <div className="form-control md:col-span-2">
-                  <label className="label">
-                    <span className="label-text font-medium">Address</span>
-                  </label>
-                  <textarea
-                    name="address"
-                    className="textarea textarea-bordered w-full focus:textarea-primary"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="Enter address"
-                    rows={3}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 flex justify-end">
-              <button
-                type="submit"
-                className={`btn btn-primary px-8 ${isSubmitting ? "btn-disabled" : ""}`}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="loading loading-spinner loading-sm"></span>
-                    Creating...
-                  </>
-                ) : (
-                  "Create User"
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+      <div>
+        <h2 className="text-xl font-black tracking-tight">{title}</h2>
+        <p className="text-[10px] text-base-content/40 font-bold uppercase tracking-[0.2em]">{subtitle}</p>
       </div>
     </div>
   );
 
+  return (
+    <div ref={container} className="space-y-10 p-4 max-w-5xl mx-auto">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <div className="page-header text-center mb-12">
+        <h1 className="text-4xl font-black tracking-tight mb-3">
+          Onboard <span className="text-gradient">New Staff</span>
+        </h1>
+        <p className="text-base-content/50 font-medium">Create system accounts for medical and administrative personnel.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        
+        {/* --- SECTION 1: PERSONAL --- */}
+        <div className="form-section glass-card p-10 rounded-[2.5rem] border border-base-content/5 relative overflow-hidden bg-base-100/40">
+          <SectionHeader 
+            title="Personal Details" 
+            subtitle="Identification & Identity" 
+            color="primary"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Full Legal Name</label>
+              <input name="name" type="text" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.name} onChange={handleChange} required />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Assigned Role</label>
+              <select name="role" className="select select-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.role} onChange={handleChange} required>
+                <option value="receptionist">Receptionist</option>
+                <option value="doctor">Doctor</option>
+                <option value="radiologist">Radiologist</option>
+                <option value="radiographer">Radiographer</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Gender</label>
+              <select name="gender" className="select select-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.gender} onChange={handleChange} required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Date of Birth</label>
+              <input name="date_of_birth" type="date" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.date_of_birth} onChange={handleChange} required />
+            </div>
+          </div>
+        </div>
+
+        {/* --- SECTION 2: ACCOUNT --- */}
+        <div className="form-section glass-card p-10 rounded-[2.5rem] border border-base-content/5 bg-base-100/40">
+          <SectionHeader 
+            title="Account Access" 
+            subtitle="Security & Credentials" 
+            color="secondary"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Login Username</label>
+              <input name="username" type="text" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.username} onChange={handleChange} required />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Temporary Password</label>
+              <input name="password" type="password" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.password} onChange={handleChange} minLength={6} required />
+            </div>
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Work Email Address</label>
+              <input name="email" type="email" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.email} onChange={handleChange} required />
+            </div>
+          </div>
+        </div>
+
+        {/* --- SECTION 3: PROFESSIONAL --- */}
+        <div className="form-section glass-card p-10 rounded-[2.5rem] border border-base-content/5 bg-base-100/40">
+          <SectionHeader 
+            title="Professional Credentials" 
+            subtitle="Clinical Verification" 
+            color="accent"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">License / Registration No</label>
+              <input name="license_number" type="text" placeholder="Ex: SLMC-12345" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.license_number} onChange={handleChange} required />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Contact Number</label>
+              <input name="phone" type="tel" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold px-6" value={formData.phone} onChange={handleChange} required />
+            </div>
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Home Address</label>
+              <textarea name="address" className="textarea textarea-ghost w-full bg-base-content/5 rounded-2xl font-bold px-6 py-4 min-h-[120px]" value={formData.address} onChange={handleChange} required />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-center pt-8">
+          <button 
+            type="submit" 
+            className={`btn btn-primary rounded-[2rem] px-16 h-16 font-black shadow-2xl shadow-primary/30 text-lg tracking-tight ${isSubmitting ? 'loading' : ''}`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Processing..." : "CREATE USER ACCOUNT"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
