@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import UploadImagesModal from "../../component/Radiographer/UploadImagesModal";
 import ViewReportModal from "../../component/Radiographer/ViewReportModal";
 import PdfReportModal from "../../component/Radiographer/PdfReportModal";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -29,6 +31,7 @@ function formatRemaining(ms) {
 }
 
 export default function Appointments() {
+  const container = useRef();
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
@@ -49,6 +52,15 @@ export default function Appointments() {
     resolvedId: null,
     report: null,
   });
+
+  useGSAP(
+    () => {
+      gsap.from(".page-title", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
+      gsap.from(".search-container", { y: -10, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
+      gsap.from(".table-card", { y: 20, opacity: 0, duration: 1, delay: 0.4, ease: "power3.out" });
+    },
+    { scope: container }
+  );
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -401,97 +413,121 @@ export default function Appointments() {
     a.dueAt ? formatRemaining(new Date(a.dueAt).getTime() - now) : "-";
 
   return (
-    <div className="space-y-6 text-base">
-      <h1 className="text-4xl font-bold">Appointments</h1>
+    <div ref={container} className="space-y-8 p-4">
+      <div className="page-title">
+        <h1 className="text-4xl font-black tracking-tight mb-2">
+          Appointment <span className="text-gradient">Manager</span>
+        </h1>
+        <p className="text-base-content/50 font-medium">View and manage clinical prescriptions and scan requests.</p>
+      </div>
 
-      {apiMessage.text ? (
-        <div className="alert alert-error">
+      {apiMessage.text && (
+        <div className="alert alert-error rounded-2xl border-none font-bold text-white shadow-xl animate-bounce-in">
           <span>{apiMessage.text}</span>
         </div>
-      ) : null}
+      )}
 
-      <input
-        className="input input-bordered w-full max-w-2xl text-lg"
-        placeholder="Search by Request ID / Patient / Receptionist..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="search-container glass-card p-2 rounded-3xl max-w-2xl flex items-center gap-4 border border-base-content/5">
+        <div className="relative flex-1">
+          <input
+            className="input input-ghost w-full focus:bg-transparent text-lg font-medium pl-12 h-14"
+            placeholder="Search request, patient, or doctor..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <svg className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
 
-      <div className="card bg-base-100 shadow-xl overflow-x-auto">
-        <table className="table w-full min-w-[1100px] text-sm text-center">
-          <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Doctor Name</th>
-              <th>Receptionist Name</th>
-              <th>Patient Name</th>
-              <th>Scan Type</th>
-              <th>Organ</th>
-              <th>Images</th>
-              <th>Time Left</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th className="text-center">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan="11" className="text-center py-4 text-base-content/50">
-                  Loading prescriptions...
-                </td>
+      <div className="table-card glass-card rounded-[2.5rem] border border-base-content/5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="table table-zebra w-full text-center">
+            <thead>
+              <tr className="text-base-content/40 uppercase tracking-widest text-[10px] font-black border-b border-base-content/5">
+                <th className="py-6 px-8">Request ID</th>
+                <th className="py-6">Clinical Info</th>
+                <th className="py-6">Patient</th>
+                <th className="py-6">Time Left</th>
+                <th className="py-6">Status</th>
+                <th className="py-6">Created</th>
+                <th className="py-6 px-8 text-right">Actions</th>
               </tr>
-            ) : filteredAppointments.length > 0 ? (
-              filteredAppointments.map((a) => (
-                <tr key={a.requestId}>
-                  <td className="font-mono font-bold">{a.requestId}</td>
-                  <td>{a.doctor}</td>
-                  <td>{a.receptionist}</td>
-                  <td>{a.patient}</td>
-                  <td>{a.scanType}</td>
-                  <td>{a.organ}</td>
-                  <td>{a.imagesCount}</td>
-                  <td>{getRemaining(a)}</td>
-                  <td>{a.status}</td>
-                  <td>{a.createdAt}</td>
+            </thead>
 
-                  <td className="min-w-[240px]">
-                    <div className="flex  items-center justify-center gap-2">
-                    <button
-                      className="btn btn-outline btn-sm whitespace-nowrap"
-                      onClick={() => openViewModal(a)}
-                    >
-                      View
-                    </button>
-
-                    <button
-                      className="btn btn-secondary btn-sm whitespace-nowrap"
-                      onClick={() => openPdfReportModal(a)}
-                    >
-                      Diagnostics Report
-                    </button>
-
-                    <button
-                      className="btn btn-primary btn-sm whitespace-nowrap"
-                      onClick={() => openUploadModal(a)}
-                      disabled={!!a.dueAt}
-                    >
-                      Upload Images
-                    </button>
-                    </div>
+            <tbody className="font-medium text-sm">
+              {isLoading ? (
+                <tr>
+                  <td colSpan="7" className="py-20">
+                    <span className="loading loading-spinner loading-lg text-primary" />
+                    <p className="mt-4 font-bold opacity-30 uppercase tracking-widest text-xs">Accessing Prescriptions...</p>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="11" className="text-center py-4 text-base-content/50">
-                  No prescriptions found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ) : filteredAppointments.length > 0 ? (
+                filteredAppointments.map((a) => (
+                  <tr key={a.requestId} className="hover:bg-base-200/30 transition-colors group">
+                    <td className="py-5 px-8">
+                      <span className="font-mono font-black text-primary bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">
+                        {a.requestId}
+                      </span>
+                    </td>
+                    <td className="text-left">
+                      <div className="flex flex-col">
+                        <span className="font-black text-base uppercase tracking-tighter">{a.scanType}</span>
+                        <span className="text-xs opacity-50 font-bold uppercase tracking-widest">{a.organ}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-base-200 flex items-center justify-center font-black text-xs border border-base-content/5">
+                          {a.patient.charAt(0)}
+                        </div>
+                        <div className="text-left">
+                          <div className="font-black">{a.patient}</div>
+                          <div className="text-[10px] opacity-40 uppercase tracking-tighter font-bold">Ref: {a.doctor}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`font-black ${getRemaining(a) === "Overdue" ? 'text-error animate-pulse' : 'text-base-content/60'}`}>
+                        {getRemaining(a)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] ${
+                        String(a.status).toLowerCase().includes('uploaded') ? 'badge-success text-white' : 'badge-warning text-white'
+                      }`}>
+                        {a.status}
+                      </span>
+                    </td>
+                    <td className="text-[11px] font-bold opacity-40">{a.createdAt}</td>
+
+                    <td className="px-8 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300" onClick={() => openViewModal(a)}>VIEW</button>
+                        <button className="btn btn-secondary btn-xs rounded-lg font-black shadow-lg shadow-secondary/10" onClick={() => openPdfReportModal(a)}>REPORT</button>
+                        <button 
+                          className="btn btn-primary btn-xs rounded-lg font-black shadow-lg shadow-primary/10" 
+                          onClick={() => openUploadModal(a)}
+                          disabled={!!a.dueAt}
+                        >
+                          UPLOAD
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">
+                    No prescriptions matched your search
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <UploadImagesModal
