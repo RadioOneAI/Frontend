@@ -1,35 +1,39 @@
-// src/pages/Receptionist/ManagePatients.jsx
 import React, { useEffect, useRef, useState } from "react";
 import PatientDetailsModal from "../../component/Receptionist/PatientDetailsModal";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import Toast from "../../component/Toast";
 
 const API_BASE = "http://127.0.0.1:5000";
 
 export default function ManagePatients() {
+  const container = useRef();
   const [patients, setPatients] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingPatients, setIsLoadingPatients] = useState(false);
-  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
+  const [toast, setToast] = useState(null);
 
-  // ✅ Ref to the TOP HEADER area ("Manage Patients")
-  const pageTopRef = useRef(null);
+  useGSAP(
+    () => {
+      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
+      gsap.from(".filter-card", { y: -10, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
+      gsap.from(".table-card", { y: 20, opacity: 0, duration: 1, delay: 0.4, ease: "power3.out" });
+    },
+    { scope: container }
+  );
 
   const mapApiPatientToUi = (item) => ({
     id: item.id,
     name: item.name || "N/A",
     nic: item.username || "N/A",
-    gender: item.gender
-      ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1)
-      : "N/A",
+    gender: item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : "N/A",
     age: Number.isFinite(item.age) ? item.age : null,
     phone: item.phone || "N/A",
     email: item.email || "N/A",
     status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
-    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      item.name || "Patient"
-    )}&background=random`,
+    img: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || "Patient")}&background=random`,
     address: item.address || "N/A",
     registeredDate: item.created_at ? String(item.created_at).split("T")[0] : "N/A",
     dateOfBirth: item.date_of_birth || null,
@@ -52,44 +56,26 @@ export default function ManagePatients() {
         headers: getAuthHeaders(),
       });
       const json = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        throw new Error("Unauthorized. Please log in again.");
-      }
-
-      if (!res.ok || json?.success === false) {
-        throw new Error(json?.message || "Failed to load patients.");
-      }
-
+      if (!res.ok || json?.success === false) throw new Error(json?.message || "Failed to load patients.");
       const list = Array.isArray(json?.data) ? json.data : [];
       setPatients(list.map(mapApiPatientToUi));
     } catch (error) {
-      setApiMessage({
-        type: "error",
-        text: error.message || "Unable to fetch patients.",
-      });
+      setToast({ message: error.message || "Unable to fetch patients.", type: "error" });
     } finally {
       setIsLoadingPatients(false);
     }
   };
 
-  useEffect(() => {
-    fetchPatients();
-  }, []);
+  useEffect(() => { fetchPatients(); }, []);
 
-  // 2. Filter Logic
-  const filteredPatients = patients.filter(
-    (pt) =>
-      pt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pt.nic.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPatients = patients.filter((pt) =>
+    pt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pt.nic.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 3. Handle Add Patient
   const handleAddPatient = async (e) => {
     e.preventDefault();
     const form = e.target;
-    const dobRaw = form.date_of_birth.value;
-
     const payload = {
       name: form.name.value.trim(),
       username: form.username.value.trim(),
@@ -97,398 +83,198 @@ export default function ManagePatients() {
       phone: form.phone.value.trim(),
       address: form.address.value.trim(),
       gender: form.gender.value.toLowerCase(),
-      date_of_birth: dobRaw,
+      date_of_birth: form.date_of_birth.value,
       password: form.password.value,
     };
 
     setIsSubmitting(true);
-    setApiMessage({ type: "", text: "" });
     try {
       const res = await fetch(`${API_BASE}/api/patients`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
-
       const json = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        throw new Error("Unauthorized. Please log in again.");
-      }
-
-      if (!res.ok || json?.success === false) {
-        throw new Error(json?.message || "Patient registration failed.");
-      }
-
-      const createdPatient = json?.data;
-      const newPt = createdPatient
-        ? mapApiPatientToUi(createdPatient)
-        : {
-            id: Date.now(),
-            name: payload.name,
-            nic: payload.username,
-            gender: payload.gender.charAt(0).toUpperCase() + payload.gender.slice(1),
-            age: null,
-            phone: payload.phone,
-            email: payload.email,
-            status: "Active",
-            img: `https://ui-avatars.com/api/?name=${encodeURIComponent(payload.name)}&background=random`,
-            address: payload.address || "N/A",
-            registeredDate: new Date().toISOString().split("T")[0],
-            dateOfBirth: payload.date_of_birth,
-          };
-
-      setPatients((prev) => [newPt, ...prev]);
-      setApiMessage({ type: "success", text: "Patient registered successfully." });
+      if (!res.ok || json?.success === false) throw new Error(json?.message || "Patient registration failed.");
+      
+      setToast({ message: "Patient registered successfully.", type: "success" });
       document.getElementById("add_patient_modal")?.close();
       form.reset();
       fetchPatients();
     } catch (error) {
-      setApiMessage({
-        type: "error",
-        text: error.message || "Unable to register patient.",
-      });
+      setToast({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ✅ View Details: show details AND scroll to top where "Manage Patients" is visible
   const handleViewDetails = (patient) => {
     setSelectedPatient(patient);
-
-    setTimeout(() => {
-      pageTopRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 0);
-  };
-
-  // ✅ Back to Patients: hide details and scroll back to table
-  const handleBackToPatients = () => {
-    setSelectedPatient(null);
-
-    setTimeout(() => {
-      document
-        .getElementById("patients_table_section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
+    // Scroll handling is now handled by the modal's presence
   };
 
   return (
-    // ✅ Base text increased to next scale
-    <div className="space-y-6 text-base">
-      {/* --- HEADER --- */}
-      <div
-        ref={pageTopRef}
-        className="flex flex-col sm:flex-row justify-between items-center gap-4"
-      >
-        <div>
-          {/* text-3xl -> text-4xl */}
-          <h1 className="text-4xl font-bold">Manage Patients</h1>
-          {/* text-base-content/70 default p size -> text-lg */}
-          <p className="text-base-content/70 text-lg">
-            View registered patients and manage accounts.
-          </p>
-        </div>
+    <div ref={container} className="space-y-8 p-4">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-        <button
-          className="btn btn-primary text-lg"
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight mb-2">
+            Patient <span className="text-gradient">Coordination</span>
+          </h1>
+          <p className="text-base-content/50 font-medium">Manage clinical registration and admission records.</p>
+        </div>
+        <button 
           onClick={() => document.getElementById("add_patient_modal")?.showModal()}
+          className="btn btn-primary rounded-2xl font-black px-8 shadow-xl shadow-primary/20 text-xs tracking-widest"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Register Patient
+          REGISTER PATIENT
         </button>
       </div>
 
-      {apiMessage.text ? (
-        <div
-          className={`alert ${
-            apiMessage.type === "error" ? "alert-error" : "alert-success"
-          }`}
-        >
-          <span>{apiMessage.text}</span>
+      {!selectedPatient && (
+        <>
+          <div className="filter-card glass-card p-4 rounded-3xl border border-base-content/5 max-w-2xl relative bg-base-100/40">
+            <input 
+              type="text" 
+              placeholder="Search by Patient Name or NIC..." 
+              className="input input-ghost w-full focus:bg-transparent text-lg font-bold pl-12 h-14" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <svg className="w-6 h-6 absolute left-8 top-1/2 -translate-y-1/2 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <div className="table-card glass-card rounded-[2.5rem] border border-base-content/5 overflow-hidden shadow-xl shadow-base-content/5 bg-base-100/40">
+            <div className="overflow-x-auto">
+              <table className="table table-zebra w-full text-center">
+                <thead>
+                  <tr className="text-base-content/40 uppercase tracking-widest text-[10px] font-black border-b border-base-content/5">
+                    <th className="py-6 px-8 text-left">Patient Identity</th>
+                    <th className="py-6">Clinical Metadata</th>
+                    <th className="py-6">Status</th>
+                    <th className="py-6 px-8 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="font-bold text-sm">
+                  {isLoadingPatients ? (
+                    <tr><td colSpan="4" className="py-20"><span className="loading loading-spinner loading-lg text-primary" /></td></tr>
+                  ) : filteredPatients.length > 0 ? (
+                    filteredPatients.map((pt) => (
+                      <tr key={pt.id} className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0">
+                        <td className="py-5 px-8 text-left">
+                          <div className="flex items-center gap-3">
+                            <div className="avatar"><div className="mask mask-squircle w-11 h-11"><img src={pt.img} alt={pt.name} /></div></div>
+                            <div>
+                              <div className="font-black text-base-content/80 text-base">{pt.name}</div>
+                              <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{pt.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                           <div className="font-black text-base-content/70">{pt.nic}</div>
+                           <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{pt.gender}, {pt.age}Y</div>
+                        </td>
+                        <td>
+                          <div className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] shadow-lg shadow-success/10 ${
+                            pt.status === 'Active' ? 'badge-success text-white' : 'badge-error text-white'
+                          }`}>
+                            {pt.status}
+                          </div>
+                        </td>
+                        <td className="px-8 text-right">
+                          <button onClick={() => handleViewDetails(pt)} className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300">OPEN FILE</button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan="4" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">No patient records matched</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {selectedPatient && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+           <PatientDetailsModal patient={selectedPatient} onBack={() => setSelectedPatient(null)} />
         </div>
-      ) : null}
+      )}
 
-      {/* ✅ INLINE DETAILS */}
-      <PatientDetailsModal patient={selectedPatient} onBack={handleBackToPatients} />
-
-      {/* --- SEARCH --- */}
-      <div className="form-control">
-        <div className="input-group">
-          <input
-            type="text"
-            placeholder="Search by Name or Username..."
-            className="input input-bordered w-full max-w-2xl text-lg"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* --- TABLE --- */}
-      <div
-        id="patients_table_section"
-        className="card bg-base-100 shadow-xl overflow-x-auto"
-      >
-        {/* table text increased */}
-        <table className="table w-full align-middle text-lg">
-          <thead>
-            <tr className="text-lg">
-              <th>Name & Contact</th>
-              <th>Username & Personal</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {isLoadingPatients ? (
-              <tr>
-                <td colSpan="4" className="text-center py-6 text-base-content/50 text-lg">
-                  Loading patients...
-                </td>
-              </tr>
-            ) : filteredPatients.length > 0 ? (
-              filteredPatients.map((pt) => (
-                <tr key={pt.id} className="hover">
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle w-14 h-14">
-                          <img src={pt.img} alt={pt.name} />
-                        </div>
-                      </div>
-                      <div>
-                        {/* name bigger */}
-                        <div className="font-bold text-xl">{pt.name}</div>
-                        {/* text-sm -> text-base */}
-                        <div className="text-base opacity-50">{pt.email}</div>
-                        {/* text-xs -> text-sm */}
-                        <div className="text-sm opacity-50">{pt.phone}</div>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div className="font-bold font-mono text-xl">{pt.nic}</div>
-                    <div className="text-base opacity-50">
-                      {pt.age !== null ? `${pt.gender}, ${pt.age} Years` : pt.gender}
-                    </div>
-                  </td>
-
-                  <td>
-                    {pt.status === "Active" ? (
-                      <div className="badge badge-success gap-2 text-white badge-md text-base">
-                        Active
-                      </div>
-                    ) : (
-                      <div className="badge badge-error gap-2 text-white badge-md text-base">
-                        Inactive
-                      </div>
-                    )}
-                  </td>
-
-                  <th>
-                    <div className="flex gap-2">
-                      <div className="tooltip" data-tip="View Details">
-                        <button
-                          className="btn btn-square btn-ghost btn-md bg-base-200"
-                          onClick={() => handleViewDetails(pt)}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </th>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="4" className="text-center py-6 text-base-content/50 text-lg">
-                  No patients found matching your search.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* --- ADD PATIENT MODAL --- */}
-      <dialog id="add_patient_modal" className="modal">
-        <div className="modal-box w-11/12 max-w-2xl text-lg">
+      {/* --- PREMIUM REGISTRATION MODAL --- */}
+      <dialog id="add_patient_modal" className="modal overflow-hidden">
+        <div className="modal-box w-11/12 max-w-2xl p-0 rounded-[3rem] border-none bg-white shadow-2xl overflow-hidden relative">
           <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-8 top-8 z-50 bg-base-200/50 hover:bg-base-200 transition-colors">✕</button>
           </form>
 
-          <h3 className="font-bold text-xl mb-4">Register New Patient</h3>
-          <div className="divider my-0"></div>
-
-          <form onSubmit={handleAddPatient} className="space-y-4 mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Full Name</span>
-                </label>
-                <input
-                  name="name"
-                  type="text"
-                  placeholder="Patient Name"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Username</span>
-                </label>
-                <input
-                  name="username"
-                  type="text"
-                  placeholder="Username"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
-              </div>
+          <div className="p-12 space-y-8">
+            <div>
+               <h3 className="text-3xl font-black tracking-tighter text-slate-900 leading-tight">Patient Registration</h3>
+               <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2">Create new clinical admission record</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Gender</span>
-                </label>
-                <select
-                  name="gender"
-                  className="select select-bordered w-full text-lg"
-                  required
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select Gender
-                  </option>
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
+            <form onSubmit={handleAddPatient} className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Full Name</span></label>
+                  <input name="name" type="text" placeholder="Patient Name" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">NIC Number / Username</span></label>
+                  <input name="username" type="text" placeholder="NIC Number" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Gender</span></label>
+                  <select name="gender" className="select select-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required defaultValue="">
+                    <option value="" disabled>Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Date of Birth</span></label>
+                  <input name="date_of_birth" type="date" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Phone Number</span></label>
+                  <input name="phone" type="tel" placeholder="Mobile Phone" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Email Address</span></label>
+                  <input name="email" type="email" placeholder="email@example.com" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
+                </div>
               </div>
 
               <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Date of Birth</span>
-                </label>
-                <input
-                  name="date_of_birth"
-                  type="date"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Phone Number</span>
-                </label>
-                <input
-                  name="phone"
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
+                <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Home Address</span></label>
+                <input name="address" type="text" placeholder="Complete Street Address" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required />
               </div>
 
               <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Email Address</span>
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="email@example.com"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
+                <label className="label"><span className="text-[10px] font-black uppercase tracking-widest opacity-40">Account Password</span></label>
+                <input name="password" type="password" placeholder="Min 6 characters" className="input input-ghost font-bold bg-slate-50 focus:bg-slate-100 rounded-2xl h-14" required minLength={6} />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Address</span>
-                </label>
-                <input
-                  name="address"
-                  type="text"
-                  placeholder="Address"
-                  className="input input-bordered w-full text-lg"
-                  required
-                />
+              <div className="pt-6">
+                <button type="submit" className="btn btn-primary w-full h-16 rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 border-none text-xs" disabled={isSubmitting}>
+                  {isSubmitting ? "REGISTERING..." : "FINALIZE REGISTRATION"}
+                </button>
               </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">Password</span>
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  className="input input-bordered w-full text-lg"
-                  minLength={6}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="modal-action">
-              <button
-                type="submit"
-                className="btn btn-primary w-full md:w-auto text-lg"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Registering..." : "Register Patient"}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
-
-        <form method="dialog" className="modal-backdrop">
+        <form method="dialog" className="modal-backdrop bg-slate-900/40 backdrop-blur-md">
           <button>close</button>
         </form>
       </dialog>

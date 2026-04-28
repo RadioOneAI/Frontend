@@ -1,82 +1,101 @@
-import React from "react";
+import React, { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function PatientDetailsModal({ patient }) {
-  // If no patient is selected, return null so nothing renders (safety check)
+  const container = useRef();
+
+  useGSAP(
+    () => {
+      if (patient) {
+        gsap.from(".profile-section", { x: -30, opacity: 0, duration: 0.6, ease: "power3.out" });
+        gsap.from(".details-section > div", { y: 20, opacity: 0, stagger: 0.1, duration: 0.6, delay: 0.2, ease: "power3.out" });
+      }
+    },
+    { scope: container, dependencies: [patient] }
+  );
+
   if (!patient) return null;
 
+  const initials = patient.name
+    ? patient.name.split(" ").map((n) => n[0]).join("").toUpperCase().substring(0, 2)
+    : "PT";
+
   return (
-    <dialog id="view_patient_modal" className="modal">
-      <div className="modal-box w-11/12 max-w-3xl">
+    <dialog id="view_patient_modal" className="modal overflow-hidden">
+      <div ref={container} className="modal-box w-11/12 max-w-4xl p-0 rounded-[3rem] border-none bg-white shadow-2xl overflow-hidden relative">
         <form method="dialog">
-          {/* Close button top right */}
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-8 top-8 z-50 bg-base-200/50 hover:bg-base-200 transition-colors">✕</button>
         </form>
-        
-        <div className="flex flex-col md:flex-row gap-6">
-          
-          {/* --- LEFT SIDE: PROFILE IMAGE & STATUS --- */}
-          <div className="flex flex-col items-center justify-center md:w-1/3 border-r border-base-200 pr-6">
-            <div className="avatar mb-4">
-              <div className="w-32 h-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                <img src={patient.img} alt={patient.name} />
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-center">{patient.name}</h3>
-            <span className={`badge mt-2 ${patient.status === "Active" ? "badge-success text-white" : "badge-error text-white"}`}>
-              {patient.status} Account
-            </span>
-            <p className="text-xs text-base-content/50 mt-4">Registered: {patient.registeredDate}</p>
-          </div>
 
-          {/* --- RIGHT SIDE: DETAILS GRID --- */}
-          <div className="flex-1 space-y-4">
-            
-            {/* Personal Info */}
-            <h4 className="font-bold text-lg border-b pb-2">Personal Information</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">NIC Number</span>
-                <span className="font-mono text-base">{patient.nic}</span>
-              </div>
-              <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">Age</span>
-                <span>{patient.age} Years</span>
-              </div>
-              <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">Gender</span>
-                <span>{patient.gender}</span>
-              </div>
-              <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">Address</span>
-                <span>{patient.address}</span>
-              </div>
+        <div className="flex flex-col lg:flex-row min-h-[550px]">
+          <div className="lg:w-[40%] p-12 flex flex-col items-center justify-center relative profile-section bg-linear-to-b from-base-100 to-base-200/30">
+            <div className="w-48 h-48 rounded-full border-[6px] border-white shadow-2xl bg-indigo-50 flex items-center justify-center mb-8 relative group">
+               <span className="text-6xl font-medium text-slate-700 tracking-tighter">{initials}</span>
             </div>
-
-            {/* Contact Info */}
-            <h4 className="font-bold text-lg border-b pb-2 mt-6">Contact Details</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">Mobile Phone</span>
-                <span>{patient.phone}</span>
-              </div>
-              <div>
-                <span className="block opacity-50 text-xs uppercase font-bold">Email Address</span>
-                <span>{patient.email}</span>
-              </div>
+            <h3 className="text-4xl font-black tracking-tighter text-slate-900 text-center mb-4 leading-tight">{patient.name}</h3>
+            <div className="bg-red-900 text-white font-black uppercase text-[11px] tracking-[0.2em] px-6 py-2 rounded-full mb-12 shadow-lg shadow-red-900/20">
+              PATIENT
             </div>
-
-            {/* Action Footer */}
-            <div className="flex gap-2 justify-end mt-8">
-              <button className="btn btn-sm btn-outline btn-primary">Edit Details</button>
-              <button className="btn btn-sm btn-outline btn-error">Reset Password</button>
+            <div className="w-full max-w-[240px] bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-50 text-center">
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-300 mb-2">Status</div>
+                <div className="text-[13px] font-black uppercase text-emerald-500 tracking-wider">
+                   {patient.status === 'Active' ? 'ACTIVE ACCOUNT' : 'INACTIVE ACCOUNT'}
+                </div>
             </div>
           </div>
 
+          <div className="flex-1 p-12 lg:p-20 details-section space-y-12">
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">Clinical Profile<span className="flex-1 h-px bg-slate-100" /></h4>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">NIC Number</span>
+                  <p className="font-black text-2xl text-red-800 tracking-tighter">{patient.nic || 'N/A'}</p>
+                </div>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Age & Gender</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter">{patient.gender}, {patient.age}Y</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">Contact Information<span className="flex-1 h-px bg-slate-100" /></h4>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Mobile Phone</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter">{patient.phone || 'N/A'}</p>
+                </div>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Email Address</span>
+                  <p className="font-black text-2xl text-slate-700 tracking-tighter truncate">{patient.email || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-300 flex items-center gap-4">System Metadata<span className="flex-1 h-px bg-slate-100" /></h4>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Registered Date</span>
+                  <p className="font-black text-2xl text-slate-400 tracking-tighter">{patient.registeredDate || 'N/A'}</p>
+                </div>
+                <div className="space-y-2">
+                  <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Registered By</span>
+                  <p className="font-black text-2xl text-slate-400 tracking-tighter">{patient.registeredBy || 'Receptionist'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-12 flex gap-6">
+              <button className="btn btn-ghost flex-1 rounded-2xl h-20 font-black bg-slate-50 hover:bg-slate-100 border-none transition-all uppercase tracking-widest text-xs text-slate-600">Edit Details</button>
+              <button className="btn btn-error flex-1 rounded-2xl h-20 font-black text-white shadow-2xl shadow-red-500/30 border-none transition-all uppercase tracking-widest text-xs bg-red-500 hover:bg-red-600">Ban Account</button>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {/* Clicking outside triggers close */}
-      <form method="dialog" className="modal-backdrop">
+      <form method="dialog" className="modal-backdrop bg-slate-900/40 backdrop-blur-md">
         <button>close</button>
       </form>
     </dialog>

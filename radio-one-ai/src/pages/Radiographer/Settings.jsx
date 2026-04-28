@@ -1,110 +1,119 @@
-import React from "react";
+import React, { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Settings() {
+  const container = useRef();
+
+  useGSAP(
+    () => {
+      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
+      gsap.from(".settings-section", { y: 20, opacity: 0, stagger: 0.2, duration: 0.8, delay: 0.3, ease: "power3.out" });
+    },
+    { scope: container }
+  );
+
+  const SectionHeader = ({ title, subtitle, icon, color }) => (
+    <div className="flex items-center gap-4 mb-8">
+      <div className={`p-4 rounded-[2rem] bg-${color}/10 text-${color} shadow-lg shadow-${color}/5`}>
+        {icon}
+      </div>
+      <div>
+        <h2 className="text-2xl font-black tracking-tight">{title}</h2>
+        <p className="text-sm text-base-content/40 font-bold uppercase tracking-widest">{subtitle}</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">System Settings</h1>
-      <p className="text-base-content/70">Manage your account details and system-wide configurations.</p>
+    <div ref={container} className="space-y-12 p-4">
+      <div className="page-header">
+        <h1 className="text-4xl font-black tracking-tight mb-2">
+          System <span className="text-gradient">Settings</span>
+        </h1>
+        <p className="text-base-content/50 font-medium">Manage your personal profile and global system configurations.</p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
         
-        {/* --- 1. ADMIN PROFILE SETTINGS --- */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-              Admin Profile
-            </h2>
-            <div className="divider my-0"></div>
-            
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Full Name</span>
-              </label>
-              <input type="text" placeholder="Admin Name" defaultValue="System Administrator" className="input input-bordered w-full" />
+        {/* --- 1. PROFILE SECTION --- */}
+        <div className="settings-section glass-card p-10 rounded-[2.5rem] border border-base-content/5 relative overflow-hidden">
+          <SectionHeader 
+            title="Profile Details" 
+            subtitle="Personal Identity" 
+            color="primary"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
+          />
+          
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Full Legal Name</label>
+              <input type="text" defaultValue="John Doe" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
             </div>
-
-            <div className="form-control w-full mt-3">
-              <label className="label">
-                <span className="label-text">Email Address</span>
-              </label>
-              <input type="email" placeholder="admin@radioone.com" defaultValue="admin@radioone.com" className="input input-bordered w-full" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Email Address</label>
+              <input type="email" defaultValue="john.doe@radioone.ai" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
             </div>
-
-            <div className="card-actions justify-end mt-6">
-              <button className="btn btn-primary btn-sm">Update Profile</button>
+            <div className="flex justify-end pt-4">
+              <button className="btn btn-primary rounded-2xl px-10 font-black shadow-xl shadow-primary/20">SAVE CHANGES</button>
             </div>
           </div>
         </div>
 
-        {/* --- 2. SECURITY SETTINGS --- */}
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-              Security
-            </h2>
-            <div className="divider my-0"></div>
-
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Current Password</span>
-              </label>
-              <input type="password" placeholder="••••••••" className="input input-bordered w-full" />
+        {/* --- 2. SECURITY SECTION --- */}
+        <div className="settings-section glass-card p-10 rounded-[2.5rem] border border-base-content/5">
+          <SectionHeader 
+            title="Security Center" 
+            subtitle="Access & Protection" 
+            color="secondary"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
+          />
+          
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Current Password</label>
+              <input type="password" placeholder="••••••••" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
             </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className="label-text">New Password</span>
-                </label>
-                <input type="password" placeholder="New Password" className="input input-bordered w-full" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">New Password</label>
+                <input type="password" placeholder="Enter new" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
               </div>
-              <div className="form-control w-full">
-                <label className="label">
-                  <span className="label-text">Confirm</span>
-                </label>
-                <input type="password" placeholder="Confirm" className="input input-bordered w-full" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Confirm New</label>
+                <input type="password" placeholder="Confirm" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
               </div>
             </div>
-
-            <div className="card-actions justify-end mt-6">
-              <button className="btn btn-error btn-outline btn-sm">Change Password</button>
+            <div className="flex justify-end pt-4">
+              <button className="btn btn-secondary rounded-2xl px-10 font-black shadow-xl shadow-secondary/20 uppercase tracking-tight">Update Password</button>
             </div>
           </div>
         </div>
 
-        {/* --- 3. SYSTEM PREFERENCES --- */}
-        <div className="card bg-base-100 shadow-xl lg:col-span-2">
-          <div className="card-body">
-            <h2 className="card-title flex gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-              Notifications & Logs
-            </h2>
-            <div className="divider my-0"></div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <div className="form-control">
-                  <label className="label cursor-pointer justify-between">
-                    <span className="label-text">Email Alert on New Registration</span>
-                    <input type="checkbox" className="toggle toggle-accent" defaultChecked />
-                  </label>
+        {/* --- 3. SYSTEM CONFIGURATION --- */}
+        <div className="settings-section glass-card p-10 rounded-[2.5rem] border border-base-content/5 xl:col-span-2">
+          <SectionHeader 
+            title="System Preferences" 
+            subtitle="Global Configuration" 
+            color="info"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
+          />
+          
+          <div className="grid md:grid-cols-2 gap-x-20 gap-y-8">
+            {[
+              { label: "Real-time AI Notifications", desc: "Get alerts when AI scans complete processing", checked: true },
+              { label: "Automated Data Backup", desc: "System-wide database backup every 24 hours", checked: true },
+              { label: "Email Audit Reports", desc: "Receive weekly PDF summaries of all system logs", checked: false },
+              { label: "Dark Mode Interface", desc: "Enable low-light optimized UI by default", checked: true }
+            ].map((pref, i) => (
+              <div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-base-content/5 border border-base-content/5 hover:bg-base-content/10 transition-all cursor-pointer group">
+                <div className="pr-4">
+                  <p className="font-black text-base tracking-tight mb-1">{pref.label}</p>
+                  <p className="text-[11px] font-bold opacity-40 uppercase tracking-widest leading-relaxed">{pref.desc}</p>
                 </div>
-
-                <div className="form-control">
-                  <label className="label cursor-pointer justify-between">
-                    <span className="label-text">System Error Reports</span>
-                    <input type="checkbox" className="toggle toggle-accent" defaultChecked />
-                  </label>
-                </div>
+                <input type="checkbox" className="toggle toggle-primary scale-125" defaultChecked={pref.checked} />
               </div>
-              
-              <div className="flex flex-col justify-center items-end border-l pl-6 border-base-200">
-                <span className="text-xs opacity-50 mb-2">Last Backup: Today, 10:00 AM</span>
-                <button className="btn btn-outline btn-accent btn-sm">Download System Logs</button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

@@ -10,6 +10,7 @@ import Signup from "./pages/Auth/Signup";
 import UserProfile from "./pages/UserProfile";
 import ContactUs from "./pages/ContactUs";
 import AboutUs from "./pages/AboutUs";
+import Features from "./pages/Features";
 import Feedback from "./pages/Main/feedback";
 
 // Admin Components
@@ -128,6 +129,7 @@ export default function App() {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/features" element={<Features />} />
           <Route path="/feedback" element={<Feedback />} />
           {/* --- Admin Routes --- */}
           <Route path="/admin/dashboard" element={<DashboardHome />} />

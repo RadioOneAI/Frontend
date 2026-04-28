@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root {
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+
 @plugin "daisyui/theme" {
   name: "dark";
   default: false;
@@ -18,8 +26,8 @@
   --color-accent-content: oklch(100% 0 0);
   --color-neutral: oklch(50% 0.213 27.518);
   --color-neutral-content: oklch(96% 0.015 12.422);
-  --color-info: oklch(100% 0 0);
-  --color-info-content: oklch(57% 0.245 27.325);
+  --color-info: oklch(65% 0.15 250);
+  --color-info-content: oklch(100% 0 0);
   --color-success: oklch(62% 0.194 149.214);
   --color-success-content: oklch(96% 0.044 156.743);
   --color-warning: oklch(82% 0.189 84.429);
@@ -53,8 +61,8 @@
   --color-accent-content: oklch(100% 0 0);
   --color-neutral: oklch(50% 0.213 27.518);
   --color-neutral-content: oklch(96% 0.015 12.422);
-  --color-info: oklch(100% 0 0);
-  --color-info-content: oklch(57% 0.245 27.325);
+  --color-info: oklch(65% 0.15 250);
+  --color-info-content: oklch(100% 0 0);
   --color-success: oklch(62% 0.194 149.214);
   --color-success-content: oklch(96% 0.044 156.743);
   --color-warning: oklch(82% 0.189 84.429);
@@ -69,4 +77,27 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+@layer utilities {
+  .bg-mesh {
+    background-color: var(--color-base-100);
+    background-image: 
+      radial-gradient(at 0% 0%, var(--color-primary) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, var(--color-secondary) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, var(--color-primary) 0px, transparent 50%);
+    background-blend-mode: soft-light;
+    opacity: 0.8;
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
 }
