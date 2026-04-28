@@ -20,14 +20,14 @@ export default function ContactUs() {
         ease: "power3.out",
       });
 
-      gsap.from(".contact-info-card", {
-        x: -30,
-        opacity: 0,
-        stagger: 0.2,
-        duration: 0.8,
-        delay: 0.2,
-        ease: "power3.out",
-      });
+      // gsap.from(".contact-info-card", {
+      //   x: -30,
+      //   opacity: 0,
+      //   stagger: 0.2,
+      //   duration: 0.8,
+      //   delay: 0.2,
+      //   ease: "power3.out",
+      // });
 
       gsap.from(".contact-form-container", {
         x: 30,
@@ -203,4 +203,4 @@ export default function ContactUs() {
       </section>
     </div>
   );
-}
+}

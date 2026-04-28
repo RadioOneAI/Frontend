@@ -30,17 +30,17 @@ export default function AboutUs() {
       });
 
       // Mission/Vision cards animation
-      gsap.from(".mission-card", {
-        scrollTrigger: {
-          trigger: ".mission-section",
-          start: "top 80%",
-        },
-        y: 50,
-        opacity: 0,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power2.out",
-      });
+      // gsap.from(".mission-card", {
+      //   scrollTrigger: {
+      //     trigger: ".mission-section",
+      //     start: "top 80%",
+      //   },
+      //   y: 50,
+      //   opacity: 0,
+      //   stagger: 0.2,
+      //   duration: 0.8,
+      //   ease: "power2.out",
+      // });
 
       // Stats animation
       gsap.from(".stat-item", {
