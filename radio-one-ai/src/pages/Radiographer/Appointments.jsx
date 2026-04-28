@@ -413,102 +413,148 @@ export default function Appointments() {
     a.dueAt ? formatRemaining(new Date(a.dueAt).getTime() - now) : "-";
 
   return (
-    <div ref={container} className="space-y-8 p-4">
-      <div className="page-title">
-        <h1 className="text-4xl font-black tracking-tight mb-2">
-          Appointment <span className="text-gradient">Manager</span>
-        </h1>
-        <p className="text-base-content/50 font-medium">View and manage clinical prescriptions and scan requests.</p>
+    <div ref={container} className="space-y-8 p-6 lg:p-10 min-h-screen relative overflow-hidden bg-base-100/50">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[120px] pointer-events-none opacity-60"></div>
+      <div className="absolute bottom-[-10%] left-[-5%] w-[30rem] h-[30rem] bg-secondary/20 rounded-full blur-[100px] pointer-events-none opacity-60"></div>
+
+      <div className="page-title relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-5xl font-black tracking-tighter mb-2">
+            Appointment <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Manager</span>
+          </h1>
+          <p className="text-base-content/60 font-medium text-lg">Manage and process clinical prescriptions with AI assistance.</p>
+        </div>
       </div>
 
       {apiMessage.text && (
-        <div className="alert alert-error rounded-2xl border-none font-bold text-white shadow-xl animate-bounce-in">
-          <span>{apiMessage.text}</span>
+        <div className="alert alert-error rounded-2xl border border-error/20 bg-error/10 text-error backdrop-blur-md shadow-xl animate-bounce-in relative z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span className="font-bold">{apiMessage.text}</span>
         </div>
       )}
 
-      <div className="search-container glass-card p-2 rounded-3xl max-w-2xl flex items-center gap-4 border border-base-content/5">
-        <div className="relative flex-1">
-          <input
-            className="input input-ghost w-full focus:bg-transparent text-lg font-medium pl-12 h-14"
-            placeholder="Search request, patient, or doctor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <svg className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+      <div className="search-container relative z-10 max-w-3xl">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative glass bg-base-100/60 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center p-2 shadow-2xl">
+            <svg className="w-7 h-7 ml-4 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              className="input input-ghost w-full focus:bg-transparent text-lg font-medium h-14 border-none focus:outline-none focus:ring-0 placeholder-base-content/30"
+              placeholder="Search by Request ID, Patient Name, or Doctor..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="table-card glass-card rounded-[2.5rem] border border-base-content/5 overflow-hidden">
+      <div className="table-card relative z-10 glass bg-base-100/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="table table-zebra w-full text-center">
+          <table className="table w-full text-left border-collapse">
             <thead>
-              <tr className="text-base-content/40 uppercase tracking-widest text-[10px] font-black border-b border-base-content/5">
-                <th className="py-6 px-8">Request ID</th>
+              <tr className="text-base-content/50 uppercase tracking-widest text-[11px] font-bold border-b border-white/10 bg-base-200/20">
+                <th className="py-6 px-8 rounded-tl-[2.5rem]">Request ID</th>
                 <th className="py-6">Clinical Info</th>
-                <th className="py-6">Patient</th>
+                <th className="py-6">Patient Details</th>
                 <th className="py-6">Time Left</th>
                 <th className="py-6">Status</th>
                 <th className="py-6">Created</th>
-                <th className="py-6 px-8 text-right">Actions</th>
+                <th className="py-6 px-8 text-right rounded-tr-[2.5rem]">Actions</th>
               </tr>
             </thead>
 
             <tbody className="font-medium text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan="7" className="py-20">
-                    <span className="loading loading-spinner loading-lg text-primary" />
-                    <p className="mt-4 font-bold opacity-30 uppercase tracking-widest text-xs">Accessing Prescriptions...</p>
+                  <td colSpan="7" className="py-32">
+                    <div className="flex flex-col items-center justify-center gap-4">
+                      <span className="loading loading-ring loading-lg text-primary scale-150" />
+                      <p className="font-bold opacity-40 uppercase tracking-widest text-sm bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-pulse">Syncing Database...</p>
+                    </div>
                   </td>
                 </tr>
               ) : filteredAppointments.length > 0 ? (
-                filteredAppointments.map((a) => (
-                  <tr key={a.requestId} className="hover:bg-base-200/30 transition-colors group">
-                    <td className="py-5 px-8">
-                      <span className="font-mono font-black text-primary bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">
-                        {a.requestId}
-                      </span>
+                filteredAppointments.map((a, index) => (
+                  <tr key={a.requestId} className="hover:bg-base-200/50 transition-all duration-300 group border-b border-white/5 last:border-0" style={{ animationDelay: `${index * 0.05}s` }}>
+                    <td className="py-6 px-8">
+                      <div className="inline-flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></div>
+                        <span className="font-mono font-bold text-base-content/80 group-hover:text-primary transition-colors">
+                          {a.requestId}
+                        </span>
+                      </div>
                     </td>
-                    <td className="text-left">
+                    <td>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-bold text-[15px] text-base-content group-hover:text-primary transition-colors">{a.scanType}</span>
+                        <span className="text-xs opacity-60 font-semibold uppercase tracking-wider">{a.organ}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-4">
+                        <div className="avatar placeholder">
+                          <div className="bg-gradient-to-br from-primary/20 to-secondary/20 text-base-content rounded-xl w-10 h-10 border border-white/10 shadow-inner group-hover:scale-110 transition-transform">
+                            <span className="text-sm font-bold">{a.patient.charAt(0)}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[14px] text-base-content">{a.patient}</span>
+                          <span className="text-[11px] opacity-60 font-semibold flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            {a.doctor}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${getRemaining(a) === "Overdue" ? 'bg-error/10 border-error/20 text-error' : 'bg-base-200/50 border-white/5 text-base-content/70'}`}>
+                        {getRemaining(a) === "Overdue" && <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                        <span className="font-bold text-[13px] tracking-wide">
+                          {getRemaining(a)}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        {String(a.status).toLowerCase().includes('uploaded') ? (
+                          <span className="badge badge-success badge-sm badge-outline gap-1 p-3 font-bold bg-success/10 border-success/30 text-success shadow-[0_0_10px_rgba(34,197,94,0.2)]">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                            {a.status}
+                          </span>
+                        ) : (
+                          <span className="badge badge-warning badge-sm badge-outline gap-1 p-3 font-bold bg-warning/10 border-warning/30 text-warning shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            {a.status}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
                       <div className="flex flex-col">
-                        <span className="font-black text-base uppercase tracking-tighter">{a.scanType}</span>
-                        <span className="text-xs opacity-50 font-bold uppercase tracking-widest">{a.organ}</span>
+                        <span className="text-[13px] font-semibold text-base-content/80">{a.createdAt.split(',')[0]}</span>
+                        <span className="text-[11px] font-medium text-base-content/40">{a.createdAt.split(',')[1]}</span>
                       </div>
                     </td>
-                    <td>
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-base-200 flex items-center justify-center font-black text-xs border border-base-content/5">
-                          {a.patient.charAt(0)}
-                        </div>
-                        <div className="text-left">
-                          <div className="font-black">{a.patient}</div>
-                          <div className="text-[10px] opacity-40 uppercase tracking-tighter font-bold">Ref: {a.doctor}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`font-black ${getRemaining(a) === "Overdue" ? 'text-error animate-pulse' : 'text-base-content/60'}`}>
-                        {getRemaining(a)}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] ${
-                        String(a.status).toLowerCase().includes('uploaded') ? 'badge-success text-white' : 'badge-warning text-white'
-                      }`}>
-                        {a.status}
-                      </span>
-                    </td>
-                    <td className="text-[11px] font-bold opacity-40">{a.createdAt}</td>
-
                     <td className="px-8 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300" onClick={() => openViewModal(a)}>VIEW</button>
-                        <button className="btn btn-secondary btn-xs rounded-lg font-black shadow-lg shadow-secondary/10" onClick={() => openPdfReportModal(a)}>REPORT</button>
+                      <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button 
-                          className="btn btn-primary btn-xs rounded-lg font-black shadow-lg shadow-primary/10" 
+                          className="btn btn-circle btn-ghost btn-sm hover:bg-base-200 hover:text-primary transition-colors tooltip tooltip-left" 
+                          data-tip="View Details"
+                          onClick={() => openViewModal(a)}
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
+                        <button 
+                          className="btn btn-secondary btn-sm rounded-xl font-bold px-4 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(217,70,239,0.23)] hover:bg-secondary focus:outline-none transition-all duration-200" 
+                          onClick={() => openPdfReportModal(a)}
+                        >
+                          REPORT
+                        </button>
+                        <button 
+                          className="btn btn-primary btn-sm rounded-xl font-bold px-4 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] hover:bg-primary focus:outline-none transition-all duration-200" 
                           onClick={() => openUploadModal(a)}
                           disabled={!!a.dueAt}
                         >
@@ -520,8 +566,12 @@ export default function Appointments() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">
-                    No prescriptions matched your search
+                  <td colSpan="7" className="py-24">
+                    <div className="flex flex-col items-center justify-center text-center opacity-40">
+                      <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                      <span className="font-bold text-lg">No Prescriptions Found</span>
+                      <span className="text-sm">Try adjusting your search filters</span>
+                    </div>
                   </td>
                 </tr>
               )}

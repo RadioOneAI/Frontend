@@ -158,25 +158,29 @@ export default function PdfReportModal({ modalId, state, onClose }) {
         <head>
           <title>RadioOne-AI Report ${safe(report?.id)}</title>
           <style>
-            @page { size: A4; margin: 14mm; }
-            body { font-family: Arial, sans-serif; color: #111; }
-            .wrap { width: 100%; }
-            .head { display: flex; gap: 12px; border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 12px; }
-            .head img { width: 64px; height: 64px; object-fit: contain; }
-            .brand { font-weight: 800; font-size: 24px; letter-spacing: .6px; }
-            .sub { font-size: 12px; margin-top: 4px; color: #333; }
-            .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-            .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-            .card { border: 1px solid #222; padding: 10px; border-radius: 6px; break-inside: avoid; }
-            .card h4 { margin: 0 0 8px; font-size: 14px; }
-            .row { display: grid; grid-template-columns: 40% 60%; border-bottom: 1px solid #ddd; padding: 4px 0; font-size: 12px; }
-            .k { font-weight: 700; }
-            .imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-            .img-card { border: 1px solid #ccc; padding: 8px; border-radius: 6px; }
-            .img-title { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
-            .img-card img { width: 100%; height: 190px; object-fit: contain; background: #f7f7f7; }
-            .muted { font-size: 12px; color: #666; }
-            .foot { margin-top: 14px; border-top: 1px solid #111; padding-top: 8px; font-size: 11px; }
+            @page { size: A4; margin: 15mm; }
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 0; }
+            .wrap { width: 100%; max-width: 800px; margin: 0 auto; }
+            .head { display: flex; align-items: center; gap: 20px; border-bottom: 3px solid #0ea5e9; padding-bottom: 20px; margin-bottom: 24px; }
+            .head img { width: 80px; height: 80px; object-fit: contain; }
+            .brand { font-weight: 900; font-size: 28px; letter-spacing: 1px; color: #0f172a; text-transform: uppercase; }
+            .sub { font-size: 13px; margin-top: 5px; color: #64748b; font-weight: 500; }
+            .contact { font-size: 11px; margin-top: 8px; color: #94a3b8; }
+            .section-title { font-size: 16px; font-weight: 800; color: #0f172a; margin: 24px 0 12px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+            .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+            .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+            .card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; break-inside: avoid; }
+            .card h4 { margin: 0 0 12px; font-size: 14px; color: #0369a1; text-transform: uppercase; font-weight: 700; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
+            .row { display: grid; grid-template-columns: 45% 55%; border-bottom: 1px solid #f1f5f9; padding: 6px 0; font-size: 12px; align-items: center; }
+            .row:last-child { border-bottom: none; padding-bottom: 0; }
+            .k { font-weight: 700; color: #475569; }
+            .v { font-weight: 600; color: #0f172a; }
+            .imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+            .img-card { border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #fff; text-align: center; break-inside: avoid; }
+            .img-title { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #334155; }
+            .img-card img { width: 100%; height: 220px; object-fit: contain; background: #000; border-radius: 4px; }
+            .muted { font-size: 12px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px; }
+            .foot { margin-top: 32px; border-top: 2px solid #e2e8f0; padding-top: 16px; font-size: 10px; color: #64748b; text-align: center; font-weight: 500; }
           </style>
         </head>
         <body>
@@ -185,58 +189,58 @@ export default function PdfReportModal({ modalId, state, onClose }) {
               <img src="${logo}" alt="RadioOne-AI logo" />
               <div>
                 <div class="brand">RadioOne-AI Diagnostics</div>
-                <div class="sub">Brain Imaging and AI Assisted Reporting Unit</div>
-                <div class="sub">12 Main Street, Colombo | +94 11 000 0000 | reports@radioone.lk</div>
+                <div class="sub">Advanced Brain Imaging & AI Assisted Reporting</div>
+                <div class="contact">12 Main Street, Colombo | +94 11 000 0000 | reports@radioone.lk</div>
               </div>
             </div>
 
             <div class="grid2">
               <div class="card">
-                <h4>Patient and Request</h4>
-                <div class="row"><div class="k">Patient</div><div>${safe(report?.patient?.name)}</div></div>
-                <div class="row"><div class="k">Patient ID</div><div>${safe(report?.patient_id)}</div></div>
-                <div class="row"><div class="k">Doctor</div><div>${safe(report?.doctor?.name)}</div></div>
-                <div class="row"><div class="k">Radiographer</div><div>${safe(report?.radiographer?.name)}</div></div>
-                <div class="row"><div class="k">Scan Request</div><div>${safe(report?.scan_req_id || report?.scan_request_id)}</div></div>
+                <h4>Patient Information</h4>
+                <div class="row"><div class="k">Patient Name</div><div class="v">${safe(report?.patient?.name)}</div></div>
+                <div class="row"><div class="k">Patient ID</div><div class="v">${safe(report?.patient_id)}</div></div>
+                <div class="row"><div class="k">Referring Doctor</div><div class="v">${safe(report?.doctor?.name)}</div></div>
+                <div class="row"><div class="k">Radiographer</div><div class="v">${safe(report?.radiographer?.name)}</div></div>
+                <div class="row"><div class="k">Request ID</div><div class="v">${safe(report?.scan_req_id || report?.scan_request_id)}</div></div>
               </div>
               <div class="card">
-                <h4>Report Meta</h4>
-                <div class="row"><div class="k">Report ID</div><div>${safe(report?.id)}</div></div>
-                <div class="row"><div class="k">Created</div><div>${safe(fmtDate(report?.created_at))}</div></div>
-                <div class="row"><div class="k">Updated</div><div>${safe(fmtDate(report?.updated_at))}</div></div>
-                <div class="row"><div class="k">Status</div><div>${safe(report?.status)}</div></div>
-                <div class="row"><div class="k">Analysis Time</div><div>${safe(report?.analysis_time_ms)} ms</div></div>
+                <h4>Report Details</h4>
+                <div class="row"><div class="k">Report ID</div><div class="v">${safe(report?.id)}</div></div>
+                <div class="row"><div class="k">Date Generated</div><div class="v">${safe(fmtDate(report?.created_at))}</div></div>
+                <div class="row"><div class="k">Last Updated</div><div class="v">${safe(fmtDate(report?.updated_at))}</div></div>
+                <div class="row"><div class="k">Status</div><div class="v" style="color: #059669;">${safe(report?.status)}</div></div>
+                <div class="row"><div class="k">AI Analysis Time</div><div class="v">${safe(report?.analysis_time_ms)} ms</div></div>
               </div>
             </div>
 
+            <div class="section-title">AI Diagnostic Findings</div>
             <div class="grid3">
               <div class="card">
                 <h4>Classification</h4>
-                <div class="row"><div class="k">Class</div><div>${safe(classification?.predicted_class)}</div></div>
-                <div class="row"><div class="k">Confidence</div><div>${safe(classification?.confidence_pct)}%</div></div>
-                <div class="row"><div class="k">Level</div><div>${safe(classification?.confidence_level)}</div></div>
+                <div class="row"><div class="k">Predicted Class</div><div class="v">${safe(classification?.predicted_class)}</div></div>
+                <div class="row"><div class="k">Confidence</div><div class="v">${safe(classification?.confidence_pct)}%</div></div>
+                <div class="row"><div class="k">Level</div><div class="v">${safe(classification?.confidence_level)}</div></div>
               </div>
               <div class="card">
                 <h4>Detection</h4>
-                <div class="row"><div class="k">Detections</div><div>${safe(detection?.num_detections ?? summary?.detection?.num_detections)}</div></div>
-                <div class="row"><div class="k">RECIST</div><div>${safe(detection?.recist_who?.recist_class ?? summary?.detection?.recist_class)}</div></div>
-                <div class="row"><div class="k">Risk</div><div>${safe(detection?.risk_stratification?.risk_level ?? summary?.detection?.risk_level)}</div></div>
+                <div class="row"><div class="k">Detections Found</div><div class="v">${safe(detection?.num_detections ?? summary?.detection?.num_detections)}</div></div>
+                <div class="row"><div class="k">RECIST Class</div><div class="v">${safe(detection?.recist_who?.recist_class ?? summary?.detection?.recist_class)}</div></div>
+                <div class="row"><div class="k">Risk Stratification</div><div class="v">${safe(detection?.risk_stratification?.risk_level ?? summary?.detection?.risk_level)}</div></div>
               </div>
               <div class="card">
                 <h4>Segmentation</h4>
-                <div class="row"><div class="k">Area</div><div>${safe(segArea)} cm2</div></div>
-                <div class="row"><div class="k">Volume</div><div>${safe(segVolume)} ml</div></div>
-                <div class="row"><div class="k">Margin</div><div>${safe(segMargin)}</div></div>
+                <div class="row"><div class="k">Total Area</div><div class="v">${safe(segArea)} cm²</div></div>
+                <div class="row"><div class="k">Total Volume</div><div class="v">${safe(segVolume)} ml</div></div>
+                <div class="row"><div class="k">Margin Type</div><div class="v">${safe(segMargin)}</div></div>
               </div>
             </div>
 
-            <div class="card" style="margin-top:10px;">
-              <h4>Report Images</h4>
-              <div class="imgs">${imageBlocks}</div>
-            </div>
+            <div class="section-title">Diagnostic Images</div>
+            <div class="imgs">${imageBlocks}</div>
 
             <div class="foot">
-              RADIOONE-AI assisted report. Final clinical interpretation should be confirmed by a qualified specialist.
+              <strong>Disclaimer:</strong> This is an AI-assisted preliminary report generated by RADIOONE-AI. 
+              <br/>Final clinical interpretation and diagnosis must be confirmed by a qualified medical specialist.
             </div>
           </div>
         </body>
@@ -329,8 +333,8 @@ export default function PdfReportModal({ modalId, state, onClose }) {
   };
 
   return (
-    <dialog id={modalId} className="modal">
-      <div className="modal-box w-[96vw] max-w-6xl max-h-[92vh] overflow-y-auto">
+    <dialog id={modalId} className="modal modal-bottom sm:modal-middle backdrop-blur-md bg-base-300/60 transition-all duration-300">
+      <div className="modal-box w-[96vw] max-w-6xl max-h-[92vh] overflow-y-auto glass bg-base-100/70 backdrop-blur-2xl border border-white/20 shadow-2xl rounded-t-[2rem] sm:rounded-[2rem] p-0 relative">
         <style>{`
           @media print {
             @page { size: A4; margin: 14mm; }
@@ -340,178 +344,202 @@ export default function PdfReportModal({ modalId, state, onClose }) {
             .no-print { display: none !important; }
           }
         `}</style>
-        <form method="dialog">
-          <button className="btn btn-lg btn-circle btn-ghost absolute right-2 top-2 no-print ">
-            x
-          </button>
-        </form>
-
-        <div className="no-print flex items-center justify-between mb-4">
+        
+        {/* Header Section */}
+        <div className="sticky top-0 z-50 glass bg-base-100/80 backdrop-blur-xl border-b border-white/10 px-8 py-6 flex items-center justify-between no-print shadow-sm">
           <div>
-            <h3 className="font-bold text-2xl">Professional MRI Report</h3>
-            <p className="text-sm text-base-content/70">
-              Requested ID: <code>{state?.requestedId ?? "-"}</code>
-              {" | "}
-              Resolved Report ID: <code>{state?.resolvedId ?? "-"}</code>
+            <h3 className="font-black text-3xl mb-1 flex items-center gap-3">
+              <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              Professional MRI <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Report</span>
+            </h3>
+            <p className="text-sm font-medium text-base-content/60 flex items-center gap-2">
+              <span className="opacity-70">Requested ID:</span> <code className="bg-base-200/50 px-2 py-0.5 rounded text-primary font-bold border border-white/5">{state?.requestedId ?? "-"}</code>
+              <span className="mx-2 opacity-30">|</span>
+              <span className="opacity-70">Resolved ID:</span> <code className="bg-base-200/50 px-2 py-0.5 rounded text-secondary font-bold border border-white/5">{state?.resolvedId ?? "-"}</code>
             </p>
           </div>
-          <button className="btn mt-10 btn-primary" type="button" onClick={handleDownloadPdf}>
-            Download PDF
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              className="btn btn-primary rounded-xl font-bold px-6 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-105" 
+              type="button" 
+              onClick={handleDownloadPdf}
+              disabled={loading || !report}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              Download PDF
+            </button>
+            <form method="dialog">
+              <button className="btn btn-circle btn-ghost bg-base-200/50 hover:bg-error/20 hover:text-error transition-colors">✕</button>
+            </form>
+          </div>
         </div>
 
-        {loading ? (
-          <div className="py-8 text-center text-base-content/60">
-            Loading report details...
-          </div>
-        ) : error ? (
-          <div className="alert alert-error">
-            <span>{error}</span>
-          </div>
-        ) : report ? (
-          <div className="report-print space-y-5 bg-white text-black p-4 rounded-xl">
-            <div className="border-b-2 border-black pb-3">
-              <div className="flex items-center gap-3">
-                <img src={logo} alt="RadioOne-AI logo" className="w-16 h-16 object-contain" />
-                <div>
-                  <div className="text-3xl font-black tracking-wide">RADIOONE-AI DIAGNOSTICS</div>
-                  <div className="text-sm">
-                    Brain Imaging and AI Assisted Reporting Unit
+        <div className="p-8">
+          {loading ? (
+            <div className="py-20 flex flex-col items-center justify-center gap-4">
+              <span className="loading loading-ring loading-lg text-primary scale-150"></span>
+              <p className="font-bold text-base-content/50 uppercase tracking-[0.2em] animate-pulse">Generating Report...</p>
+            </div>
+          ) : error ? (
+            <div className="alert alert-error rounded-2xl shadow-lg border-none bg-error/10 text-error backdrop-blur-md max-w-2xl mx-auto my-10">
+              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span className="font-bold">{error}</span>
+            </div>
+          ) : report ? (
+            <div className="report-print space-y-6 max-w-5xl mx-auto bg-base-100 rounded-3xl p-8 lg:p-12 shadow-inner border border-base-content/5">
+              
+              {/* Report Header */}
+              <div className="border-b-2 border-base-content/10 pb-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="w-20 h-20 bg-base-200 rounded-2xl flex items-center justify-center p-2 shadow-sm border border-base-content/5">
+                    <img src={logo} alt="RadioOne-AI logo" className="w-full h-full object-contain" />
                   </div>
-                  <div className="text-sm mt-1">
-                    No.55,13 th lane,Isurupura Road,Malabe, Sri Lanka | +94 11 000 0000 | reports@radioone.lk
+                  <div>
+                    <div className="text-3xl font-black tracking-tighter text-base-content">RADIOONE-AI DIAGNOSTICS</div>
+                    <div className="text-primary font-bold tracking-wide uppercase text-xs mt-1">
+                      Advanced Brain Imaging & AI Assisted Reporting
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right text-xs text-base-content/60 font-medium">
+                  <p>12 Main Street, Colombo</p>
+                  <p>+94 11 000 0000</p>
+                  <p>reports@radioone.lk</p>
+                </div>
+              </div>
+
+              {/* Top Meta Data */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-base-200/40 rounded-2xl p-6 border border-base-content/5">
+                  <h4 className="font-black text-lg mb-4 text-primary uppercase tracking-wider text-sm border-b border-base-content/10 pb-2">Patient & Request Info</h4>
+                  <div className="space-y-1 text-sm">
+                    <InfoRow label="Patient Name" value={<span className="font-bold text-base">{report.patient?.name}</span>} />
+                    <InfoRow label="Patient ID" value={report.patient_id} />
+                    <InfoRow label="Referring Doctor" value={<span className="font-semibold">{report.doctor?.name}</span>} />
+                    <InfoRow label="Radiographer" value={report.radiographer?.name} />
+                    <InfoRow label="Request ID" value={<span className="font-mono text-xs bg-base-300 px-2 py-1 rounded">{report.scan_req_id || report.scan_request_id}</span>} />
+                    <InfoRow label="Scan Details" value={<span className="uppercase font-bold opacity-80">{report.scan_type} • {report.organ}</span>} />
+                  </div>
+                </div>
+
+                <div className="bg-base-200/40 rounded-2xl p-6 border border-base-content/5">
+                  <h4 className="font-black text-lg mb-4 text-secondary uppercase tracking-wider text-sm border-b border-base-content/10 pb-2">Report Metadata</h4>
+                  <div className="space-y-1 text-sm">
+                    <InfoRow label="Report ID" value={<span className="font-mono text-xs">{report.id}</span>} />
+                    <InfoRow label="Status" value={<span className="badge badge-success badge-sm font-bold">{report.status}</span>} />
+                    <InfoRow label="Generated On" value={fmtDate(report.created_at)} />
+                    <InfoRow label="Last Updated" value={fmtDate(report.updated_at)} />
+                    <InfoRow label="AI Process Time" value={`${report.analysis_time_ms} ms`} />
+                    <InfoRow label="Radiologist Note" value={<span className="italic opacity-80">{report.radiologist_text || "None provided"}</span>} />
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="card border border-black bg-white">
-                <div className="card-body p-4">
-                  <h4 className="font-bold">Patient and Request</h4>
-                  <InfoRow label="Patient" value={report.patient?.name} />
-                  <InfoRow label="Patient ID" value={report.patient_id} />
-                  <InfoRow label="Doctor" value={report.doctor?.name} />
-                  <InfoRow label="Radiographer" value={report.radiographer?.name} />
-                  <InfoRow label="Scan Request" value={report.scan_req_id || report.scan_request_id} />
-                  <InfoRow label="Scan Type" value={report.scan_type} />
-                  <InfoRow label="Organ" value={report.organ} />
+              {/* AI Findings Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                <div className="bg-base-100 rounded-2xl p-5 border-l-4 border-l-blue-500 shadow-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg></div>
+                    <h4 className="font-black text-base uppercase tracking-wider">Classification</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Result</span><span className="font-bold text-blue-600">{classification.predicted_class || "-"}</span></div>
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Confidence</span><span className="font-bold">{classification.confidence_pct || "-"}%</span></div>
+                    <div className="w-full bg-base-300 rounded-full h-1.5 mt-1"><div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${classification.confidence_pct || 0}%` }}></div></div>
+                  </div>
+                </div>
+
+                <div className="bg-base-100 rounded-2xl p-5 border-l-4 border-l-orange-500 shadow-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg></div>
+                    <h4 className="font-black text-base uppercase tracking-wider">Detection</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Found</span><span className="font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-md">{detection.num_detections ?? summary?.detection?.num_detections ?? 0}</span></div>
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">RECIST</span><span className="font-bold">{detection?.recist_who?.recist_class ?? summary?.detection?.recist_class ?? "-"}</span></div>
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Risk</span><span className="font-bold">{detection?.risk_stratification?.risk_level ?? summary?.detection?.risk_level ?? "-"}</span></div>
+                  </div>
+                </div>
+
+                <div className="bg-base-100 rounded-2xl p-5 border-l-4 border-l-emerald-500 shadow-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg></div>
+                    <h4 className="font-black text-base uppercase tracking-wider">Segmentation</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Area</span><span className="font-bold">{segArea ? `${segArea} cm²` : "-"}</span></div>
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Volume</span><span className="font-bold">{segVolume ? `${segVolume} ml` : "-"}</span></div>
+                    <div className="flex justify-between items-center"><span className="opacity-60 font-semibold">Margin</span><span className="font-bold">{segMargin || "-"}</span></div>
+                  </div>
                 </div>
               </div>
 
-              <div className="card border border-black bg-white">
-                <div className="card-body p-4">
-                  <h4 className="font-bold">Report Meta</h4>
-                  <InfoRow label="Report ID" value={report.id} />
-                  <InfoRow label="Status" value={report.status} />
-                  <InfoRow label="Created At" value={fmtDate(report.created_at)} />
-                  <InfoRow label="Updated At" value={fmtDate(report.updated_at)} />
-                  <InfoRow label="Analysis Time (ms)" value={report.analysis_time_ms} />
-                  <InfoRow label="Radiologist Note" value={report.radiologist_text} />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="card border border-black bg-white">
-                <div className="card-body p-4">
-                  <h4 className="font-bold">Classification</h4>
-                  <InfoRow label="Predicted Class" value={classification.predicted_class} />
-                  <InfoRow label="Confidence %" value={classification.confidence_pct} />
-                  <InfoRow label="Confidence Level" value={classification.confidence_level} />
-                </div>
+              {/* Summary Highlights */}
+              <div className="bg-base-200/50 rounded-2xl p-5 border border-base-content/5 mt-4">
+                 <div className="flex gap-6 justify-around text-center text-sm">
+                    <div>
+                      <div className="opacity-50 font-bold mb-1 uppercase text-[10px] tracking-widest">Tumor Detected</div>
+                      <div className={`font-black text-lg ${summary?.tumor_detected ? 'text-error' : 'text-success'}`}>{summary?.tumor_detected ? "YES" : "NO"}</div>
+                    </div>
+                    <div>
+                      <div className="opacity-50 font-bold mb-1 uppercase text-[10px] tracking-widest">Hemisphere</div>
+                      <div className="font-black text-lg">{summary?.detection?.hemisphere || "-"}</div>
+                    </div>
+                    <div>
+                      <div className="opacity-50 font-bold mb-1 uppercase text-[10px] tracking-widest">Lateralization</div>
+                      <div className="font-black text-lg">{summary?.segmentation?.lateralization || "-"}</div>
+                    </div>
+                 </div>
               </div>
 
-              <div className="card border border-black bg-white">
-                <div className="card-body p-4">
-                  <h4 className="font-bold">Detection</h4>
-                  <InfoRow
-                    label="Detections"
-                    value={detection.num_detections ?? summary?.detection?.num_detections}
-                  />
-                  <InfoRow
-                    label="RECIST Class"
-                    value={detection?.recist_who?.recist_class ?? summary?.detection?.recist_class}
-                  />
-                  <InfoRow
-                    label="Risk Level"
-                    value={detection?.risk_stratification?.risk_level ?? summary?.detection?.risk_level}
-                  />
-                </div>
-              </div>
-
-              <div className="card border border-black bg-white">
-                <div className="card-body p-4">
-                  <h4 className="font-bold">Segmentation</h4>
-                  <InfoRow label="Area (cm2)" value={segArea} />
-                  <InfoRow label="Volume (ml)" value={segVolume} />
-                  <InfoRow
-                    label="Margin Type"
-                    value={segMargin}
-                  />
-                  <InfoRow
-                    label="Size Class"
-                    value={segSizeClass}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="card border border-black bg-white">
-              <div className="card-body p-4">
-                <h4 className="font-bold">Findings Summary</h4>
-                <InfoRow
-                  label="Tumor Detected"
-                  value={summary?.tumor_detected ? "Yes" : "No"}
-                />
-                <InfoRow
-                  label="Hemisphere"
-                  value={summary?.detection?.hemisphere}
-                />
-                <InfoRow
-                  label="Lateralization"
-                  value={summary?.segmentation?.lateralization}
-                />
-              </div>
-            </div>
-
-            <div className="card border border-black bg-white">
-              <div className="card-body p-4">
-                <h4 className="font-bold">Report Images</h4>
+              {/* Images Section */}
+              <div className="pt-6">
+                <h4 className="font-black text-xl mb-6 flex items-center gap-2 border-b border-base-content/10 pb-3">
+                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  Diagnostic Images
+                </h4>
                 {imageCards.length ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {imageCards.map((img) => (
-                      <div key={img.key} className="border border-base-300 rounded-md p-2">
-                        <div className="text-xs font-semibold mb-2">{img.title}</div>
+                      <div key={img.key} className="group relative rounded-2xl overflow-hidden border border-base-300 shadow-sm hover:shadow-xl transition-all duration-300 bg-base-200">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 opacity-80 group-hover:opacity-100 transition-opacity"></div>
                         <img
                           src={img.src}
                           alt={img.title}
-                          className="w-full h-44 object-contain bg-base-100"
+                          className="w-full h-56 object-cover bg-black group-hover:scale-105 transition-transform duration-500"
                         />
+                        <div className="absolute bottom-0 left-0 w-full p-4 z-20">
+                           <div className="text-white font-bold text-sm truncate drop-shadow-md">{img.title}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-base-content/70">
-                    No report images available.
+                  <div className="bg-base-200/50 rounded-2xl p-12 text-center border border-base-300 border-dashed">
+                    <svg className="w-12 h-12 mx-auto text-base-content/20 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <p className="text-base-content/50 font-medium">No diagnostic images generated for this report.</p>
                   </div>
                 )}
               </div>
-            </div>
 
-            <div className="text-xs pt-4 border-t border-black">
-              RADIOONE AI assisted report. Final clinical interpretation should be confirmed by a qualified specialist.
+              {/* Footer */}
+              <div className="text-center text-xs text-base-content/50 font-medium pt-8 mt-8 border-t border-base-content/10">
+                <p className="font-bold text-base-content/70">DISCLAIMER</p>
+                <p className="mt-1">This is an AI-assisted preliminary report generated by RADIOONE-AI.</p>
+                <p>Final clinical interpretation and diagnosis must be confirmed by a qualified medical specialist.</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="py-8 text-center text-base-content/60">
-            No report details available.
-          </div>
-        )}
+          ) : (
+            <div className="py-20 flex flex-col items-center justify-center text-center text-base-content/40">
+              <svg className="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <span className="font-bold text-lg">No Report Data Available</span>
+              <span className="text-sm">Select an appointment to view its report.</span>
+            </div>
+          )}
+        </div>
       </div>
-
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+      <form method="dialog" className="modal-backdrop bg-base-300/40 backdrop-blur-sm">
+        <button onClick={onClose} className="cursor-default">close</button>
       </form>
     </dialog>
   );
