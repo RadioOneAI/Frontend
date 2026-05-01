@@ -21,7 +21,7 @@ export default function ReceptionistLayout({ children }) {
   };
 
   return (
-    <div className="drawer lg:drawer-open overflow-hidden">
+    <div className="drawer lg:drawer-open">
       <input id="receptionist-drawer" type="checkbox" className="drawer-toggle" />
 
       <div className="drawer-content flex flex-col min-h-screen bg-base-200">
