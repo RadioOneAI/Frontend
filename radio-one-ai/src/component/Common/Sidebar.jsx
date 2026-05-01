@@ -38,7 +38,7 @@ export default function Sidebar({ role, links = [], user = {} }) {
           </div>
           <div>
             <h1 className="text-2xl font-black tracking-tighter leading-none">
-              Radio<span className="text-primary">One</span>AI
+              RadioOne<span className="text-primary">AI</span>
             </h1>
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 bg-primary/5 px-2 py-0.5 rounded-md mt-1 inline-block">
               {role} Panel
