@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import RadiographerSidebar from "../../component/Radiographer/RadiographerSidebar";
 import RadiographerBreadcrumbs from "../../component/Radiographer/RadiographerBreadcrumbs";
 import Navbar from "../../component/Common/Navbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function RadiographerLayout({ children }) {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -35,6 +37,16 @@ export default function RadiographerLayout({ children }) {
           </div>
           {children}
         </main>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="dark"
+        />
       </div>
 
       {/* --- SIDEBAR --- */}

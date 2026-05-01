@@ -4,6 +4,7 @@ import ViewReportModal from "../../component/Radiographer/ViewReportModal";
 import PdfReportModal from "../../component/Radiographer/PdfReportModal";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { toast } from "react-toastify";
 
 const API_BASE = "http://127.0.0.1:5000";
 
@@ -34,7 +35,6 @@ export default function Appointments() {
   const container = useRef();
   const [appointments, setAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiMessage, setApiMessage] = useState({ type: "", text: "" });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -184,12 +184,8 @@ export default function Appointments() {
 
       const list = Array.isArray(json?.data) ? json.data : [];
       setAppointments(list.map(mapApiPrescriptionToUi));
-      setApiMessage({ type: "", text: "" });
     } catch (error) {
-      setApiMessage({
-        type: "error",
-        text: error.message || "Unable to fetch prescriptions.",
-      });
+      toast.error(error.message || "Unable to fetch prescriptions.");
     } finally {
       setIsLoading(false);
     }
@@ -262,11 +258,7 @@ export default function Appointments() {
           ? { ...prev, apiImages: [], loadingImages: false }
           : prev
       );
-
-      setApiMessage({
-        type: "error",
-        text: error.message || "Unable to load images for this prescription.",
-      });
+      toast.error(error.message || "Unable to load images for this prescription.");
     }
   };
 
@@ -284,10 +276,7 @@ export default function Appointments() {
     const reportId = a?.reportId ?? null;
 
     if (reportId == null) {
-      setApiMessage({
-        type: "error",
-        text: "Can't give diagnostic report. Report ID is missing for this record.",
-      });
+      toast.error("Can't give diagnostic report. Report ID is missing for this record.");
       return;
     }
 
@@ -376,6 +365,7 @@ export default function Appointments() {
         resolvedId: null,
         report: null,
       });
+      toast.error(error.message || "Unable to load report details.");
     }
   };
 
@@ -427,12 +417,7 @@ export default function Appointments() {
         </div>
       </div>
 
-      {apiMessage.text && (
-        <div className="alert alert-error rounded-2xl border border-error/20 bg-error/10 text-error backdrop-blur-md shadow-xl animate-bounce-in relative z-10">
-          <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <span className="font-bold">{apiMessage.text}</span>
-        </div>
-      )}
+      {/* No more inline error banner — toasts handle all alerts */}
 
       <div className="search-container relative z-10 max-w-3xl">
         <div className="relative group">
@@ -456,13 +441,13 @@ export default function Appointments() {
           <table className="table w-full text-left border-collapse">
             <thead>
               <tr className="text-base-content/50 uppercase tracking-widest text-[11px] font-bold border-b border-white/10 bg-base-200/20">
-                <th className="py-6 px-8 rounded-tl-[2.5rem]">Request ID</th>
-                <th className="py-6">Clinical Info</th>
-                <th className="py-6">Patient Details</th>
-                <th className="py-6">Time Left</th>
-                <th className="py-6">Status</th>
-                <th className="py-6">Created</th>
-                <th className="py-6 px-8 text-right rounded-tr-[2.5rem]">Actions</th>
+                <th className="py-6 px-8 text-center rounded-tl-[2.5rem]">Request ID</th>
+                <th className="py-6 text-center">Clinical Info</th>
+                <th className="py-6 text-center">Patient Details</th>
+                <th className="py-6 text-center">Time Left</th>
+                <th className="py-6 text-center">Status</th>
+                <th className="py-6 text-center">Created</th>
+                <th className="py-6 px-8 text-center rounded-tr-[2.5rem]">Actions</th>
               </tr>
             </thead>
 
@@ -479,25 +464,25 @@ export default function Appointments() {
               ) : filteredAppointments.length > 0 ? (
                 filteredAppointments.map((a, index) => (
                   <tr key={a.requestId} className="hover:bg-base-200/50 transition-all duration-300 group border-b border-white/5 last:border-0" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <td className="py-6 px-8 ">
-                      <div className="inline-flex items-center gap-2">
+                    <td className="py-6 px-8 text-center">
+                      <div className="inline-flex items-center gap-2 justify-center">
                         <div className="w-2 h-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></div>
                         <span className="font-mono font-bold text-base-content/80 group-hover:text-primary transition-colors">
                           {a.requestId}
                         </span>
                       </div>
                     </td>
-                    <td>
-                      <div className="flex flex-col gap-1">
+                    <td className="text-center">
+                      <div className="flex flex-col gap-1 items-center">
                         <span className="font-bold text-[15px] text-base-content group-hover:text-primary transition-colors">{a.scanType}</span>
                         <span className="text-xs opacity-60 font-semibold uppercase tracking-wider">{a.organ}</span>
                       </div>
                     </td>
-                    <td>
-                      <div className="flex items-center gap-4">
+                    <td className="text-center">
+                      <div className="flex items-center gap-4 justify-center">
                         <div className="avatar placeholder">
                         </div>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col text-left">
                           <span className="font-bold text-[14px] text-base-content">{a.patient}</span>
                           <span className="text-[11px] opacity-60 font-semibold flex items-center gap-1">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -506,7 +491,7 @@ export default function Appointments() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td className="text-center">
                       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border ${getRemaining(a) === "Overdue" ? 'bg-error/10 border-error/20 text-error' : 'bg-base-200/50 border-white/5 text-base-content/70'}`}>
                         {getRemaining(a) === "Overdue" && <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                         <span className="font-bold text-[13px] tracking-wide">
@@ -514,8 +499,8 @@ export default function Appointments() {
                         </span>
                       </div>
                     </td>
-                    <td>
-                      <div className="flex items-center gap-2">
+                    <td className="text-center">
+                      <div className="flex items-center gap-2 justify-center">
                         {String(a.status).toLowerCase().includes('uploaded') ? (
                           <span className="badge badge-success badge-sm badge-outline gap-1 p-3 font-bold bg-success/10 border-success/30 text-success shadow-[0_0_10px_rgba(34,197,94,0.2)]">
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
@@ -529,14 +514,14 @@ export default function Appointments() {
                         )}
                       </div>
                     </td>
-                    <td>
-                      <div className="flex flex-col">
+                    <td className="text-center">
+                      <div className="flex flex-col items-center">
                         <span className="text-[13px] font-semibold text-base-content/80">{a.createdAt.split(',')[0]}</span>
                         <span className="text-[11px] font-medium text-base-content/40">{a.createdAt.split(',')[1]}</span>
                       </div>
                     </td>
-                    <td className="px-8 text-right">
-                      <div className="flex items-center justify-end gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <td className="px-8 text-center">
+                      <div className="flex items-center justify-center gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
                         <button 
                           className="btn btn-circle btn-ghost btn-sm hover:bg-base-200 hover:text-primary transition-colors tooltip tooltip-left" 
                           data-tip="View Details"
