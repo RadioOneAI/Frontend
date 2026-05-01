@@ -46,7 +46,7 @@ export default function DashboardHome() {
           </h1>
           <p className="text-base-content/60 font-medium mt-1">Welcome back, Admin. System status is nominal.</p>
         </div>
-        <div className="flex items-center gap-3 bg-base-100/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/5 text-sm font-mono opacity-70 shadow-sm">
+        <div className="flex items-center gap-3 bg-base-100 px-4 py-2 rounded-2xl border border-base-content/10 text-sm font-mono opacity-70 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
           Last updated: Today, 10:45 AM
         </div>
@@ -55,7 +55,7 @@ export default function DashboardHome() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((s, i) => (
-          <div key={i} className="stat-card group relative overflow-hidden glass bg-base-100/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10">
+          <div key={i} className="stat-card group relative overflow-hidden bg-base-100 border border-base-content/10 rounded-[2rem] p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/10">
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${s.color} opacity-10 blur-3xl group-hover:opacity-20 transition-opacity`}></div>
             <div className="flex justify-between items-start">
               <div className="space-y-1">
@@ -74,14 +74,14 @@ export default function DashboardHome() {
       </div>
 
       {/* Charts Section */}
-      <div className="dashboard-section glass bg-base-100/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-4 shadow-xl">
+      <div className="dashboard-section bg-base-100 border border-base-content/10 rounded-[2rem] p-4 shadow-xl">
         <DashboardCharts />
       </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Activity */}
-        <div className="lg:col-span-2 dashboard-section glass bg-base-100/40 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-xl">
+        <div className="lg:col-span-2 dashboard-section bg-base-100 border border-base-content/10 rounded-[2rem] overflow-hidden shadow-xl">
           <div className="p-8 border-b border-white/5 flex justify-between items-center">
             <h2 className="text-2xl font-black tracking-tight">Recent <span className="text-secondary">Activity</span></h2>
             <Link to="/admin/logs" className="btn btn-sm btn-ghost rounded-xl hover:bg-white/5">View Full Log</Link>
@@ -116,7 +116,7 @@ export default function DashboardHome() {
 
         {/* Quick Actions & System Health */}
         <div className="space-y-8">
-          <div className="dashboard-section glass bg-base-100/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 shadow-xl">
+          <div className="dashboard-section bg-base-100 border border-base-content/10 rounded-[2rem] p-8 shadow-xl">
             <h2 className="text-xl font-black mb-6 tracking-tight">Quick <span className="text-accent">Actions</span></h2>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -134,7 +134,7 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          <div className="dashboard-section glass bg-base-100/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 shadow-xl">
+          <div className="dashboard-section bg-base-100 border border-base-content/10 rounded-[2rem] p-8 shadow-xl">
             <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-base-content/40 mb-6">System Health</h2>
             <div className="space-y-6">
               <div>
