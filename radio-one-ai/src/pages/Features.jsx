@@ -190,8 +190,8 @@ export default function Features() {
             </div>
             <div className="order-1 lg:order-2 relative">
                <div className="absolute inset-0 bg-primary/20 rounded-[3rem] blur-3xl opacity-30" />
-               <div className="aspect-video bg-base-300 rounded-[3rem] relative z-10 overflow-hidden shadow-2xl flex items-center justify-center text-base-content/20 font-black text-4xl uppercase tracking-widest">
-                  Preview Image
+               <div className="aspect-video bg-base-300 rounded-[3rem] relative z-10 overflow-hidden shadow-2xl">
+                  <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1000" alt="Medical AI Analysis" className="w-full h-full object-cover" />
                </div>
             </div>
           </div>
@@ -200,8 +200,8 @@ export default function Features() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center showcase-content">
             <div className="relative">
                <div className="absolute inset-0 bg-secondary/20 rounded-[3rem] blur-3xl opacity-30" />
-               <div className="aspect-video bg-base-300 rounded-[3rem] relative z-10 overflow-hidden shadow-2xl flex items-center justify-center text-base-content/20 font-black text-4xl uppercase tracking-widest">
-                  Preview Image
+               <div className="aspect-video bg-base-300 rounded-[3rem] relative z-10 overflow-hidden shadow-2xl">
+                  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Cloud Architecture Data" className="w-full h-full object-cover" />
                </div>
             </div>
             <div className="space-y-8">
