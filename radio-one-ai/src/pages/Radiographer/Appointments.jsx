@@ -437,7 +437,7 @@ export default function Appointments() {
       <div className="search-container relative z-10 max-w-3xl">
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
-          <div className="relative glass bg-base-100/60 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center p-2 shadow-2xl">
+          <div className="relative bg-base-100/60 backdrop-blur-xl border border-white/10 rounded-3xl flex items-center p-2 shadow-2xl">
             <svg className="w-7 h-7 ml-4 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -451,7 +451,7 @@ export default function Appointments() {
         </div>
       </div>
 
-      <div className="table-card relative z-10 glass bg-base-100/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] overflow-hidden">
+      <div className="table-card relative z-10 bg-base-100/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="table w-full text-left border-collapse">
             <thead>
@@ -479,7 +479,7 @@ export default function Appointments() {
               ) : filteredAppointments.length > 0 ? (
                 filteredAppointments.map((a, index) => (
                   <tr key={a.requestId} className="hover:bg-base-200/50 transition-all duration-300 group border-b border-white/5 last:border-0" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <td className="py-6 px-8">
+                    <td className="py-6 px-8 ">
                       <div className="inline-flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors"></div>
                         <span className="font-mono font-bold text-base-content/80 group-hover:text-primary transition-colors">
@@ -496,9 +496,6 @@ export default function Appointments() {
                     <td>
                       <div className="flex items-center gap-4">
                         <div className="avatar placeholder">
-                          <div className="bg-gradient-to-br from-primary/20 to-secondary/20 text-base-content rounded-xl w-10 h-10 border border-white/10 shadow-inner group-hover:scale-110 transition-transform">
-                            <span className="text-sm font-bold">{a.patient.charAt(0)}</span>
-                          </div>
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-[14px] text-base-content">{a.patient}</span>

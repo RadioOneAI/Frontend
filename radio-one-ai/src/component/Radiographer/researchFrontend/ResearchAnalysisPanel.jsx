@@ -4,7 +4,9 @@ import SummaryView from "./components/SummaryView";
 import ClassificationReport from "./components/ClassificationReport";
 import DetectionReport from "./components/DetectionReport";
 import SegmentationReport from "./components/SegmentationReport";
-import VLMReport from "./components/VLMReport";
+import DiagnosisReports from "./components/DiagnosisReports";
+import RadioSynth from "./components/RadioSynth";
+import InvalidImageModal from "./components/InvalidImageModal";
 
 const API_URL = "http://localhost:5001";
 const REPORTS_API_URL = "http://127.0.0.1:5000/api/reports";
@@ -16,7 +18,7 @@ export default function ResearchAnalysisPanel({
 }) {
   const [selectedFile, setSelectedFile] = useState(initialFile);
   const [preview, setPreview] = useState(
-    initialFile ? URL.createObjectURL(initialFile) : null,
+    initialFile ? URL.createObjectURL(initialFile) : null
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +27,15 @@ export default function ResearchAnalysisPanel({
   const [dragOver, setDragOver] = useState(false);
   const [reportSending, setReportSending] = useState(false);
   const [reportStatus, setReportStatus] = useState(null);
+  const [view, setView] = useState("analysis");
+  const [invalidImage, setInvalidImage] = useState(null);
+
   const fileInputRef = useRef(null);
+
+  const handleContact = () => {
+    window.location.href =
+      "mailto:hiihealth.dev@gmail.com?subject=RadioSynth%20enquiry";
+  };
 
   const toCleanBase64 = (value) => {
     if (!value || typeof value !== "string") return value;
@@ -38,6 +48,7 @@ export default function ResearchAnalysisPanel({
     const classification = analysisData?.classification || {};
     const detection = analysisData?.detection || {};
     const segmentation = analysisData?.segmentation || {};
+
     let loggedInRadiographerId = null;
 
     try {
@@ -57,21 +68,20 @@ export default function ResearchAnalysisPanel({
       images: {
         original_mri: toCleanBase64(analysisData?.original_image),
         gradcam: toCleanBase64(
-          classification?._images?.gradcam || classification?.gradcam_image,
+          classification?._images?.gradcam || classification?.gradcam_image
         ),
         sidu: toCleanBase64(classification?._images?.sidu),
         detection_overlay: toCleanBase64(
           detection?._images?.clinical_overlay ||
-            detection?._images?.detection_overlay,
+          detection?._images?.detection_overlay
         ),
         segmentation_overlay: toCleanBase64(
           segmentation?._images?.clinical_overlay ||
-            segmentation?._images?.segmentation_overlay,
+          segmentation?._images?.segmentation_overlay
         ),
       },
       scan_req_id: appointment?.scanRequestId || appointment?.requestId || null,
-      scan_request_id:
-        appointment?.scanRequestId || appointment?.requestId || null,
+      scan_request_id: appointment?.scanRequestId || appointment?.requestId || null,
       prescription_id: appointment?.prescriptionId ?? null,
       patient_id: appointment?.patientId ?? null,
       doctor_id: appointment?.doctorId ?? null,
@@ -86,6 +96,7 @@ export default function ResearchAnalysisPanel({
   const postAnalysisReport = async (analysisData) => {
     const payload = buildReportPayload(analysisData);
     const token = localStorage.getItem("access_token");
+
     if (!token) {
       throw new Error("No access token found. Please log in again.");
     }
@@ -102,26 +113,15 @@ export default function ResearchAnalysisPanel({
     const errData = await res.json().catch(() => ({}));
 
     if (res.status === 401) {
-      const apiMessage = String(
-        errData?.message || errData?.error || "Unauthorized",
-      ).toLowerCase();
-      const isExpired =
-        apiMessage.includes("token has expired") ||
-        apiMessage.includes("expired") ||
-        apiMessage.includes("unauthorized");
-
-      if (isExpired) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
-      }
-
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user");
       throw new Error("Session expired (401). Please log in again.");
     }
 
     if (!res.ok) {
       throw new Error(
-        errData.message || `Failed to save report (${res.status})`,
+        errData.message || `Failed to save report (${res.status})`
       );
     }
 
@@ -164,12 +164,22 @@ export default function ResearchAnalysisPanel({
     return () => URL.revokeObjectURL(objectUrl);
   }, [initialFile]);
 
+  useEffect(() => {
+    if (autoAnalyze && initialFile) {
+      handleAnalyze(initialFile);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoAnalyze, initialFile]);
+
   const handleFileSelect = (file) => {
     if (!file) return;
+
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
     setError(null);
     setResults(null);
+    setInvalidImage(null);
+    setReportStatus(null);
   };
 
   const handleDrop = (e) => {
@@ -189,6 +199,7 @@ export default function ResearchAnalysisPanel({
     setLoading(true);
     setError(null);
     setResults(null);
+    setInvalidImage(null);
 
     try {
       const formData = new FormData();
@@ -201,6 +212,12 @@ export default function ResearchAnalysisPanel({
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
+
+        if (errData.error_type === "invalid_image") {
+          setInvalidImage(errData.validation || { reason: errData.message });
+          return;
+        }
+
         throw new Error(errData.error || `Server error: ${res.status}`);
       }
 
@@ -215,20 +232,18 @@ export default function ResearchAnalysisPanel({
     }
   };
 
-  useEffect(() => {
-    if (autoAnalyze && initialFile) {
-      handleAnalyze(initialFile);
-    }
-  }, [autoAnalyze, initialFile]);
-
   const handleReset = () => {
     setSelectedFile(null);
     setPreview(null);
     setResults(null);
     setError(null);
-    setActiveTab("summary");
+    setInvalidImage(null);
     setReportStatus(null);
-    setReportSending(false);
+    setActiveTab("summary");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const tabs = [
@@ -236,229 +251,246 @@ export default function ResearchAnalysisPanel({
     { id: "classification", label: "Classification" },
     { id: "detection", label: "Detection" },
     { id: "segmentation", label: "Segmentation" },
-    { id: "vlm", label: "AI Explanation" },
+    { id: "diagnosis", label: "Diagnosis Report" },
   ];
 
   return (
-    <div className="min-h-screen bg-base-200 p-4">
-      {error && (
-        <div className="alert alert-error shadow-lg mb-4">
+    <div className="min-h-[calc(100vh-4rem)] p-4 lg:p-8 bg-gradient-to-br from-base-300 via-base-200 to-base-100 text-base-content relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-secondary/20 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="mb-8 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-4">
           <div>
-            <span>Error: {error}</span>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+              AI Research Analysis
+            </h1>
+            <p className="text-base-content/70 text-lg">
+              Advanced multi-modal MRI diagnostics and visualization
+            </p>
           </div>
-        </div>
-      )}
 
-      {!results && !loading && (
-        <div className="flex items-center justify-center min-h-[80vh]">
-          <div className="card w-96 bg-base-100 shadow-xl">
-            <div
-              className={`card-body items-center text-center ${dragOver ? "border-2 border-primary border-dashed" : ""}`}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
-              }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
+          {/* <div className="flex gap-3">
+            <button
+              className={`btn ${view === "analysis" ? "btn-primary" : "btn-outline"}`}
+              onClick={() => setView("analysis")}
             >
-              <div className="text-6xl mb-4">🧠</div>
-              <h2 className="card-title">Upload Brain MRI Scan</h2>
-              <p className="text-sm opacity-70">
-                Drag and drop an MRI image or click to browse
-              </p>
+              Analysis
+            </button>
+            <button
+              className={`btn ${view === "synth" ? "btn-primary" : "btn-outline"}`}
+              onClick={() => setView("synth")}
+            >
+              Synthetic Data
+            </button>
+          </div> */}
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleFileSelect(e.target.files[0])}
-              />
+          {results && view === "analysis" && (
+            <button
+              className="btn btn-primary btn-outline hover:scale-105 transition-transform duration-300 shadow-lg shadow-primary/20"
+              onClick={handleReset}
+            >
+              Upload New Scan
+            </button>
+          )}
+        </div>
 
-              {!selectedFile ? (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => fileInputRef.current?.click()}
+        {view === "synth" && <RadioSynth onContact={handleContact} />}
+
+        {view === "analysis" && (
+          <>
+            {error && (
+              <div className="alert alert-error shadow-lg mb-8 rounded-2xl">
+                <div>
+                  <h3 className="font-bold">Analysis Error</h3>
+                  <div className="text-sm">{error}</div>
+                </div>
+              </div>
+            )}
+
+            {!results && !loading && (
+              <div className="flex items-center justify-center min-h-[60vh]">
+                <div
+                  className={`group relative w-full max-w-2xl rounded-3xl transition-all duration-500 ease-out ${dragOver ? "scale-[1.02]" : "hover:scale-[1.01]"
+                    }`}
                 >
-                  Select Image
-                </button>
-              ) : (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => handleAnalyze()}
-                >
-                  Analyze Scan
-                </button>
-              )}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-3xl blur-xl opacity-20 transition-opacity duration-500 ${dragOver ? "opacity-40" : "group-hover:opacity-30"
+                      }`}
+                  />
 
-              {preview && (
-                <div className="mt-4">
-                  <figure className="px-4">
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="rounded-lg shadow-md max-h-48"
+                  <div
+                    className={`relative bg-base-100/40 backdrop-blur-xl border-2 rounded-3xl p-12 text-center shadow-2xl transition-all duration-300 ${dragOver
+                      ? "border-primary bg-primary/5"
+                      : "border-base-content/10 hover:border-primary/50 hover:bg-base-100/60"
+                      }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                  >
+                    <div className="mb-8 relative inline-block">
+                      <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                      <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center border border-white/10 relative z-10">
+                        <span className="text-5xl filter drop-shadow-lg">🧠</span>
+                      </div>
+                    </div>
+
+                    <h2 className="text-3xl font-bold mb-4 text-base-content">
+                      Upload MRI Scan
+                    </h2>
+                    <p className="text-lg text-base-content/60 mb-8 max-w-md mx-auto">
+                      Drag and drop your MRI image file here, or click to browse
+                    </p>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileSelect(e.target.files[0])}
                     />
-                  </figure>
-                  <div className="text-sm mt-2 opacity-70">
-                    {selectedFile?.name}
+
+                    <div className="flex flex-col items-center gap-6">
+                      {!selectedFile ? (
+                        <button
+                          className="btn btn-primary btn-lg rounded-full px-8 shadow-lg shadow-primary/30 hover:scale-105 transition-transform"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          Select Image
+                        </button>
+                      ) : (
+                        <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4">
+                          <div className="relative group mb-6 inline-block">
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
+                            <img
+                              src={preview}
+                              alt="Preview"
+                              className="relative rounded-xl shadow-2xl max-h-64 object-contain border border-white/10 bg-base-300/50"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-3 bg-base-300/50 px-4 py-2 rounded-full mb-6 border border-white/5">
+                            <span className="text-sm font-medium opacity-80">
+                              {selectedFile.name}
+                            </span>
+                          </div>
+
+                          <button
+                            className="btn btn-primary btn-lg rounded-full px-10 shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] hover:scale-105 transition-all duration-300"
+                            onClick={() => handleAnalyze()}
+                          >
+                            Run AI Analysis
+                          </button>
+
+                          <button
+                            className="btn btn-ghost mt-3"
+                            onClick={handleReset}
+                          >
+                            Remove Image
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {loading && (
-  <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50">
-    <div 
-      className="
-        bg-white/15 
-        backdrop-blur-2xl 
-        border border-white/20 
-        rounded-2xl 
-        shadow-2xl 
-        p-10 
-        w-full 
-        max-w-lg 
-        mx-6 
-        text-white/95
-        overflow-hidden
-        relative
-      "
-    >
-      {/* Optional subtle shine/gradient overlay for premium liquid-glass feel */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 pointer-events-none" />
-
-      {/* Header / Branding */}
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <div className="flex items-center gap-3">
-          <div>
-            <h2 className="text-xl font-semibold">RadioOne AI</h2>
-            <p className="text-xs text-white/60">Advanced MRI Diagnostics</p>
-          </div>
-        </div>
-        <span className="text-xs text-white/50">v2.1.0</span>
-      </div>
-
-      {/* Main Loading Content */}
-      <div className="flex items-start gap-6 mb-8 relative z-10">
-        <div className="relative flex-shrink-0">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-blue-400 rounded-full animate-spin shadow-lg"></div>
-        </div>
-
-        <div className="flex-1">
-          <h3 className="text-xl font-medium mb-2">
-            Analyzing MRI Scan
-          </h3>
-          <p className="text-sm text-white/70 mb-6">
-            Scan ID: MRI-{Math.random().toString(36).substring(2, 10).toUpperCase()}
-          </p>
-
-          {/* Progress Steps – glassy style */}
-          <div className="space-y-5">
-            <div className="flex items-center gap-4 text-sm">
-              <div className="w-6 h-6 rounded-full bg-green-500/30 backdrop-blur-sm border border-green-400/40 flex items-center justify-center shadow-sm">
-                <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
               </div>
-              <span className="text-white/80">DICOM validation & preprocessing</span>
-            </div>
+            )}
 
-            <div className="flex items-center gap-4 text-sm">
-              <div className="w-6 h-6 rounded-full bg-blue-500/40 border-4 border-blue-400/60 animate-pulse shadow-md"></div>
-              <span className="font-medium text-white">AI classification & abnormality scoring</span>
-            </div>
+            {loading && (
+              <div className="fixed inset-0 bg-base-300/80 backdrop-blur-md flex items-center justify-center z-50 transition-all duration-500">
+                <div className="bg-base-100/60 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl p-10 w-full max-w-lg mx-6 text-base-content text-center">
+                  <div className="w-20 h-20 mx-auto rounded-full border-4 border-base-content/10 border-t-primary animate-spin mb-6" />
+                  <h2 className="text-2xl font-bold mb-2">Analyzing Scan</h2>
+                  <p className="opacity-60">
+                    Running Classification, Detection, and Segmentation pipeline
+                  </p>
+                </div>
+              </div>
+            )}
 
-            <div className="flex items-center gap-4 text-sm opacity-60">
-              <div className="w-6 h-6 rounded-full border-2 border-white/30"></div>
-              <span className="text-white/70">Lesion detection & localization</span>
-            </div>
+            {results && (
+              <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="bg-base-100/40 backdrop-blur-xl rounded-2xl shadow-xl p-2 mb-8 border border-white/5 relative z-20">
+                  <div className="flex flex-wrap lg:flex-nowrap gap-2">
+                    {tabs.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setActiveTab(t.id)}
+                        className={`relative flex-1 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300 overflow-hidden ${activeTab === t.id
+                          ? "bg-gradient-to-r from-primary to-accent text-primary-content shadow-lg"
+                          : "text-base-content/70 hover:text-base-content hover:bg-base-200/50"
+                          }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-4 text-sm opacity-60">
-              <div className="w-6 h-6 rounded-full border-2 border-white/30"></div>
-              <span className="text-white/70">Segmentation & volumetric analysis</span>
-            </div>
-          </div>
-        </div>
+                <div className="bg-base-100/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/5 overflow-hidden transition-all duration-500 min-h-[500px]">
+                  <div className="p-6 lg:p-8 relative z-10">
+                    {activeTab === "summary" && (
+                      <SummaryView
+                        data={results}
+                        originalImage={results.original_image}
+                        onSendData={handleSendReport}
+                        sending={reportSending}
+                        sendStatus={reportStatus}
+                      />
+                    )}
+
+                    {activeTab === "classification" && (
+                      <ClassificationReport
+                        data={results.classification}
+                        originalImage={results.original_image}
+                      />
+                    )}
+
+                    {activeTab === "detection" && (
+                      <DetectionReport
+                        data={results.detection}
+                        originalImage={results.original_image}
+                      />
+                    )}
+
+                    {activeTab === "segmentation" && (
+                      <SegmentationReport
+                        data={results.segmentation}
+                        originalImage={results.original_image}
+                      />
+                    )}
+
+                    {activeTab === "diagnosis" && (
+                      <DiagnosisReports
+                        data={
+                          results.diagnosis_reports ||
+                          results.diagnoses ||
+                          results.vlm
+                        }
+                        tumors={results.segmentation?.tumors || results.tumors || []}
+                        summary={results.summary}
+                        classification={results.classification}
+                        detection={results.detection}
+                        segmentation={results.segmentation}
+                        originalImage={results.original_image}
+                      />
+                    )}
+
+
+                  </div>
+                </div>
+
+
+              </div>
+            )}
+          </>
+        )}
+
+        {invalidImage && <InvalidImageModal onClose={handleReset} />}
       </div>
-
-      {/* Footer / ETA */}
-      <div className="pt-6 border-t border-white/10 text-xs text-white/50 flex justify-between items-center relative z-10">
-        <span>Estimated time remaining: ~15–45 seconds</span>
-        <span>Powered by multimodal AI pipeline</span>
-      </div>
-    </div>
-  </div>
-)}
-
-      {results && (
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Analysis Report</h2>
-            <button className="btn btn-lg btn-primary" onClick={handleReset}>
-              Upload Image
-            </button>
-          </div>
-
-          {/* Glassy Tab Bar */}
-          <div className="bg-base-100/50 backdrop-blur-lg rounded-2xl shadow-lg p-2 mb-6 border border-base-300/50">
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((t) => (
-                <button
-                  key={t.id}
-                  className={`flex-1 text-lg btn btn-md ${activeTab === t.id ? "btn-primary" : "btn-ghost"}`}
-                  onClick={() => setActiveTab(t.id)}
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full ${t.color} mr-2`}
-                  ></span>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="card bg-base-100 shadow-xl">
-            <div className="card-body">
-              {activeTab === "summary" && (
-                <SummaryView
-                  data={results}
-                  originalImage={results.original_image}
-                  onSendData={handleSendReport}
-                  sending={reportSending}
-                  sendStatus={reportStatus}
-                />
-              )}
-              {activeTab === "classification" && (
-                <ClassificationReport
-                  data={results.classification}
-                  originalImage={results.original_image}
-                />
-              )}
-              {activeTab === "detection" && (
-                <DetectionReport
-                  data={results.detection}
-                  originalImage={results.original_image}
-                />
-              )}
-              {activeTab === "segmentation" && (
-                <SegmentationReport
-                  data={results.segmentation}
-                  originalImage={results.original_image}
-                />
-              )}
-              {activeTab === "vlm" && <VLMReport data={results.vlm} />}
-            </div>
-          </div>
-
-          <div className="text-sm opacity-70 mt-4 text-right">
-            Total Pipeline Time: {results.summary?.total_pipeline_ms || "—"} ms
-          </div>
-        </div>
-      )}
     </div>
   );
 }
