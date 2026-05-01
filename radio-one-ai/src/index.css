@@ -49,47 +49,26 @@ h1, h2, h3, h4, h5, h6 {
   default: false;
   prefersdark: false;
   color-scheme: "light";
-
-  /* ── Backgrounds ── */
-  --color-base-100: #f0f4f8;
-  --color-base-200: #e2e8f0;
-  --color-base-300: #cbd5e1;
-
-  /* ── Text ── */
-  /* Deep navy for body text — crisp and professional */
-  --color-base-content: #0f172a;
-
-  /* ── Brand Colors ── */
-  /* Vibrant emerald green — matches dark theme primary */
-  --color-primary: #16a34a;
-  --color-primary-content: #ffffff;
-
-  /* Rich indigo blue */
-  --color-secondary: #1d4ed8;
-  --color-secondary-content: #ffffff;
-
-  /* Teal accent */
-  --color-accent: #0d9488;
-  --color-accent-content: #ffffff;
-
-  /* ── Neutral ── */
-  --color-neutral: #334155;
-  --color-neutral-content: #f1f5f9;
-
-  /* ── Semantic ── */
-  --color-info: #0284c7;
-  --color-info-content: #ffffff;
-
-  --color-success: #15803d;
-  --color-success-content: #ffffff;
-
-  --color-warning: #d97706;
-  --color-warning-content: #ffffff;
-
-  --color-error: #dc2626;
-  --color-error-content: #ffffff;
-
-  /* ── Shape ── */
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(20% 0 0);
+  --color-primary: oklch(44% 0.177 26.899);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(55% 0.195 38.402);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(0% 0 0);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(50% 0.213 27.518);
+  --color-neutral-content: oklch(96% 0.015 12.422);
+  --color-info: oklch(65% 0.15 250);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(62% 0.194 149.214);
+  --color-success-content: oklch(96% 0.044 156.743);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(70% 0.191 22.216);
+  --color-error-content: oklch(39% 0.141 25.723);
   --radius-selector: 1rem;
   --radius-field: 0.5rem;
   --radius-box: 1rem;
@@ -98,24 +77,6 @@ h1, h2, h3, h4, h5, h6 {
   --border: 1px;
   --depth: 1;
   --noise: 0;
-}
-
-/* ══════════════════════════════════════════════
-   Heading color overrides for light theme
-   Deep navy headings look premium & readable
-   ══════════════════════════════════════════════ */
-[data-theme="light"] h1,
-[data-theme="light"] h2,
-[data-theme="light"] h3,
-[data-theme="light"] h4,
-[data-theme="light"] h5,
-[data-theme="light"] h6 {
-  color: #0f172a;
-}
-
-/* Gradient headings still use brand colors in light mode */
-[data-theme="light"] .text-transparent {
-  color: transparent;
 }
 
 @layer utilities {
@@ -136,12 +97,7 @@ h1, h2, h3, h4, h5, h6 {
     color: transparent;
   }
 
-  /* Light mode glass card — uses white tint instead of white/10 */
   .glass-card {
-    @apply bg-white/60 backdrop-blur-md border border-slate-200/80 shadow-xl;
-  }
-
-  [data-theme="dark"] .glass-card {
     @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
   }
 }
