@@ -1,31 +1,51 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import PatientReportModal from "../../component/Patient/PatientReportModal";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+
+const API_BASE = "http://127.0.0.1:5000";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("access_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+function fmtDate(value) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function statusMeta() {
+  return { label: "Ready to View", cls: "badge-success text-white shadow-success/10" };
+}
+
+function mapApiReportToRow(r) {
+  return {
+    id: r?.id,
+    requestId: r?.scan_req_id || r?.scan_request_id || `REPORT-${r?.id ?? "-"}`,
+    date: fmtDate(r?.created_at),
+    type: `${(r?.scan_type || "Scan").toUpperCase()} - ${(r?.organ || "N/A").charAt(0).toUpperCase() + (r?.organ || "N/A").slice(1)}`,
+    doctor: r?.doctor?.name || `Doctor #${r?.doctor_id ?? "-"}`,
+    status: r?.status || "pending",
+  };
+}
 
 export default function PatientReports() {
   const container = useRef();
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const reports = [
-    {
-      id: "REQ-8821",
-      date: "24 Oct 2023",
-      type: "MRI - Brain",
-      doctor: "Dr. Sarah Jenkins",
-      status: "Ready",
-      isCritical: true,
-    },
-    {
-      id: "REQ-7740",
-      date: "10 Aug 2022",
-      type: "MRI Scan - Brain",
-      doctor: "Dr. Amal Perera",
-      status: "Archived",
-      isCritical: false,
-    },
-  ];
+  const [reports, setReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useGSAP(
     () => {
@@ -36,21 +56,48 @@ export default function PatientReports() {
     { scope: container }
   );
 
+  useEffect(() => {
+    const loadReports = async () => {
+      setIsLoading(true);
+      setErrorMsg("");
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) throw new Error("Missing access token. Please log in again.");
+
+        const res = await fetch(`${API_BASE}/api/reports`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json?.success === false) {
+          throw new Error(json?.message || "Failed to load reports.");
+        }
+        const list = Array.isArray(json?.data) ? json.data : [];
+        setReports(list.map(mapApiReportToRow));
+      } catch (error) {
+        setErrorMsg(error?.message || "Unable to load reports.");
+        setReports([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadReports();
+  }, []);
+
   const filteredReports = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return reports;
-
     return reports.filter(
       (r) =>
-        r.id.toLowerCase().includes(q) ||
-        r.type.toLowerCase().includes(q) ||
-        r.doctor.toLowerCase().includes(q)
+        String(r.requestId).toLowerCase().includes(q) ||
+        String(r.type).toLowerCase().includes(q) ||
+        String(r.doctor).toLowerCase().includes(q)
     );
   }, [searchTerm, reports]);
 
   return (
     <div ref={container} className="space-y-8 p-4">
-      
+
       {/* --- HEADER --- */}
       <div className="page-header flex justify-between items-center">
         <div>
@@ -63,10 +110,10 @@ export default function PatientReports() {
 
       {/* --- SEARCH --- */}
       <div className="filter-card glass-card p-4 rounded-3xl border border-base-content/5 max-w-2xl relative bg-base-100/40">
-        <input 
-          type="text" 
-          placeholder="Search by Request ID / Scan / Doctor..." 
-          className="input input-ghost w-full focus:bg-transparent text-lg font-bold pl-12 h-14" 
+        <input
+          type="text"
+          placeholder="Search by Request ID / Scan / Doctor..."
+          className="input input-ghost w-full focus:bg-transparent text-lg font-bold pl-12 h-14"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -74,6 +121,12 @@ export default function PatientReports() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
+
+      {errorMsg && (
+        <div className="alert alert-error rounded-2xl shadow-md max-w-2xl">
+          <span className="font-bold">{errorMsg}</span>
+        </div>
+      )}
 
       {/* --- TABLE --- */}
       <div className="table-card glass-card rounded-[2.5rem] border border-base-content/5 overflow-hidden shadow-xl shadow-base-content/5 bg-base-100/40">
@@ -89,36 +142,38 @@ export default function PatientReports() {
               </tr>
             </thead>
             <tbody className="font-bold text-sm">
-              {filteredReports.length > 0 ? (
-                filteredReports.map((report) => (
-                  <tr key={report.id} className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0">
-                    <td className="py-5 px-8 text-left">
-                       <div className="font-black text-base-content/80 text-base">{report.id}</div>
-                       <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{report.date}</div>
-                    </td>
-                    <td>
-                       <div className="font-black text-primary">{report.type}</div>
-                       <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest italic">MRI Sequence</div>
-                    </td>
-                    <td><span className="font-black text-base-content/70">{report.doctor}</span></td>
-                    <td>
-                      <div className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] shadow-lg ${
-                        report.isCritical ? 'badge-warning text-white shadow-warning/10' :
-                        report.status === 'Archived' ? 'badge-ghost opacity-50' : 'badge-success text-white shadow-success/10'
-                      }`}>
-                        {report.isCritical ? 'Attention Required' : report.status === 'Archived' ? 'Archived' : 'Verified Ready'}
-                      </div>
-                    </td>
-                    <td className="px-8 text-right">
-                      <button 
-                        onClick={() => setSelectedReportId(report.id)}
-                        className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-primary/10 hover:text-primary transition-all px-4 py-2"
-                      >
-                        VIEW RESULTS
-                      </button>
-                    </td>
-                  </tr>
-                ))
+              {isLoading ? (
+                <tr><td colSpan="5" className="py-20"><span className="loading loading-spinner loading-lg text-primary" /></td></tr>
+              ) : filteredReports.length > 0 ? (
+                filteredReports.map((report) => {
+                  const meta = statusMeta();
+                  return (
+                    <tr key={report.id} className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0">
+                      <td className="py-5 px-8 text-left">
+                        <div className="font-black text-base-content/80 text-base">{report.requestId}</div>
+                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{report.date}</div>
+                      </td>
+                      <td>
+                        <div className="font-black text-primary">{report.type}</div>
+                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest italic">MRI Sequence</div>
+                      </td>
+                      <td><span className="font-black text-base-content/70">{report.doctor}</span></td>
+                      <td>
+                        <div className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] shadow-lg ${meta.cls}`}>
+                          {meta.label}
+                        </div>
+                      </td>
+                      <td className="px-8 text-right">
+                        <button
+                          onClick={() => setSelectedReportId(report.id)}
+                          className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-primary/10 hover:text-primary transition-all px-4 py-2"
+                        >
+                          VIEW RESULTS
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr><td colSpan="5" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">No reports found</td></tr>
               )}
