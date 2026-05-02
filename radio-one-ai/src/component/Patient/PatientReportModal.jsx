@@ -133,17 +133,7 @@ export default function PatientReportModal({ reportId, onClose }) {
 
         {!loading && !errorMsg && report && (
           <>
-            {/* Visual */}
-            <div className="w-full h-64 bg-black rounded-xl overflow-hidden flex justify-center items-center mb-6 relative">
-              {reportImage ? (
-                <img src={reportImage} alt="Scan Result" className="h-full object-contain" />
-              ) : (
-                <span className="text-white/60 text-sm italic">No preview image available</span>
-              )}
-              <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                AI Generated Preview
-              </div>
-            </div>
+            
 
             {/* Patient-friendly explanation */}
             <div className="space-y-4">
