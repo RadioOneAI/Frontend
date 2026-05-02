@@ -13,6 +13,17 @@ import logo from "../../assets/images/logo.png";
 export default function Sidebar({ role, links = [], user = {} }) {
   const location = useLocation();
   const container = useRef();
+  let localUser = {};
+
+  try {
+    const rawUser = localStorage.getItem("user");
+    localUser = rawUser ? JSON.parse(rawUser) : {};
+  } catch (error) {
+    localUser = {};
+  }
+
+  const displayName = localUser?.name || localUser?.username || user.name || "User Account";
+  const displayEmail = localUser?.email || user.email || "No Email";
 
   
 
@@ -72,11 +83,11 @@ export default function Sidebar({ role, links = [], user = {} }) {
         <div className="glass-card p-4 rounded-3xl border border-base-content/5 bg-base-200/30">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-primary border border-primary/10 shadow-inner">
-              {user.name ? user.name.charAt(0) : "U"}
+              {displayName ? displayName.charAt(0).toUpperCase() : "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-black truncate">{user.name || "User Account"}</p>
-              <p className="text-[10px] font-bold opacity-40 uppercase tracking-widest truncate">Verified {role}</p>
+              <p className="text-xs font-black truncate">{displayName}</p>
+              <p className="text-[10px] font-bold opacity-40 tracking-tight truncate">{displayEmail}</p>
             </div>
           </div>
 
