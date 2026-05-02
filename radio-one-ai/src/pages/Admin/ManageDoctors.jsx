@@ -19,11 +19,28 @@ export default function ManageDoctors() {
 
   useGSAP(
     () => {
-      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
-      gsap.from(".filter-card", { y: -10, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
-      gsap.from(".table-card", { y: 20, opacity: 0, duration: 1, delay: 0.4, ease: "power3.out" });
+      gsap.from(".page-header", {
+        y: -20,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+      });
+      gsap.from(".filter-card", {
+        y: -10,
+        opacity: 0,
+        duration: 0.8,
+        delay: 0.2,
+        ease: "power3.out",
+      });
+      gsap.from(".table-card", {
+        y: 20,
+        opacity: 0,
+        duration: 1,
+        delay: 0.4,
+        ease: "power3.out",
+      });
     },
-    { scope: container }
+    { scope: container },
   );
 
   const getAuthHeaders = () => {
@@ -41,7 +58,10 @@ export default function ManageDoctors() {
     spec: item.specialization || item.role || "Doctor",
     regNo: item.license_number || "N/A",
     phone: item.phone || "N/A",
-    status: String(item.status || "").toLowerCase() === "active" ? "Active" : "Inactive",
+    status:
+      String(item.status || "").toLowerCase() === "active"
+        ? "Active"
+        : "Inactive",
     img: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || "Doctor")}&background=random`,
     address: item.address || "N/A",
   });
@@ -58,12 +78,16 @@ export default function ManageDoctors() {
       });
       const json = await res.json().catch(() => ({}));
 
-      if (!res.ok || json?.success === false) throw new Error(json?.message || "Failed to load doctors.");
+      if (!res.ok || json?.success === false)
+        throw new Error(json?.message || "Failed to load doctors.");
 
       const list = Array.isArray(json?.data) ? json.data : [];
       setDoctors(list.map(mapApiDoctorToUi));
     } catch (error) {
-      setToast({ message: error.message || "Unable to fetch doctors.", type: "error" });
+      setToast({
+        message: error.message || "Unable to fetch doctors.",
+        type: "error",
+      });
     } finally {
       setIsLoadingDoctors(false);
     }
@@ -74,24 +98,32 @@ export default function ManageDoctors() {
   }, []);
 
   const filteredDoctors = doctors.filter((doc) => {
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) || doc.regNo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.regNo.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSpec = filterSpec === "All" || doc.spec === filterSpec;
     return matchesSearch && matchesSpec;
   });
 
   const handleViewDetails = (doc) => {
     setSelectedDoctor(doc);
-    setTimeout(() => document.getElementById("view_doctor_modal").showModal(), 0);
+    setTimeout(
+      () => document.getElementById("view_doctor_modal").showModal(),
+      0,
+    );
   };
 
   const handleDeleteClick = (doc) => {
     setDoctorToDelete(doc);
-    setTimeout(() => document.getElementById("delete_confirm_modal").showModal(), 0);
+    setTimeout(
+      () => document.getElementById("delete_confirm_modal").showModal(),
+      0,
+    );
   };
 
   const confirmDelete = () => {
     if (doctorToDelete) {
-      setDoctors(doctors.filter(d => d.id !== doctorToDelete.id));
+      setDoctors(doctors.filter((d) => d.id !== doctorToDelete.id));
       setDoctorToDelete(null);
       setToast({ message: "Doctor account deleted.", type: "error" });
     }
@@ -99,14 +131,22 @@ export default function ManageDoctors() {
 
   return (
     <div ref={container} className="space-y-8 p-4">
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       <div className="page-header flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black tracking-tight mb-2">
             Manage <span className="text-gradient">Doctors</span>
           </h1>
-          <p className="text-base-content/50 font-medium">Onboard and manage medical professionals within the system.</p>
+          <p className="text-base-content/50 font-medium">
+            Onboard and manage medical professionals within the system.
+          </p>
         </div>
         <button className="btn btn-primary rounded-2xl font-black px-8 shadow-xl shadow-primary/20">
           ADD DOCTOR
@@ -116,21 +156,31 @@ export default function ManageDoctors() {
       {/* --- FILTERS --- */}
       <div className="filter-card glass-card p-4 rounded-3xl border border-base-content/5 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
         <div className="md:col-span-8 relative">
-          <input 
-            type="text" 
-            placeholder="Search by Name or SLMC Reg No..." 
-            className="input input-ghost w-full focus:bg-transparent text-lg font-medium pl-12 h-14" 
+          <input
+            type="text"
+            placeholder="Search by Name or SLMC Reg No..."
+            className="input input-ghost w-full focus:bg-transparent text-lg font-medium pl-12 h-14"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <svg className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/30"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
         <div className="md:col-span-4">
-          <select 
-            className="select select-ghost w-full h-14 rounded-2xl font-bold bg-base-content/5 border-none" 
-            value={filterSpec} 
+          <select
+            className="select select-ghost w-full h-14 rounded-2xl font-bold bg-base-content/5 border-none"
+            value={filterSpec}
             onChange={(e) => setFilterSpec(e.target.value)}
           >
             <option value="All">All Specializations</option>
@@ -158,16 +208,31 @@ export default function ManageDoctors() {
             </thead>
             <tbody className="font-bold text-sm">
               {isLoadingDoctors ? (
-                <tr><td colSpan="5" className="py-20"><span className="loading loading-spinner loading-lg text-primary" /></td></tr>
+                <tr>
+                  <td colSpan="5" className="py-20">
+                    <span className="loading loading-spinner loading-lg text-primary" />
+                  </td>
+                </tr>
               ) : filteredDoctors.length > 0 ? (
                 filteredDoctors.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0">
+                  <tr
+                    key={doc.id}
+                    className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0"
+                  >
                     <td className="py-5 px-8 text-left">
                       <div className="flex items-center gap-3">
-                        <div className="avatar"><div className="mask mask-squircle w-11 h-11"><img src={doc.img} alt={doc.name} /></div></div>
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-11 h-11">
+                            <img src={doc.img} alt={doc.name} />
+                          </div>
+                        </div>
                         <div>
-                          <div className="font-black text-base-content/80 text-base">{doc.name}</div>
-                          <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{doc.email}</div>
+                          <div className="font-black text-base-content/80 text-base">
+                            {doc.name}
+                          </div>
+                          <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">
+                            {doc.email}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -176,24 +241,49 @@ export default function ManageDoctors() {
                         {doc.spec}
                       </span>
                     </td>
-                    <td><span className="font-mono font-black text-xs text-primary bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">{doc.regNo}</span></td>
                     <td>
-                      <div className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] ${
-                        doc.status === 'Active' ? 'badge-success text-white shadow-lg shadow-success/20' : 'badge-error text-white shadow-lg shadow-error/20'
-                      }`}>
+                      <span className="font-mono font-black text-xs text-primary bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10">
+                        {doc.regNo}
+                      </span>
+                    </td>
+                    <td>
+                      <div
+                        className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] ${
+                          doc.status === "Active"
+                            ? "badge-success text-white shadow-lg shadow-success/20"
+                            : "badge-error text-white shadow-lg shadow-error/20"
+                        }`}
+                      >
                         {doc.status}
                       </div>
                     </td>
                     <td className="px-8 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => handleViewDetails(doc)} className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300">VIEW</button>
-                        <button onClick={() => handleDeleteClick(doc)} className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10">DELETE</button>
+                        <button
+                          onClick={() => handleViewDetails(doc)}
+                          className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300 border border-base-content/20 hover:border-base-content/40"
+                        >
+                          VIEW
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(doc)}
+                          className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10 border border-error/30 hover:border-error/60"
+                        >
+                          DELETE
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="5" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">No records matched</td></tr>
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs"
+                  >
+                    No records matched
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -201,11 +291,11 @@ export default function ManageDoctors() {
       </div>
 
       <DoctorDetailsModal doctor={selectedDoctor} />
-      <ConfirmationModal 
-        id="delete_confirm_modal" 
-        title="Delete Doctor" 
+      <ConfirmationModal
+        id="delete_confirm_modal"
+        title="Delete Doctor"
         message={`Are you sure you want to remove ${doctorToDelete?.name}?`}
-        onConfirm={confirmDelete} 
+        onConfirm={confirmDelete}
       />
     </div>
   );

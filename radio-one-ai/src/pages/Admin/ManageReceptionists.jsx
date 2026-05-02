@@ -140,8 +140,8 @@ export default function ManageReceptionists() {
                     </td>
                     <td className="px-8 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => handleViewDetails(r)} className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300">VIEW</button>
-                        <button className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10">DELETE</button>
+                        <button onClick={() => handleViewDetails(r)} className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300 border border-base-content/20 hover:border-base-content/40">VIEW</button>
+                        <button className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10 border border-error/30 hover:border-error/60">DELETE</button>
                       </div>
                     </td>
                   </tr>
