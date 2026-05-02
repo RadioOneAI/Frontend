@@ -261,13 +261,13 @@ export default function ManageDoctors() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleViewDetails(doc)}
-                          className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-base-300 border border-base-content/20 hover:border-base-content/40"
+                          className="btn btn-secondary btn-sm rounded-xl font-bold px-4 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(217,70,239,0.23)] hover:bg-secondary focus:outline-none transition-all duration-200"
                         >
                           VIEW
                         </button>
                         <button
                           onClick={() => handleDeleteClick(doc)}
-                          className="btn btn-ghost btn-xs rounded-lg font-black text-error hover:bg-error/10 border border-error/30 hover:border-error/60"
+                          className="btn btn-primary btn-sm rounded-xl font-bold px-4 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] hover:bg-primary focus:outline-none transition-all duration-200"
                         >
                           DELETE
                         </button>
