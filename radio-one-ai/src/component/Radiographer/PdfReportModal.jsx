@@ -32,6 +32,29 @@ function safe(v) {
   return String(v);
 }
 
+function pickDiagnosisText(value) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    return (
+      value.text ||
+      value.report ||
+      value.content ||
+      value.markdown ||
+      value.body ||
+      ""
+    );
+  }
+  return "";
+}
+
+function fmtNum(value, digits = 2) {
+  if (value == null || value === "") return "-";
+  const n = Number(value);
+  if (Number.isNaN(n)) return String(value);
+  return n.toFixed(digits);
+}
+
 function fmtDate(value) {
   if (!value) return "-";
   const d = new Date(value);
@@ -139,6 +162,14 @@ export default function PdfReportModal({ modalId, state, onClose }) {
     });
   })();
 
+  const escapeHtml = (s) =>
+    String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
   const buildPrintableHtml = () => {
     const imageBlocks = imageCards.length
       ? imageCards
@@ -152,6 +183,58 @@ export default function PdfReportModal({ modalId, state, onClose }) {
           )
           .join("")
       : `<div class="muted">No report images available.</div>`;
+
+    const diagnoses = report?.diagnoses || {};
+    const buildDiagnosisBlock = (title, value, accent) => {
+      const text = pickDiagnosisText(value);
+      if (!text) return "";
+      return `
+        <div class="dx-card" style="border-left:4px solid ${accent};">
+          <div class="dx-title" style="color:${accent};">${escapeHtml(title)}</div>
+          <div class="dx-body">${escapeHtml(text).replace(/\n/g, "<br/>")}</div>
+        </div>
+      `;
+    };
+    const diagnosisBlocks = [
+      buildDiagnosisBlock("Patient-Friendly Summary", diagnoses.patient, "#10b981"),
+      buildDiagnosisBlock("Clinical Report", diagnoses.clinical, "#0ea5e9"),
+      buildDiagnosisBlock("Technical Report", diagnoses.technical, "#8b5cf6"),
+    ].join("");
+
+    const tumors = Array.isArray(report?.tumors) ? report.tumors : [];
+    const tumorBlock = tumors.length
+      ? `
+        <div class="section-title">Per-Tumor Findings (${tumors.length})</div>
+        <table class="tumor-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Source</th><th>Side</th>
+              <th>Area (cm²)</th><th>Longest Ø (mm)</th><th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tumors
+              .map(
+                (t, i) => `
+              <tr>
+                <td>${escapeHtml(t?.tumor_id ?? i + 1)}</td>
+                <td>${escapeHtml(safe(t?.source))}</td>
+                <td>${escapeHtml(safe(t?.lateralization))}</td>
+                <td>${escapeHtml(fmtNum(t?.area_cm2))}</td>
+                <td>${escapeHtml(fmtNum(t?.longest_diameter_mm))}</td>
+                <td>${
+                  t?.confidence != null
+                    ? `${(Number(t.confidence) * (Number(t.confidence) <= 1 ? 100 : 1)).toFixed(1)}%`
+                    : "-"
+                }</td>
+              </tr>
+            `,
+              )
+              .join("")}
+          </tbody>
+        </table>
+      `
+      : "";
 
     return `
       <html>
@@ -181,6 +264,12 @@ export default function PdfReportModal({ modalId, state, onClose }) {
             .img-card img { width: 100%; height: 220px; object-fit: contain; background: #000; border-radius: 4px; }
             .muted { font-size: 12px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px; }
             .foot { margin-top: 32px; border-top: 2px solid #e2e8f0; padding-top: 16px; font-size: 10px; color: #64748b; text-align: center; font-weight: 500; }
+            .dx-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 8px; margin-bottom: 12px; break-inside: avoid; }
+            .dx-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+            .dx-body { font-size: 12px; color: #1f2937; line-height: 1.6; white-space: normal; }
+            .tumor-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; }
+            .tumor-table th, .tumor-table td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+            .tumor-table th { background: #f1f5f9; font-weight: 700; text-transform: uppercase; font-size: 10px; color: #475569; }
           </style>
         </head>
         <body>
@@ -234,6 +323,14 @@ export default function PdfReportModal({ modalId, state, onClose }) {
                 <div class="row"><div class="k">Margin Type</div><div class="v">${safe(segMargin)}</div></div>
               </div>
             </div>
+
+            ${
+              diagnosisBlocks
+                ? `<div class="section-title">AI Diagnostic Narrative</div>${diagnosisBlocks}`
+                : ""
+            }
+
+            ${tumorBlock}
 
             <div class="section-title">Diagnostic Images</div>
             <div class="imgs">${imageBlocks}</div>
@@ -491,6 +588,145 @@ export default function PdfReportModal({ modalId, state, onClose }) {
                     </div>
                  </div>
               </div>
+
+              {/* AI Diagnoses (Patient / Clinical / Technical) */}
+              {(() => {
+                const diagnoses = report?.diagnoses || {};
+                const patientText = pickDiagnosisText(diagnoses.patient);
+                const clinicalText = pickDiagnosisText(diagnoses.clinical);
+                const technicalText = pickDiagnosisText(diagnoses.technical);
+                const hasAny = patientText || clinicalText || technicalText;
+
+                return (
+                  <div className="pt-6">
+                    <h4 className="font-black text-xl mb-4 flex items-center gap-2 border-b border-base-content/10 pb-3">
+                      <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      AI Diagnostic Narrative
+                    </h4>
+
+                    {!hasAny ? (
+                      <div className="bg-base-200/50 rounded-2xl p-8 text-center border border-base-300 border-dashed">
+                        <p className="text-base-content/50 font-medium">
+                          No AI diagnostic narrative is available for this report.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {patientText && (
+                          <div className="bg-base-100 border-l-4 border-l-emerald-500 rounded-2xl p-5 shadow-sm">
+                            <h5 className="font-black text-sm uppercase tracking-wider text-emerald-600 mb-2">
+                              Patient-Friendly Summary
+                            </h5>
+                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
+                              {patientText}
+                            </p>
+                          </div>
+                        )}
+                        {clinicalText && (
+                          <div className="bg-base-100 border-l-4 border-l-blue-500 rounded-2xl p-5 shadow-sm">
+                            <h5 className="font-black text-sm uppercase tracking-wider text-blue-600 mb-2">
+                              Clinical Report
+                            </h5>
+                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
+                              {clinicalText}
+                            </p>
+                          </div>
+                        )}
+                        {technicalText && (
+                          <div className="bg-base-100 border-l-4 border-l-purple-500 rounded-2xl p-5 shadow-sm">
+                            <h5 className="font-black text-sm uppercase tracking-wider text-purple-600 mb-2">
+                              Technical Report
+                            </h5>
+                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
+                              {technicalText}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Per-Tumor Findings */}
+              {(() => {
+                const tumors = Array.isArray(report?.tumors) ? report.tumors : [];
+                if (!tumors.length) return null;
+
+                return (
+                  <div className="pt-6">
+                    <h4 className="font-black text-xl mb-4 flex items-center gap-2 border-b border-base-content/10 pb-3">
+                      <svg className="w-6 h-6 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      Per-Tumor Findings ({tumors.length})
+                    </h4>
+                    <div className="overflow-x-auto rounded-2xl border border-base-content/10">
+                      <table className="table table-sm">
+                        <thead className="bg-base-200/60 text-[10px] uppercase tracking-wider">
+                          <tr>
+                            <th>#</th>
+                            <th>Source</th>
+                            <th>Side</th>
+                            <th>Area (cm²)</th>
+                            <th>Longest Ø (mm)</th>
+                            <th>Confidence</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-sm">
+                          {tumors.map((t, idx) => (
+                            <tr key={t?.tumor_id ?? idx}>
+                              <td className="font-bold">{t?.tumor_id ?? idx + 1}</td>
+                              <td className="text-xs opacity-80">{safe(t?.source)}</td>
+                              <td>{safe(t?.lateralization)}</td>
+                              <td>{fmtNum(t?.area_cm2)}</td>
+                              <td>{fmtNum(t?.longest_diameter_mm)}</td>
+                              <td>
+                                {t?.confidence != null
+                                  ? `${(Number(t.confidence) * (Number(t.confidence) <= 1 ? 100 : 1)).toFixed(1)}%`
+                                  : "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Feedbacks */}
+              {(() => {
+                const feedbacks = Array.isArray(report?.feedbacks) ? report.feedbacks : [];
+                if (!feedbacks.length) return null;
+
+                return (
+                  <div className="pt-6 no-print">
+                    <h4 className="font-black text-xl mb-4 flex items-center gap-2 border-b border-base-content/10 pb-3">
+                      <svg className="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                      Discussion & Feedback ({feedbacks.length})
+                    </h4>
+                    <div className="space-y-3">
+                      {feedbacks.map((f) => (
+                        <div key={f?.id} className="bg-base-200/40 rounded-2xl p-4 border border-base-content/5">
+                          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm">{safe(f?.user_name)}</span>
+                              {f?.user_role && (
+                                <span className="badge badge-ghost badge-sm uppercase font-bold tracking-wider text-[10px]">
+                                  {f.user_role}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] opacity-50 font-mono">{fmtDate(f?.created_at)}</span>
+                          </div>
+                          <p className="text-sm text-base-content/80 whitespace-pre-line leading-relaxed">
+                            {safe(f?.message)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Images Section */}
               <div className="pt-6">

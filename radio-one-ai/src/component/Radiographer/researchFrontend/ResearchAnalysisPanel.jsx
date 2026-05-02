@@ -65,6 +65,17 @@ export default function ResearchAnalysisPanel({
       detection,
       segmentation,
       summary: analysisData?.summary || {},
+      diagnoses:
+        analysisData?.diagnoses ||
+        analysisData?.diagnosis_reports ||
+        analysisData?.vlm ||
+        {},
+      tumors:
+        analysisData?.tumors ||
+        analysisData?.segmentation?.tumors ||
+        analysisData?.detection?.tumors ||
+        [],
+      original_image: toCleanBase64(analysisData?.original_image),
       images: {
         original_mri: toCleanBase64(analysisData?.original_image),
         gradcam: toCleanBase64(
