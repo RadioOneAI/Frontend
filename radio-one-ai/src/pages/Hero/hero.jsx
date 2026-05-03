@@ -204,7 +204,7 @@ export default function Hero() {
                 <footer className="mt-8 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary to-secondary" />
                   <div>
-                    <cite className="block font-bold not-italic text-lg">Dr. Sarah Johnson</cite>
+                    <cite className="block font-bold not-italic text-lg">Dr. Hiran Wickramarathne</cite>
                     <span className="text-sm font-medium text-base-content/50 uppercase tracking-widest">Lead Radiologist</span>
                   </div>
                 </footer>
