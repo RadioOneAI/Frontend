@@ -25,7 +25,10 @@ function fmtDate(value) {
 }
 
 function statusMeta() {
-  return { label: "Ready to View", cls: "badge-success text-white shadow-success/10" };
+  return {
+    label: "Ready to View",
+    cls: "badge-success text-white shadow-success/10",
+  };
 }
 
 function mapApiReportToRow(r) {
@@ -49,11 +52,28 @@ export default function PatientReports() {
 
   useGSAP(
     () => {
-      gsap.from(".page-header", { y: -20, opacity: 0, duration: 0.8, ease: "power3.out" });
-      gsap.from(".filter-card", { y: -10, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
-      gsap.from(".table-card", { y: 20, opacity: 0, duration: 1, delay: 0.4, ease: "power3.out" });
+      gsap.from(".page-header", {
+        y: -20,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+      });
+      gsap.from(".filter-card", {
+        y: -10,
+        opacity: 0,
+        duration: 0.8,
+        delay: 0.2,
+        ease: "power3.out",
+      });
+      gsap.from(".table-card", {
+        y: 20,
+        opacity: 0,
+        duration: 1,
+        delay: 0.4,
+        ease: "power3.out",
+      });
     },
-    { scope: container }
+    { scope: container },
   );
 
   useEffect(() => {
@@ -62,7 +82,8 @@ export default function PatientReports() {
       setErrorMsg("");
       try {
         const token = localStorage.getItem("access_token");
-        if (!token) throw new Error("Missing access token. Please log in again.");
+        if (!token)
+          throw new Error("Missing access token. Please log in again.");
 
         const res = await fetch(`${API_BASE}/api/reports`, {
           method: "GET",
@@ -91,20 +112,21 @@ export default function PatientReports() {
       (r) =>
         String(r.requestId).toLowerCase().includes(q) ||
         String(r.type).toLowerCase().includes(q) ||
-        String(r.doctor).toLowerCase().includes(q)
+        String(r.doctor).toLowerCase().includes(q),
     );
   }, [searchTerm, reports]);
 
   return (
     <div ref={container} className="space-y-8 p-4">
-
       {/* --- HEADER --- */}
       <div className="page-header flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black tracking-tight mb-2">
             My Medical <span className="text-gradient">Records</span>
           </h1>
-          <p className="text-base-content/50 font-medium">Access and download your imaging results and AI diagnostic reports.</p>
+          <p className="text-base-content/50 font-medium">
+            Access and download your imaging results and AI diagnostic reports.
+          </p>
         </div>
       </div>
 
@@ -117,8 +139,18 @@ export default function PatientReports() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <svg className="w-6 h-6 absolute left-8 top-1/2 -translate-y-1/2 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <svg
+          className="w-6 h-6 absolute left-8 top-1/2 -translate-y-1/2 text-base-content/30"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
 
@@ -143,30 +175,51 @@ export default function PatientReports() {
             </thead>
             <tbody className="font-bold text-sm">
               {isLoading ? (
-                <tr><td colSpan="5" className="py-20"><span className="loading loading-spinner loading-lg text-primary" /></td></tr>
+                <tr>
+                  <td colSpan="5" className="py-20">
+                    <span className="loading loading-spinner loading-lg text-primary" />
+                  </td>
+                </tr>
               ) : filteredReports.length > 0 ? (
                 filteredReports.map((report) => {
                   const meta = statusMeta();
                   return (
-                    <tr key={report.id} className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0">
+                    <tr
+                      key={report.id}
+                      className="hover:bg-base-200/50 transition-colors group border-b border-base-content/5 last:border-0"
+                    >
                       <td className="py-5 px-8 text-left">
-                        <div className="font-black text-base-content/80 text-base">{report.requestId}</div>
-                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{report.date}</div>
+                        <div className="font-black text-base-content/80 text-base">
+                          {report.requestId}
+                        </div>
+                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest">
+                          {report.date}
+                        </div>
                       </td>
                       <td>
-                        <div className="font-black text-primary">{report.type}</div>
-                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest italic">MRI Sequence</div>
+                        <div className="font-black text-primary">
+                          {report.type}
+                        </div>
+                        <div className="text-[10px] font-bold opacity-40 uppercase tracking-widest italic">
+                          MRI Sequence
+                        </div>
                       </td>
-                      <td><span className="font-black text-base-content/70">{report.doctor}</span></td>
                       <td>
-                        <div className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] shadow-lg ${meta.cls}`}>
+                        <span className="font-black text-base-content/70">
+                          {report.doctor}
+                        </span>
+                      </td>
+                      <td>
+                        <div
+                          className={`badge badge-md font-black px-4 py-3 rounded-xl border-none uppercase text-[10px] shadow-lg ${meta.cls}`}
+                        >
                           {meta.label}
                         </div>
                       </td>
                       <td className="px-8 text-right">
                         <button
                           onClick={() => setSelectedReportId(report.id)}
-                          className="btn btn-ghost btn-xs rounded-lg font-black hover:bg-primary/10 hover:text-primary transition-all px-4 py-2"
+                          className="btn btn-ghost btn-sm rounded-lg font-black hover:bg-base-300 border border-base-content/20 hover:border-base-content/40"
                         >
                           VIEW RESULTS
                         </button>
@@ -175,7 +228,14 @@ export default function PatientReports() {
                   );
                 })
               ) : (
-                <tr><td colSpan="5" className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs">No reports found</td></tr>
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="py-20 text-center opacity-30 font-black uppercase tracking-[0.3em] text-xs"
+                  >
+                    No reports found
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

@@ -1,9 +1,16 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import RadioSynth from "../../component/Radiographer/researchFrontend/components/RadioSynth";
 
 export default function Settings() {
   const container = useRef();
+  const [showRadioSynth, setShowRadioSynth] = useState(false);
+  const sectionColorClasses = {
+    primary: "bg-primary/10 text-primary shadow-primary/5",
+    secondary: "bg-secondary/10 text-secondary shadow-secondary/5",
+    info: "bg-info/10 text-info shadow-info/5",
+  };
 
   useGSAP(
     () => {
@@ -15,7 +22,11 @@ export default function Settings() {
 
   const SectionHeader = ({ title, subtitle, icon, color }) => (
     <div className="flex items-center gap-4 mb-8">
-      <div className={`p-4 rounded-[2rem] bg-${color}/10 text-${color} shadow-lg shadow-${color}/5`}>
+      <div
+        className={`p-4 rounded-[2rem] shadow-lg ${
+          sectionColorClasses[color] || sectionColorClasses.primary
+        }`}
+      >
         {icon}
       </div>
       <div>
@@ -31,8 +42,23 @@ export default function Settings() {
         <h1 className="text-4xl font-black tracking-tight mb-2">
           System <span className="text-gradient">Settings</span>
         </h1>
+
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm rounded-lg font-black text-primary hover:bg-primary/10 border border-primary/20 hover:border-primary/40 mb-3"
+          onClick={() => setShowRadioSynth((prev) => !prev)}
+        >
+          {showRadioSynth ? "Hide Synthetic Generatio" : "Open Synthetic Generation"}
+        </button>
+
         <p className="text-base-content/50 font-medium">Manage your personal profile and global system configurations.</p>
       </div>
+
+      {showRadioSynth && (
+        <div className="settings-section glass-card p-6 rounded-[2rem] border border-base-content/10">
+          <RadioSynth />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
         
@@ -72,7 +98,7 @@ export default function Settings() {
           <div className="space-y-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 ml-4">Current Password</label>
-              <input type="password" placeholder="••••••••" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
+              <input type="password" placeholder="********" className="input input-ghost w-full bg-base-content/5 rounded-2xl h-14 font-bold focus:bg-base-content/10 transition-all px-6" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

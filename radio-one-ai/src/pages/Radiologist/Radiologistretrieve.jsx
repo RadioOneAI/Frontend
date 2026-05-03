@@ -316,7 +316,7 @@ export default function Radiologistretrieve() {
                     <td className="px-8 text-center">
                       <button
                         onClick={() => openPdfReportModal(a)}
-                        className="btn btn-primary btn-xs rounded-lg font-black hover:bg-base-300 transition-colors"
+                        className="btn btn-primary btn-sm rounded-xl font-bold px-4 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] hover:bg-primary focus:outline-none transition-all duration-200"
                       >
                         DIAGNOSTIC REPORT
                       </button>
