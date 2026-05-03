@@ -44,7 +44,7 @@ export default function Footer() {
             <Link to="/" className="flex items-center gap-3 group">
               <img src={logo} alt="RadioOneAI Logo" className="w-12 h-12 object-contain" />
               <span className="font-black text-2xl tracking-tighter text-base-content">
-                RadioOne<span className="text-primary">AI</span>
+                RadioOne<span className="text-base-content">AI</span>
               </span>
             </Link>
             <p className="text-base-content/60 text-lg max-w-sm leading-relaxed">

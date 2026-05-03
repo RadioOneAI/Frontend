@@ -23,7 +23,7 @@ export default function AdminSidebar() {
           className="w-10 h-10 object-contain"
         />
         <div>
-          <h1 className="text-xl font-bold tracking-tight">RadioOneAI</h1>
+          <h1 className="text-xl font-bold tracking-tight text-base-content">RadioOneAI</h1>
           <p className="text-xs text-base-content/50 uppercase tracking-widest font-semibold">
             Admin Panel
           </p>
