@@ -34,18 +34,50 @@ function safe(v) {
 
 function pickDiagnosisText(value) {
   if (!value) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "object") {
-    return (
+  let text = "";
+  if (typeof value === "string") {
+    text = value;
+  } else if (typeof value === "object") {
+    text =
       value.text ||
       value.report ||
       value.content ||
       value.markdown ||
       value.body ||
-      ""
-    );
+      "";
   }
-  return "";
+  
+  if (!text) return "";
+
+  // Clean markdown artifacts but keep the markers for splitting
+  return text
+    .replace(/^#+.*$/gm, "") // Remove lines starting with # (headers)
+    .replace(/#+/g, "")      // Remove any stray # marks
+    .trim();
+}
+
+function splitNarrativeIntoPoints(text) {
+  if (!text) return [];
+  const markers = [
+    "What we found:",
+    "What this means for you:",
+    "What usually happens next:",
+    "Important note:",
+    "Findings:",
+    "Impression:",
+    "Model outputs:",
+    "Confidence & uncertainty:",
+    "Detection metrics:",
+    "Recommendations:",
+    "Next Steps:"
+  ];
+  
+  // Clean double asterisks first
+  const cleanText = text.replace(/\*\*/g, "").trim();
+  
+  // Split by markers while keeping them
+  const regex = new RegExp(`(?=${markers.map(m => m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join("|")})`, "i");
+  return cleanText.split(regex).map(p => p.trim()).filter(Boolean);
 }
 
 function fmtNum(value, digits = 2) {
@@ -185,54 +217,68 @@ export default function PdfReportModal({ modalId, state, onClose }) {
       : `<div class="muted">No report images available.</div>`;
 
     const diagnoses = report?.diagnoses || {};
-    const buildDiagnosisBlock = (title, value, accent) => {
+    const buildDiagnosisBlock = (title, value, accent, iconPath) => {
       const text = pickDiagnosisText(value);
       if (!text) return "";
+      const points = splitNarrativeIntoPoints(text);
+      
+      const pointsHtml = points.map(p => {
+        const markerMatch = p.match(/^([^:]+:)(.*)$/s);
+        if (markerMatch) {
+          return `<div style="margin-bottom:10px;">
+            <strong style="color:${accent}; font-size:11px; text-transform:uppercase;">${escapeHtml(markerMatch[1])}</strong>
+            <div style="font-size:12px; margin-top:2px;">${escapeHtml(markerMatch[2].trim()).replace(/\n/g, "<br/>")}</div>
+          </div>`;
+        }
+        return `<div style="font-size:12px; margin-bottom:10px;">${escapeHtml(p).replace(/\n/g, "<br/>")}</div>`;
+      }).join("");
+
       return `
-        <div class="dx-card" style="border-left:4px solid ${accent};">
-          <div class="dx-title" style="color:${accent};">${escapeHtml(title)}</div>
-          <div class="dx-body">${escapeHtml(text).replace(/\n/g, "<br/>")}</div>
+        <div class="dx-card">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+            <div style="width:32px; height:32px; background:${accent}15; color:${accent}; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg>
+            </div>
+            <div style="flex:1; height:1px; background:linear-gradient(to right, ${accent}40, transparent);"></div>
+            <div class="dx-title" style="color:${accent}; margin-bottom:0;">${escapeHtml(title)}</div>
+          </div>
+          <div class="dx-body">${pointsHtml}</div>
         </div>
       `;
     };
     const diagnosisBlocks = [
-      buildDiagnosisBlock("Patient-Friendly Summary", diagnoses.patient, "#10b981"),
-      buildDiagnosisBlock("Clinical Report", diagnoses.clinical, "#0ea5e9"),
-      buildDiagnosisBlock("Technical Report", diagnoses.technical, "#8b5cf6"),
+      buildDiagnosisBlock("Patient-Friendly Summary", diagnoses.patient, "#10b981", '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+      buildDiagnosisBlock("Clinical Report", diagnoses.clinical, "#0ea5e9", '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'),
+      buildDiagnosisBlock("Technical Report", diagnoses.technical, "#8b5cf6", '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'),
     ].join("");
 
     const tumors = Array.isArray(report?.tumors) ? report.tumors : [];
     const tumorBlock = tumors.length
       ? `
         <div class="section-title">Per-Tumor Findings (${tumors.length})</div>
-        <table class="tumor-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Source</th><th>Side</th>
-              <th>Area (cm²)</th><th>Longest Ø (mm)</th><th>Confidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tumors
-              .map(
-                (t, i) => `
-              <tr>
-                <td>${escapeHtml(t?.tumor_id ?? i + 1)}</td>
-                <td>${escapeHtml(safe(t?.source))}</td>
-                <td>${escapeHtml(safe(t?.lateralization))}</td>
-                <td>${escapeHtml(fmtNum(t?.area_cm2))}</td>
-                <td>${escapeHtml(fmtNum(t?.longest_diameter_mm))}</td>
-                <td>${
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:24px;">
+          ${tumors
+            .map(
+              (t, i) => `
+            <div class="card" style="padding:12px; border-left:3px solid #ef4444;">
+              <div style="display:flex; justify-content:between; margin-bottom:8px;">
+                <span style="font-weight:900; font-size:12px; color:#ef4444;">TUMOR #${escapeHtml(t?.tumor_id ?? i + 1)}</span>
+                <span style="font-size:10px; font-weight:700; background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px;">${escapeHtml(safe(t?.lateralization))}</span>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:11px;">
+                <div><span style="opacity:0.6;">Area:</span> <strong>${fmtNum(t?.area_cm2)} cm²</strong></div>
+                <div><span style="opacity:0.6;">Diameter:</span> <strong>${fmtNum(t?.longest_diameter_mm)} mm</strong></div>
+                <div style="grid-column:span 2;"><span style="opacity:0.6;">Confidence:</span> <strong>${
                   t?.confidence != null
                     ? `${(Number(t.confidence) * (Number(t.confidence) <= 1 ? 100 : 1)).toFixed(1)}%`
                     : "-"
-                }</td>
-              </tr>
-            `,
-              )
-              .join("")}
-          </tbody>
-        </table>
+                }</strong></div>
+              </div>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
       `
       : "";
 
@@ -264,9 +310,9 @@ export default function PdfReportModal({ modalId, state, onClose }) {
             .img-card img { width: 100%; height: 220px; object-fit: contain; background: #000; border-radius: 4px; }
             .muted { font-size: 12px; color: #94a3b8; font-style: italic; text-align: center; padding: 20px; }
             .foot { margin-top: 32px; border-top: 2px solid #e2e8f0; padding-top: 16px; font-size: 10px; color: #64748b; text-align: center; font-weight: 500; }
-            .dx-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 8px; margin-bottom: 12px; break-inside: avoid; }
-            .dx-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-            .dx-body { font-size: 12px; color: #1f2937; line-height: 1.6; white-space: normal; }
+            .dx-card { background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; margin-bottom: 20px; break-inside: avoid; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+            .dx-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.8; }
+            .dx-body { font-size: 13px; color: #374151; line-height: 1.7; white-space: normal; }
             .tumor-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; }
             .tumor-table th, .tumor-table td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
             .tumor-table th { background: #f1f5f9; font-weight: 700; text-transform: uppercase; font-size: 10px; color: #475569; }
@@ -611,37 +657,74 @@ export default function PdfReportModal({ modalId, state, onClose }) {
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-6">
                         {patientText && (
-                          <div className="bg-base-100 border-l-4 border-l-emerald-500 rounded-2xl p-5 shadow-sm">
-                            <h5 className="font-black text-sm uppercase tracking-wider text-emerald-600 mb-2">
-                              Patient-Friendly Summary
-                            </h5>
-                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
-                              {patientText}
-                            </p>
+                          <div className="bg-base-100 rounded-[2.5rem] p-8 shadow-lg border border-base-content/5 relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 transition-transform group-hover:scale-125 duration-1000"></div>
+                            <div className="flex items-center gap-4 mb-8">
+                              <div className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-600 shadow-inner">
+                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                              </div>
+                              <div className="flex-1 h-[2px] bg-gradient-to-r from-emerald-500/30 via-emerald-500/10 to-transparent"></div>
+                              <h5 className="font-black text-xs uppercase tracking-[0.3em] text-emerald-600">
+                                Patient-Friendly Summary
+                              </h5>
+                            </div>
+                            
+                            <div className="space-y-6 relative z-10">
+                              {splitNarrativeIntoPoints(patientText).map((point, idx) => {
+                                const markerMatch = point.match(/^([^:]+:)(.*)$/s);
+                                if (markerMatch) {
+                                  return (
+                                    <div key={idx} className="bg-emerald-50/30 rounded-2xl p-6 border border-emerald-500/10 hover:bg-emerald-50/50 transition-colors">
+                                      <div className="text-emerald-700 font-black text-[10px] uppercase tracking-widest mb-2 opacity-80">{markerMatch[1]}</div>
+                                      <div className="text-[15px] leading-relaxed text-base-content/80 font-medium">{markerMatch[2].trim()}</div>
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div key={idx} className="text-[15px] leading-relaxed text-base-content/80 font-medium px-2">{point}</div>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
-                        {clinicalText && (
-                          <div className="bg-base-100 border-l-4 border-l-blue-500 rounded-2xl p-5 shadow-sm">
-                            <h5 className="font-black text-sm uppercase tracking-wider text-blue-600 mb-2">
-                              Clinical Report
-                            </h5>
-                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
-                              {clinicalText}
-                            </p>
-                          </div>
-                        )}
-                        {technicalText && (
-                          <div className="bg-base-100 border-l-4 border-l-purple-500 rounded-2xl p-5 shadow-sm">
-                            <h5 className="font-black text-sm uppercase tracking-wider text-purple-600 mb-2">
-                              Technical Report
-                            </h5>
-                            <p className="text-sm leading-relaxed whitespace-pre-line text-base-content/80">
-                              {technicalText}
-                            </p>
-                          </div>
-                        )}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {[
+                            { text: clinicalText, title: "Clinical Report", color: "blue", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
+                            { text: technicalText, title: "Technical Findings", color: "purple", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /> }
+                          ].map((item, i) => item.text && (
+                            <div key={i} className={`bg-base-100 rounded-[2.5rem] p-8 shadow-lg border border-base-content/5 relative overflow-hidden group hover:shadow-2xl transition-all duration-500`}>
+                              <div className={`absolute top-0 right-0 w-48 h-48 bg-${item.color}-500/5 rounded-full -mr-24 -mt-24 transition-transform group-hover:scale-125 duration-1000`}></div>
+                              <div className="flex items-center gap-4 mb-6">
+                                <div className={`p-3 bg-${item.color}-500/10 rounded-2xl text-${item.color}-600 shadow-inner`}>
+                                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">{item.icon}</svg>
+                                </div>
+                                <div className={`flex-1 h-[1.5px] bg-gradient-to-r from-${item.color}-500/20 to-transparent`}></div>
+                                <h5 className={`font-black text-[10px] uppercase tracking-[0.25em] text-${item.color}-600/90`}>
+                                  {item.title}
+                                </h5>
+                              </div>
+                              <div className="space-y-4 relative z-10">
+                                {splitNarrativeIntoPoints(item.text).map((point, idx) => {
+                                  const markerMatch = point.match(/^([^:]+:)(.*)$/s);
+                                  if (markerMatch) {
+                                    return (
+                                      <div key={idx} className={`bg-${item.color}-50/20 rounded-xl p-4 border border-${item.color}-500/5`}>
+                                        <div className={`text-${item.color}-700 font-bold text-[9px] uppercase tracking-wider mb-1 opacity-70`}>{markerMatch[1]}</div>
+                                        <div className="text-sm leading-relaxed text-base-content/70">{markerMatch[2].trim()}</div>
+                                      </div>
+                                    );
+                                  }
+                                  return (
+                                    <div key={idx} className="text-sm leading-relaxed text-base-content/70">{point}</div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -659,35 +742,46 @@ export default function PdfReportModal({ modalId, state, onClose }) {
                       <svg className="w-6 h-6 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                       Per-Tumor Findings ({tumors.length})
                     </h4>
-                    <div className="overflow-x-auto rounded-2xl border border-base-content/10">
-                      <table className="table table-sm">
-                        <thead className="bg-base-200/60 text-[10px] uppercase tracking-wider">
-                          <tr>
-                            <th>#</th>
-                            <th>Source</th>
-                            <th>Side</th>
-                            <th>Area (cm²)</th>
-                            <th>Longest Ø (mm)</th>
-                            <th>Confidence</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                          {tumors.map((t, idx) => (
-                            <tr key={t?.tumor_id ?? idx}>
-                              <td className="font-bold">{t?.tumor_id ?? idx + 1}</td>
-                              <td className="text-xs opacity-80">{safe(t?.source)}</td>
-                              <td>{safe(t?.lateralization)}</td>
-                              <td>{fmtNum(t?.area_cm2)}</td>
-                              <td>{fmtNum(t?.longest_diameter_mm)}</td>
-                              <td>
-                                {t?.confidence != null
-                                  ? `${(Number(t.confidence) * (Number(t.confidence) <= 1 ? 100 : 1)).toFixed(1)}%`
-                                  : "-"}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {tumors.map((t, idx) => (
+                        <div key={t?.tumor_id ?? idx} className="bg-base-100 rounded-[2rem] p-6 shadow-md border border-error/10 relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-error/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
+                          
+                          <div className="flex justify-between items-start mb-6">
+                            <div>
+                              <div className="text-[10px] font-black text-error/60 uppercase tracking-[0.2em] mb-1">Tumor Record</div>
+                              <div className="text-2xl font-black text-base-content tracking-tighter">#{t?.tumor_id ?? idx + 1}</div>
+                            </div>
+                            <div className="bg-error/10 text-error px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-error/20">
+                              {safe(t?.lateralization)}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-base-200/40 rounded-2xl p-3 border border-base-content/5">
+                              <div className="text-[9px] font-bold text-base-content/40 uppercase mb-1">Area</div>
+                              <div className="text-sm font-black text-base-content/80">{fmtNum(t?.area_cm2)} <span className="text-[10px] font-medium opacity-50">cm²</span></div>
+                            </div>
+                            <div className="bg-base-200/40 rounded-2xl p-3 border border-base-content/5">
+                              <div className="text-[9px] font-bold text-base-content/40 uppercase mb-1">Diameter</div>
+                              <div className="text-sm font-black text-base-content/80">{fmtNum(t?.longest_diameter_mm)} <span className="text-[10px] font-medium opacity-50">mm</span></div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 pt-4 border-t border-base-content/5 flex justify-between items-center">
+                            <div className="text-[10px] font-bold text-base-content/40 uppercase">Confidence</div>
+                            <div className="text-sm font-black text-error">
+                              {t?.confidence != null
+                                ? `${(Number(t.confidence) * (Number(t.confidence) <= 1 ? 100 : 1)).toFixed(1)}%`
+                                : "-"}
+                            </div>
+                          </div>
+                          
+                          <div className="w-full bg-base-300 h-1 rounded-full mt-3 overflow-hidden">
+                             <div className="bg-error h-full rounded-full transition-all duration-1000 delay-300" style={{ width: `${(Number(t?.confidence || 0) * (Number(t?.confidence || 0) <= 1 ? 100 : 1))}%` }}></div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );

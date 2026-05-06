@@ -48,22 +48,10 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-base-content/60 text-lg max-w-sm leading-relaxed">
-              Empowering radiology with state-of-the-art DL models for faster, 
+              Empowering radiology with state-of-the-art DL models for faster,
               more accurate, and clinician-ready reporting.
             </p>
-            <div className="flex gap-4">
-              {["twitter", "github", "linkedin"].map((social) => (
-                <a
-                  key={social}
-                  href={`#${social}`}
-                  className="w-10 h-10 rounded-full bg-base-300 flex items-center justify-center hover:bg-primary hover:text-primary-content transition-all hover:-translate-y-1"
-                >
-                  <span className="sr-only">{social}</span>
-                  {/* Simplified icon placeholders */}
-                  <div className="w-5 h-5 bg-current opacity-50 rounded-sm" />
-                </a>
-              ))}
-            </div>
+
           </div>
 
           {/* Links Columns */}
